@@ -1,0 +1,8 @@
+========================
+Configuração do Git
+========================
+git config --global user.name bgsana
+git config --global user.email bgs.ana08@gmail.com
+
+git config --global user.name 7diegojr
+git config --global user.email dfsntsjunior@gmail.com
