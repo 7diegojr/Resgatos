@@ -5,12 +5,26 @@
             <a class="footer-logo" asp-area="" asp-controller="Home" asp-action="Index">
                 <img src="~/img/layout/logo.png" alt="Resgatos">
             </a>
-            <div class="footer-socials">
-                <a class="footer-social-link" href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                <a class="footer-social-link" href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                <a class="footer-social-link" href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
-                <a class="footer-social-link" href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-            </div>
+            <button class="footer-donate-btn" type="button">
+                <i class="fa-solid fa-heart"></i>
+                Doe aqui e mude uma vidinha!
+            </button>
+        </div>
+
+        <div class="footer-social">
+            <h3 class="footer-heading">Nos siga nas Redes Sociais!</h3>
+            <a class="footer-contact-item" href="#" target="_blank">
+                <i class="fa-brands fa-instagram"></i>
+                <span>Instagram</span>
+            </a>
+            <a class="footer-contact-item" href="#" target="_blank">
+                <i class="fa-brands fa-facebook-f"></i>
+                <span>Facebook</span>
+            </a>
+            <a class="footer-contact-item" href="#" target="_blank">
+                <i class="fa-brands fa-tiktok"></i>
+                <span>TikTok</span>
+            </a>
         </div>
 
         <div class="footer-menu">
@@ -30,19 +44,25 @@
 
         <div class="footer-contact">
             <h3 class="footer-heading">Contatos</h3>
-            <span class="footer-contact-item"><i class="fa-solid fa-location-dot"></i> Curitiba - PR</span>
-            <span class="footer-contact-item"><i class="fa-solid fa-envelope"></i> contato@resgatos.com.br</span>
-            <button class="footer-donate-btn" type="button">
-                <i class="fa-solid fa-heart"></i> Doe aqui e mude uma vidinha!
-            </button>
+            <span class="footer-contact-item">
+                <i class="fa-solid fa-location-dot"></i>
+                Curitiba - PR
+            </span>
+            <a class="footer-contact-item" href="mailto:contato@resgatos.com.br" target="_blank">
+                <i class="fa-solid fa-envelope"></i>
+                <span>contato@resgatos.com.br</span>
+            </a>
+            <a class="footer-contact-item" href="https://wa.me/554184723090" target="_blank">
+                <i class="fa-brands fa-whatsapp"></i>
+                <span>(41) 8472-3090</span>
+            </a>
         </div>
 
     </div>
 
     <div class="footer-divider"></div>
 
-    <div class="footer-legal">
-        <a class="footer-legal-link" href="#">Política de Privacidade</a>
-        <a class="footer-legal-link" href="#">Termos de Uso</a>
+    <div class="footer-copyright">
+        &copy; @DateTime.Now.Year ResGatos. Todos os direitos reservados.
     </div>
 </footer>
