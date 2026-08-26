@@ -1,8 +1,47 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Início";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<link rel="stylesheet" href="~/css/home.css" asp-append-version="true">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Adote e leve para casa um <strong>amor</strong> para a vida inteira</h1>
+        <p>Um projeto social de resgate e reabilitação de gatinhos nas ruas de Curitiba. Lorem ipsum dolor sit amet consectetur elit.</p>
+        <div class="hero-content-buttons">
+            <button class="btn-pill btn-pill-blue">Preencher formulário</button>
+            <button class="btn-pill btn-pill-outline">Conhecer animais</button>
+        </div>
+    </div>
+
+    <div class="hero-image">
+        <!-- placeholder até as fundadoras enviarem as fotos reais -->
+    </div>
+</section>
+
+<section class="sobre">
+    <div class="sobre-content">
+        <h2>Sobre Nós</h2>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam harum fugit cumque impedit nobis voluptate voluptatibus velit.</p>
+        <button class="btn-pill btn-pill-pink">Conheça nossa história</button>
+    </div>
+
+    <div class="sobre-image">
+        <!-- placeholder até as fundadoras enviarem as fotos reais -->
+    </div>
+</section>
+
+<section class="doacoes">
+    <ul class="doacoes-list">
+        <li><i class="fa-solid fa-heart"></i>Forma de doação</li>
+        <li><i class="fa-solid fa-heart"></i>Forma de doação</li>
+        <li><i class="fa-solid fa-heart"></i>Forma de doação</li>
+    </ul>
+
+    <div class="doacoes-content">
+        <h2>Apoie o Resgatos</h2>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam harum fugit cumque impedit nobis voluptate voluptatibus velit.</p>
+        <button class="btn-pill btn-pill-pink">Saiba como doar</button>
+    </div>
+</section>
