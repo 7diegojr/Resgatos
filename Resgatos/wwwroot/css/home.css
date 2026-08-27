@@ -12,7 +12,8 @@ html {
 /* ============ LAYOUT COMPARTILHADO (seções de 2 colunas) ============ */
 .hero,
 .sobre,
-.doacoes {
+.doacoes,
+.cats {
     width: 100%;
     display: flex;
     align-items: center;
@@ -29,7 +30,7 @@ html {
     max-width: 550px;
 }
 
-.sobre-content h2, .doacoes-content h2 {
+.sobre-content h2, .doacoes-content h2, .cats-title {
     font-family: var(--font);
     font-size: 32px;
     font-weight: 600;
@@ -80,7 +81,7 @@ html {
     background-color: transparent;
     color: var(--blue-700);
     border: 2px solid var(--blue-700);
-    padding: 12px 26px; /* compensa os 2px da borda p/ manter a mesma altura */
+    padding: 12px 26px;
 }
 
 .btn-pill-outline:hover {
@@ -139,4 +140,120 @@ html {
 .doacoes {
     min-height: 480px;
     background-color: var(--white);
+}
+
+.doacoes-list {
+    list-style: none;
+    width: 520px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.doacoes-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background-color: var(--blue-700);
+    border-radius: 20px;
+    padding: 18px 28px;
+}
+
+.doacoes-item i {
+    font-size: 20px;
+    color: var(--pink-500);
+}
+
+.doacoes-item span {
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--white);
+}
+
+/* ============ GATOS ============ */
+
+.cats {
+    min-height: 650px;
+    background-color: var(--blue-700);
+    justify-content: center;
+}
+
+.cats-content {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cats-title {
+    color: var(--white);
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.cats-carousel {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.cats-cards {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.cat-card {
+    overflow: hidden;
+    background-color: var(--white);
+    border-radius: 20px;
+}
+
+.cat-card-image {
+    width: 100%;
+    height: 260px;
+    background-color: #2d47724f;
+}
+
+.cat-card-content {
+    padding: 14px;
+}
+
+.cat-card-content h3 {
+    font-family: var(--font);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--blue-700);
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.cats-arrow {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: var(--white);
+    color: var(--blue-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.cats-arrow:hover {
+    transform: scale(1.08);
+    background-color: var(--pink-500);
+    color: var(--white);
+}
+
+.cats-button {
+    margin-top: 36px;
 }
