@@ -41,3 +41,40 @@ footer {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* ============ BOTÕES EM PÍLULA (compartilhados) ============ */
+.btn-pill {
+    border: none;
+    border-radius: 999px;
+    padding: 14px 28px;
+    font-family: var(--font);
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--white);
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-pill:hover {
+    transform: translateY(-2px);
+}
+
+.btn-pill-blue {
+    background-color: var(--blue-700);
+}
+
+.btn-pill-pink {
+    background-color: var(--pink-500);
+}
+
+.btn-pill-outline {
+    background-color: transparent;
+    color: var(--blue-700);
+    border: 2px solid var(--blue-700);
+    padding: 12px 26px;
+}
+
+.btn-pill-outline:hover {
+    background-color: var(--blue-700);
+    color: var(--white);
+}

@@ -177,7 +177,7 @@ html {
 /* ============ GATOS ============ */
 
 .cats {
-    min-height: 650px;
+    min-height: 480px;
     background-color: var(--blue-700);
     justify-content: center;
 }
@@ -270,7 +270,8 @@ html {
 
 /* ============ COMO FUNCIONA ============ */
 .process {
-    min-height: 550px;
+    min-height: 480px;
+    background-color: var(--white);
     justify-content: center;
 }
 
@@ -298,22 +299,27 @@ html {
     gap: 32px;
     align-items: stretch;
 }
-
 .process-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
     background-color: var(--white);
     border: 1px solid color-mix(in srgb, var(--blue-700) 30%, transparent);
     border-radius: 20px;
     padding: 20px 30px;
-    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .process-card:hover {
     transform: translateY(-2px);
     background-color: var(--blue-700);
     border-color: var(--white);
-     .process-card-title, .process-card-description{
-        color: var(--white);
-    }
+}
+
+.process-card:hover .process-card-title,
+.process-card:hover .process-card-description {
+    color: var(--white);
 }
 
 .process-card-icon {
