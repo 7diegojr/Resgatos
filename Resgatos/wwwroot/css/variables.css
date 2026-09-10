@@ -18,3 +18,11 @@
     margin: 48px 0 24px 0;
     text-align: center;
 }
+
+.section-title {
+    font-family: var(--font);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--blue-700);
+    margin-bottom: 30px;
+}
