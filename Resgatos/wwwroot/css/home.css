@@ -23,6 +23,10 @@ html {
     padding: 60px 300px;
 }
 
+.sobre {
+    padding-bottom: 0;
+}
+
 .hero-content {
     max-width: 650px;
 }

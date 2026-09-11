@@ -126,16 +126,50 @@ html {
 
 .results-card {
     width: 100%;
-    min-height: 260px;
+    display: flex;
+    align-items: stretch;
     background-color: var(--white);
     border: 1px solid color-mix(in srgb, var(--blue-700) 30%, transparent);
     border-radius: 20px;
 }
 
+.result-stat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 48px 24px;
+}
+
+.result-stat:not(:last-child) {
+    border-right: 1px solid color-mix(in srgb, var(--blue-700) 15%, transparent);
+}
+
+.result-stat-value {
+    font-family: var(--font);
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--pink-500);
+    line-height: 1;
+}
+
+.result-stat-value--text {
+    font-size: 24px;
+}
+
+.result-stat-label {
+    font-family: var(--font);
+    font-size: 15px;
+    color: var(--blue-700);
+    opacity: 0.8;
+}
+
 /* ============ NOSSO PROPÓSITO ============ */
 .purpose {
     width: 100%;
-    padding: 60px 300px;
+    padding: 60px 300px 120px;
 }
 
 .purpose-content {
@@ -177,5 +211,6 @@ html {
     font-size: 15px;
     color: var(--blue-700);
     opacity: 0.8;
-    line-height: 1.6;
+    line-height: 1.5;
+    margin-bottom: 0;
 }
