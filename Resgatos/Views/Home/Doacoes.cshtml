@@ -1,1 +1,62 @@
-<p>test</p>
+@{
+    ViewData["Title"] = "Doações";
+}
+
+<link rel="stylesheet" href="~/css/doacoes.css" asp-append-version="true">
+
+<h1 class="page-title">Saiba como você pode nos ajudar</h1>
+
+<section class="cash-donations">
+    <h2 class="section-title">Doações em Dinheiro</h2>
+    <div class="cash-donations-content">
+
+        <!-- PIX -->
+        <article class="cash-donation-method cash-donation-pix">
+            <div class="cash-donation-qr">
+                <img src="~/img/doacoes/qr-pix.png" alt="QR Code para doação via PIX">
+            </div>
+
+            <div class="cash-donation-info">
+                <div class="cash-donation-brand">
+                    <img src="~/img/doacoes/logo-pix.png" alt="Pix">
+                    <p>Ana David Pires</p>
+                </div>
+
+                <div class="pix-key">
+                    <span class="pix-label">Chave PIX:</span>
+
+                    <div class="pix-value">
+                        <strong>00.000.000/0001-00</strong>
+
+                        <button type="button" class="copy-pix" aria-label="Copiar chave PIX">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- ASSINATURA -->
+        <article class="cash-donation-method cash-donation-signature">
+            <div class="cash-donation-qr">
+                <img src="~/img/doacoes/qr-mercadopago.png" alt="QR Code para acessar a assinatura no Mercado Pago">
+            </div>
+
+            <div class="cash-donation-info">
+                <div class="cash-donation-brand">
+                    <img src="~/img/doacoes/logo-mercadopago.png" alt="Mercado Pago">
+
+                    <h3>Assinatura Mensal</h3>
+
+                    <p>mpago.la/resgatos</p>
+                </div>
+
+                <a href="#" class="cash-donation-button">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    <span>Acessar página</span>
+                </a>
+            </div>
+        </article>
+
+    </div>
+</section>
