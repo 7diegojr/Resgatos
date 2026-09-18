@@ -1,4 +1,14 @@
+/* ============ RESET GLOBAL ============ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 html {
+  scroll-behavior: smooth;
   position: relative;
   min-height: 100%;
   font-size: 14px;
@@ -18,7 +28,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  margin: 0;
+  font-family: var(--font);
 }
 
 main {
@@ -43,7 +53,6 @@ footer {
     border: none;
     border-radius: 999px;
     padding: 14px 28px;
-    font-family: var(--font);
     font-weight: 500;
     font-size: 15px;
     color: var(--white);
