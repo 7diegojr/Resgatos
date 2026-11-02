@@ -346,46 +346,55 @@
 
 .why-help-content {
     display: flex;
-    gap: 28px;
-    margin-top: 28px;
+    gap: 32px;
+    margin-top: 42px;
 }
 
 .why-help-card {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 12px;
-    padding: 28px;
-    background-color: var(--blue-50);
-    border: 1px solid var(--blue-150);
-    border-radius: 20px;
+    padding: 56px 32px 32px;
+    text-align: center;
+    background-color: var(--white);
+    border: 1px solid color-mix(in srgb, var(--blue-700) 30%, transparent);
+    border-radius: 24px;
 }
 
 .why-help-icon {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
     background-color: var(--pink-500);
     color: var(--white);
-    font-size: 17px;
+    font-size: 24px;
 }
 
 .why-help-card h3 {
-    font-family: var(--font-title);
-    font-size: 16.5px;
-    font-weight: 400;
-    color: var(--blue-900);
+    font-family: var(--font-body);
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--blue-700);
+    margin: 0;
 }
 
 .why-help-card p {
     font-family: var(--font);
-    font-size: 14px;
-    font-weight: 300;
+    font-size: 15px;
+    font-weight: 400;
     color: var(--blue-600);
-    line-height: 1.6;
+    line-height: 1.4;
+    margin: 0;
 }
 
 .why-help-card p a {
