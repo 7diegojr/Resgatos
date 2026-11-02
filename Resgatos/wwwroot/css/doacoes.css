@@ -7,18 +7,19 @@
 /* ============ DOAÇÕES EM DINHEIRO ============ */
 .cash-donations-content {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: stretch;
     gap: 40px;
 }
 
 .cash-donation-method {
+    --qr-size: 200px;
     display: flex;
     align-items: center;
     gap: 40px;
     background-color: var(--pink-500);
     color: var(--white);
-    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
     min-height: 240px;
     padding: 32px;
     border-radius: 24px;
@@ -31,8 +32,8 @@
 /* ---- QR code ---- */
 .cash-donation-qr {
     flex-shrink: 0;
-    width: 200px;
-    height: 200px;
+    width: var(--qr-size);
+    height: var(--qr-size);
     background-color: var(--white);
     border-radius: 16px;
     padding: 10px;
@@ -51,21 +52,24 @@
 .cash-donation-info {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 16px;
+    justify-content: space-between;
+    gap: 8px;
     flex: 1;
+    min-width: 0;
+    height: var(--qr-size);
 }
 
 .cash-donation-brand {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 }
 
 .cash-donation-brand img {
-    height: 80px;
+    height: 55px;
     width: auto;
     align-self: flex-start;
+    margin-bottom: 8px;
 }
 
 .cash-donation-brand h3 {
@@ -73,21 +77,28 @@
     font-size: 18px;
     font-weight: 600;
     color: inherit;
+    margin: 0;
 }
 
 .cash-donation-brand p {
     font-family: var(--font);
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.3;
     color: inherit;
     opacity: 0.85;
+    margin: 0;
 }
 
 /* ---- Chave PIX ---- */
 .pix-key {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    background-color: color-mix(in srgb, var(--white) 15%, transparent);
+    border-radius: 12px;
+    padding: 12px 14px;
+    width: fit-content;
 }
 
 .pix-label {
@@ -102,11 +113,8 @@
 .pix-value {
     display: flex;
     align-items: center;
-    gap: 12px;
-    background-color: color-mix(in srgb, var(--white) 15%, transparent);
-    border-radius: 12px;
-    padding: 10px 14px;
-    width: fit-content;
+    justify-content: space-between;
+    gap: 24px;
 }
 
 .pix-value strong {
@@ -120,17 +128,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: none;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background-color: color-mix(in srgb, var(--white) 20%, transparent);
     border: none;
+    border-radius: 8px;
     color: var(--white);
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
-    opacity: 0.85;
-    transition: opacity 0.2s ease;
+    opacity: 0.9;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
 }
 
 .copy-pix:hover {
     opacity: 1;
+    background-color: color-mix(in srgb, var(--white) 30%, transparent);
 }
 
 /* ---- Botão "Acessar página" ---- */
@@ -142,7 +155,7 @@
     background-color: var(--white);
     color: var(--blue-700);
     text-decoration: none;
-    border-radius: 999px;
+    border-radius: 12px;
     padding: 12px 22px;
     font-family: var(--font);
     font-weight: 600;
@@ -152,4 +165,230 @@
 
 .cash-donation-button:hover {
     transform: translateY(-2px);
+}
+
+/* ============ DOAÇÕES DE ITENS ============ */
+.item-donations {
+    width: 100%;
+    padding: 20px 300px 60px;
+}
+
+.item-donations .section-title {
+    margin-bottom: 6px;
+}
+
+.section-subtitle {
+    font-family: var(--font);
+    font-size: 16px;
+    color: var(--blue-700);
+    opacity: 0.8;
+    margin-bottom: 28px;
+}
+
+.item-donations-content {
+    display: flex;
+    align-items: stretch;
+    gap: 32px;
+}
+
+.item-donation-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 32px;
+    border-radius: 24px;
+}
+
+.item-donation-pickup {
+    background-color: var(--white);
+    border: 1px solid color-mix(in srgb, var(--blue-700) 30%, transparent);
+}
+
+.item-donation-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background-color: var(--pink-500);
+    color: var(--white);
+    font-size: 18px;
+}
+
+.item-donation-info h3 {
+    font-family: var(--font);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--blue-900);
+    margin-bottom: 5px;
+}
+
+.item-donation-info-location {
+    display: flex;
+    gap: 8px;
+}
+
+.item-donation-info-location i {
+    color: var(--pink-500);
+}
+
+.item-donation-info-location h5 {
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--blue-900);
+    margin-bottom: 3px;
+}
+
+.item-donation-info p {
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--blue-900);
+    margin: 0;
+}
+
+.item-donation-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    background-color: var(--blue-700);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: auto;
+    transition: transform 0.3s ease;
+}
+
+.item-donation-button:hover {
+    transform: translateY(-2px);
+}
+
+.item-donation-button-light {
+    background-color: var(--white);
+    color: var(--blue-900);
+}
+
+.item-donation-button-outline {
+    background-color: transparent;
+    color: var(--white);
+    border: 1px solid color-mix(in srgb, var(--white) 80%, transparent);
+}
+
+.item-donation-button-outline-blue {
+    background-color: transparent;
+    color: var(--blue-700);
+    border: 1px solid var(--blue-700);
+}
+
+/* ---- Card Uber Flash ---- */
+.item-donation-uber {
+    background-color: #000000;
+}
+
+.flash-tag {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    background-color: #06C167;
+    color: #04140C;
+    font-family: var(--font);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.item-donation-uber > img {
+    height: 28px;
+    width: auto;
+    align-self: flex-start;
+}
+
+.item-donation-uber h3 {
+    font-family: var(--font);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 3px;
+}
+
+.item-donation-uber p {
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 300;
+    color: color-mix(in srgb, var(--white) 80%, transparent);
+    margin: 0;
+}
+
+.item-donation-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: auto;
+}
+
+/* ============ POR QUE NOS AJUDAR ============ */
+.why-help {
+    width: 100%;
+    padding: 20px 300px 80px;
+}
+
+.why-help-content {
+    display: flex;
+    gap: 28px;
+    margin-top: 28px;
+}
+
+.why-help-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 28px;
+    background-color: var(--blue-50);
+    border: 1px solid var(--blue-150);
+    border-radius: 20px;
+}
+
+.why-help-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background-color: var(--pink-500);
+    color: var(--white);
+    font-size: 17px;
+}
+
+.why-help-card h3 {
+    font-family: var(--font);
+    font-size: 16.5px;
+    font-weight: 600;
+    color: var(--blue-900);
+}
+
+.why-help-card p {
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--blue-600);
+    line-height: 1.6;
+}
+
+.why-help-card p a {
+    color: var(--pink-700);
+    font-weight: 600;
+    text-decoration: underline;
 }
