@@ -7,29 +7,39 @@
   --pink-500: #e4a0b7;
   --white: #ffffff;
 
-  --font: 'Poppins', sans-serif;
+  --font-title: 'Coiny', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+  --font: var(--font-body);
 
   --border-soft: 1px solid color-mix(in srgb, var(--blue-700) 30%, transparent);
 }
 
+/* Coiny só existe no peso 400 — evita negrito falso nos títulos */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-title);
+    font-weight: 400;
+}
+
 .page-title {
+    font-family: var(--font-title);
     font-size: 35px;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--blue-700);
-    margin: 60px 0 20px 0;
+    margin: 65px 0 0;
     text-align: center;
 }
 
 .section-title {
+    font-family: var(--font-title);
     font-size: 28px;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--blue-700);
-    margin-bottom: 30px;
+    margin-bottom: 16px;
 }
 
 .text-body {
     color: var(--blue-700);
     opacity: 0.8;
-    font-size: 16px;
+    font-size: 17px;
     text-align: justify;
 }

@@ -53,8 +53,8 @@ footer {
     border: none;
     border-radius: 999px;
     padding: 14px 28px;
-    font-weight: 500;
-    font-size: 15px;
+    font-weight: 600;
+    font-size: 16px;
     color: var(--white);
     cursor: pointer;
     transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;

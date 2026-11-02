@@ -4,7 +4,7 @@
 .results,
 .purpose {
     width: 100%;
-    padding: 60px 300px;
+    padding: 45px 300px;
 }
 
 /* ============ HISTÓRIA ============ */
@@ -20,11 +20,12 @@
 }
 
 .history-content h2 {
+    font-family: var(--font-title);
     font-size: 28px;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--blue-700);
-    margin-top: 6px;
-    margin-bottom: 12px;
+    margin-top: 4px;
+    margin-bottom: 10px;
 }
 
 .history-content p {
@@ -75,15 +76,16 @@
 }
 
 .member-info h4 {
+    font-family: var(--font-body);
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 800;
     color: var(--blue-700);
     margin-bottom: 6px;
 }
 
 .member-info span {
     display: inline-block;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--white);
     background-color: var(--pink-500);
@@ -94,8 +96,8 @@
 }
 
 .member-info p {
-    font-size: 14.5px;
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.4;
 }
 
 /* ============ RESULTADOS ============ */
@@ -123,8 +125,9 @@
 }
 
 .result-stat-value {
+    font-family: var(--font-title);
     font-size: 44px;
-    font-weight: 700;
+    font-weight: 400;
     color: var(--pink-500);
     line-height: 1;
 }
@@ -165,22 +168,24 @@
 }
 
 .purpose-card-number {
+    font-family: var(--font-title);
     flex-shrink: 0;
     font-size: 48px;
-    font-weight: 700;
+    font-weight: 400;
     color: var(--pink-500);
     min-width: 56px;
 }
 
 .purpose-card-content h4 {
+    font-family: var(--font-body);
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 800;
     color: var(--blue-700);
-    margin-bottom: 8px;
+    margin-bottom: 2px;
 }
 
 .purpose-card-content p {
-    font-size: 15px;
-    line-height: 1.5;
+    font-size: 16px;
+    line-height: 1.4;
     margin-bottom: 0;
 }
