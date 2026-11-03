@@ -1,0 +1,160 @@
+@{
+    ViewData["Title"] = "Contatos";
+}
+
+<link rel="stylesheet" href="~/css/contatos.css" asp-append-version="true">
+
+<h1 class="page-title">Fale com o Resgatos!</h1>
+
+<!-- ===================== CANAIS ===================== -->
+<section class="channels">
+    <h2 class="section-title">Como você prefere falar com a gente?</h2>
+
+    <div class="channels-content">
+
+        <!-- WHATSAPP -->
+        <article class="channel-card channel-card-highlight">
+            <div class="channel-icon">
+                <i class="fa-brands fa-whatsapp"></i>
+            </div>
+
+            <div class="channel-info">
+                <h3>WhatsApp</h3>
+                <p>(41) 98497-23090</p>
+            </div>
+
+            <a href="https://wa.me/55419849723090" target="_blank" rel="noopener" class="channel-button">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Iniciar conversa</span>
+            </a>
+        </article>
+
+        <!-- E-MAIL -->
+        <article class="channel-card">
+            <div class="channel-icon">
+                <i class="fa-solid fa-envelope"></i>
+            </div>
+
+            <div class="channel-info">
+                <h3>E-mail</h3>
+                <p>contato@resgatos.com.br</p>
+            </div>
+
+            <a href="mailto:contato@resgatos.com.br" class="channel-button">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Enviar e-mail</span>
+            </a>
+        </article>
+
+        <!-- INSTAGRAM -->
+        <article class="channel-card">
+            <div class="channel-icon">
+                <i class="fa-brands fa-instagram"></i>
+            </div>
+
+            <div class="channel-info">
+                <h3>Instagram</h3>
+                <p>@@resgatoscwb</p>
+            </div>
+
+            <a href="https://instagram.com/resgatoscwb" target="_blank" rel="noopener" class="channel-button">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Seguir no Instagram</span>
+            </a>
+        </article>
+
+    </div>
+</section>
+
+<!-- ===================== FORMULÁRIO (a definir) ===================== -->
+<section class="contact-form" id="formulario"></section>
+
+<!-- ===================== FAQ ===================== -->
+<section class="faq">
+    <h2 class="section-title">Perguntas Frequentes</h2>
+
+    <div class="faq-layout">
+        <div class="faq-content">
+
+            <details class="faq-item" name="faq">
+                <summary>
+                    <h3>Como funciona a adoção?</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <p>Na página de Adoções, escolha o animal e clique no card dele: você será levado direto ao nosso WhatsApp. Lá conversamos com calma, tiramos suas dúvidas e combinamos a taxa e a entrega. Não há cadastro nem formulário no site.</p>
+            </details>
+
+            <details class="faq-item" name="faq">
+                <summary>
+                    <h3>Existe taxa de adoção?</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <p>Sim. A taxa é destinada à castração do animal e pode ser parcelada. Ela não é um preço pelo bichinho: é o que nos permite continuar castrando e resgatando outros.</p>
+            </details>
+
+            <details class="faq-item" name="faq">
+                <summary>
+                    <h3>Os animais já são castrados?</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <p>Todos os animais adotados têm a castração garantida. Nos filhotes, ela já fica pré-agendada; nos adultos, a taxa cobre o procedimento já realizado. Antes da adoção, eles também recebem antipulgas, vermífugo, vacinas e testes de FIV/FeLV.</p>
+            </details>
+
+            <details class="faq-item" name="faq">
+                <summary>
+                    <h3>Vocês entregam fora de Curitiba?</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <p>Não. As adoções acontecem apenas em Curitiba, pois precisamos acompanhar de perto a chegada do animal ao novo lar.</p>
+            </details>
+
+            <details class="faq-item" name="faq">
+                <summary>
+                    <h3>Como posso ajudar sem adotar?</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <p>Você pode contribuir com PIX, assinatura mensal pelo Mercado Pago ou doando ração, remédios e outros itens. Veja todas as opções na página de <a asp-controller="Home" asp-action="Doacoes">Doações</a>.</p>
+            </details>
+
+            <details class="faq-item" name="faq">
+                <summary>
+                    <h3>Encontrei um animal na rua. O que faço?</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <p>Fale com a gente pelo Instagram ou WhatsApp contando a situação. Vamos avaliar o caso e verificar se temos vaga. Somos um projeto pequeno e voluntário, então nem sempre conseguimos acolher na hora, mas sempre tentamos ajudar a encontrar um caminho.</p>
+            </details>
+
+            <details class="faq-item" name="faq">
+                <summary>
+                    <h3>Como funciona o resgate de um animal?</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </summary>
+                <p>Depois de avaliarmos a situação e verificarmos se temos vaga, o animal passa pelos cuidados veterinários: antipulgas, vermífugo, testes de FIV/FeLV, vacinas e castração. Se ele estiver doente, primeiro vem o tratamento e a recuperação. Só então fica disponível para adoção, e até lá ele vive isolado na casa das nossas fundadoras.</p>
+            </details>
+
+        </div>
+
+        <!-- BLOCO LATERAL -->
+        <aside class="faq-aside">
+            <div class="faq-aside-content">
+                <h3>Não achou sua resposta?</h3>
+                <p>Chame a gente no WhatsApp ou deixe uma mensagem pelo formulário para tirar suas dúvidas e conversar sobre.</p>
+
+                <div class="faq-aside-actions">
+                    <a href="#formulario" class="faq-aside-button">
+                        <i class="fa-solid fa-arrow-up"></i>
+                        <span>Ir para o formulário</span>
+                    </a>
+
+                    <a href="https://wa.me/55419849723090?text=Ol%C3%A1%21%20Vim%20pelo%20site%20e%20tenho%20uma%20d%C3%BAvida."
+                        target="_blank" rel="noopener" class="faq-aside-button faq-aside-button-outline">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        <span>Chamar no WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+
+            <img src="~/img/contatos/gato-faq.png" alt="" class="faq-aside-cat" loading="lazy">
+        </aside>
+    </div>
+</section>

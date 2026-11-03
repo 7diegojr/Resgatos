@@ -1,0 +1,298 @@
+/* ============ LAYOUT COMPARTILHADO ============ */
+.channels,
+.faq {
+    width: 100%;
+    padding: 45px 300px;
+}
+
+/* ============ CANAIS ============ */
+.channels-content {
+    display: flex;
+    align-items: stretch;
+    gap: 32px;
+}
+
+.channel-card {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 32px;
+    border-radius: 24px;
+    background-color: var(--white);
+    border: var(--border-soft);
+    font-family: var(--font);
+}
+
+.channel-card-highlight {
+    background-color: var(--blue-700);
+    border-color: var(--blue-700);
+    color: var(--white);
+}
+
+.channel-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background-color: var(--pink-500);
+    color: var(--white);
+    font-size: 18px;
+}
+
+.channel-info h3 {
+    font-family: var(--font-body);
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--blue-700);
+    margin-bottom: 4px;
+}
+
+.channel-info p {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--blue-700);
+    opacity: 0.8;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.channel-card-highlight .channel-info h3,
+.channel-card-highlight .channel-info p {
+    color: var(--white);
+}
+
+.channel-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    margin-top: auto;
+    background-color: var(--blue-700);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.channel-button:hover {
+    transform: translateY(-2px);
+}
+
+.channel-card-highlight .channel-button {
+    background-color: var(--white);
+    color: var(--blue-700);
+}
+
+/* ============ FAQ ============ */
+.faq {
+    padding-bottom: 80px;
+}
+
+/* Duas colunas: perguntas (60%) + bloco lateral (40%).
+   O bloco lateral tem altura fixa = altura de todas as perguntas fechadas. */
+.faq-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: start;       /* o bloco lateral NÃO estica junto com as perguntas */
+    gap: 32px;
+}
+
+.faq-content {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.faq-item {
+    background-color: var(--white);
+    border: var(--border-soft);
+    border-radius: 24px;
+    font-family: var(--font);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Animação de abrir/fechar: anima a altura do conteúdo do <details>.
+   Suporte: Chrome/Edge 131+. Nos demais navegadores abre sem animação. */
+.faq-item {
+    interpolate-size: allow-keywords;
+}
+
+.faq-item::details-content {
+    block-size: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:
+        block-size 0.35s ease,
+        opacity 0.35s ease,
+        content-visibility 0.35s allow-discrete;
+}
+
+.faq-item[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+}
+
+.faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 64px;
+    padding: 0 28px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item summary h3 {
+    font-family: var(--font-body);
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--blue-700);
+    margin: 0;
+    transition: color 0.2s ease;
+}
+
+.faq-item summary i {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: var(--blue-700);
+    transition: transform 0.25s ease, color 0.2s ease;
+}
+
+.faq-item p {
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--blue-700);
+    opacity: 0.85;
+    padding: 0 28px 24px;
+    margin: 0;
+}
+
+.faq-item p a {
+    color: var(--pink-500);
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+/* Hover: borda e pergunta rosa + sombra suave */
+.faq-item:hover {
+    border-color: var(--pink-500);
+}
+
+.faq-item:hover summary h3 {
+    color: var(--pink-500);
+}
+
+/* Aberto: pergunta e seta rosa, seta para cima */
+.faq-item[open] {
+    border-color: var(--pink-500);
+}
+
+.faq-item[open] summary h3,
+.faq-item[open] summary i {
+    color: var(--pink-500);
+}
+
+.faq-item[open] summary i {
+    transform: rotate(180deg);
+}
+
+/* ---- Bloco lateral ---- */
+.faq-aside {
+    height: 548px;
+
+    position: relative;
+    overflow: hidden;   /* corta a parte de baixo do gato */
+    padding: 32px;
+    border-radius: 24px;
+    background-color: var(--blue-700);
+    color: var(--white);
+    font-family: var(--font);
+}
+
+.faq-aside-content {
+    position: relative;
+    z-index: 1;         /* texto sempre acima do gato */
+}
+
+.faq-aside-content h3 {
+    font-size: 25px;
+    color: var(--white);
+    margin: 0 0 4px;
+}
+
+.faq-aside-content p {
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--white);
+    opacity: 0.85;
+    margin: 0 0 20px;
+}
+
+.faq-aside-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.faq-aside-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    background-color: var(--white);
+    color: var(--blue-700);
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.faq-aside-button:hover {
+    transform: translateY(-2px);
+}
+
+.faq-aside-button-outline {
+    background-color: transparent;
+    color: var(--white);
+    border: 1px solid color-mix(in srgb, var(--white) 80%, transparent);
+}
+
+.faq-aside-cat {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); /* centraliza na horizontal */
+    bottom: -24px; /* negativo = parte do gato fica cortada embaixo */
+    width: 62%;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Âncora do botão "Ir para o formulário": compensa o header fixo */
+.contact-form {
+    scroll-margin-top: 100px;
+}
+
+/* Respeita quem prefere menos movimento (fica no fim para vencer as regras acima) */
+@media (prefers-reduced-motion: reduce) {
+    .faq-item::details-content,
+    .faq-item summary i {
+        transition: none;
+    }
+}
