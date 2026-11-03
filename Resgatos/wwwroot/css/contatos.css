@@ -1,5 +1,6 @@
 /* ============ LAYOUT COMPARTILHADO ============ */
 .channels,
+.contact-form,
 .faq {
     width: 100%;
     padding: 45px 300px;
@@ -25,12 +26,6 @@
     font-family: var(--font);
 }
 
-.channel-card-highlight {
-    background-color: var(--blue-700);
-    border-color: var(--blue-700);
-    color: var(--white);
-}
-
 .channel-icon {
     display: flex;
     align-items: center;
@@ -40,7 +35,16 @@
     border-radius: 14px;
     background-color: var(--pink-500);
     color: var(--white);
-    font-size: 18px;
+    font-size: 22px;
+}
+
+.fa-whatsapp {
+    font-size: 27px;
+}
+
+.fa-instagram {
+    font-size: 26px;
+    margin: 2px 1px 0 0;
 }
 
 .channel-info h3 {
@@ -58,11 +62,6 @@
     opacity: 0.8;
     margin: 0;
     overflow-wrap: anywhere;
-}
-
-.channel-card-highlight .channel-info h3,
-.channel-card-highlight .channel-info p {
-    color: var(--white);
 }
 
 .channel-button {
@@ -84,11 +83,6 @@
 
 .channel-button:hover {
     transform: translateY(-2px);
-}
-
-.channel-card-highlight .channel-button {
-    background-color: var(--white);
-    color: var(--blue-700);
 }
 
 /* ============ FAQ ============ */
@@ -209,7 +203,7 @@
     transform: rotate(180deg);
 }
 
-/* ---- Bloco lateral ---- */
+/* ---- Bloco lateral (usado no FAQ e no formulário) ---- */
 .faq-aside {
     height: 548px;
 
@@ -239,6 +233,7 @@
     color: var(--white);
     opacity: 0.85;
     margin: 0 0 20px;
+    text-align: justify;
 }
 
 .faq-aside-actions {
@@ -267,10 +262,8 @@
     transform: translateY(-2px);
 }
 
-.faq-aside-button-outline {
-    background-color: transparent;
-    color: var(--white);
-    border: 1px solid color-mix(in srgb, var(--white) 80%, transparent);
+.faq-aside-button-outline i {
+    font-size: 20px;
 }
 
 .faq-aside-cat {
@@ -284,8 +277,169 @@
     user-select: none;
 }
 
-/* Âncora do botão "Ir para o formulário": compensa o header fixo */
-.contact-form {
+/* ============ FORMULÁRIO ============ */
+/* Bloco lateral (40%) + formulário (60%). O bloco acompanha a altura do formulário. */
+.contact-form-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: stretch;
+    gap: 32px;
+}
+
+.form-aside {
+    height: auto;
+}
+
+.contact-form-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 32px;
+    border-radius: 24px;
+    background-color: var(--white);
+    border: var(--border-soft);
+    font-family: var(--font);
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-field label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue-700);
+    transition: color 0.2s ease;
+}
+
+.form-optional {
+    font-weight: 400;
+    opacity: 0.7;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: var(--border-soft);
+    border-radius: 12px;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-family: var(--font);
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-field textarea {
+    resize: none;
+    line-height: 1.4;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+    color: color-mix(in srgb, var(--blue-700) 50%, transparent);
+}
+
+/* Foco: borda e rótulo rosa (igual ao FAQ) */
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: var(--pink-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pink-500) 25%, transparent);
+}
+
+.form-field:focus-within label {
+    color: var(--pink-500);
+}
+
+/* Select com seta própria (mesma seta do FAQ) */
+.form-select-wrapper {
+    position: relative;
+}
+
+.form-select-wrapper select {
+    appearance: none;
+    padding-right: 44px;
+    cursor: pointer;
+}
+
+.form-select-wrapper select:required:invalid {
+    color: color-mix(in srgb, var(--blue-700) 50%, transparent);
+}
+
+.form-select-wrapper i {
+    position: absolute;
+    top: 50%;
+    right: 18px;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--blue-700);
+    pointer-events: none;
+}
+
+/* Erros de validação */
+.form-error {
+    display: none;
+    font-size: 13px;
+    font-weight: 700;
+    color: #B84050;
+}
+
+.form-field.has-error .form-error {
+    display: block;
+}
+
+.form-field.has-error input,
+.form-field.has-error select {
+    border-color: #B84050;
+}
+
+.form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background-color: var(--blue-700);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.form-submit i{
+    font-size: 20px;
+}
+
+.form-submit:hover {
+    transform: translateY(-2px);
+}
+
+.form-note {
+    font-size: 13px;
+    color: var(--blue-700);
+    opacity: 0.7;
+    margin: 0 auto;
+}
+
+/* Âncoras dos botões "Ir para o formulário" e "Ver perguntas frequentes": compensam o header fixo */
+.contact-form,
+.faq {
     scroll-margin-top: 100px;
 }
 

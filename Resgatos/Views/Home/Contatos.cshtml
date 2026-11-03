@@ -13,7 +13,7 @@
     <div class="channels-content">
 
         <!-- WHATSAPP -->
-        <article class="channel-card channel-card-highlight">
+        <article class="channel-card">
             <div class="channel-icon">
                 <i class="fa-brands fa-whatsapp"></i>
             </div>
@@ -66,11 +66,75 @@
     </div>
 </section>
 
-<!-- ===================== FORMULÁRIO (a definir) ===================== -->
-<section class="contact-form" id="formulario"></section>
+<!-- ===================== FORMULÁRIO ===================== -->
+<section class="contact-form" id="formulario">
+    <h2 class="section-title">Deixe sua mensagem</h2>
+
+    <div class="contact-form-layout">
+
+        <!-- BLOCO LATERAL (mesmo estilo do bloco do FAQ) -->
+        <aside class="faq-aside form-aside">
+            <div class="faq-aside-content">
+                <h3>Conte como podemos ajudar</h3>
+                <p>Preencha o formulário e continue a conversa pelo WhatsApp com a gente. Será um prazer conversar com você, esclarecer suas dúvidas e ajudar no que precisar!</p>
+
+                <div class="faq-aside-actions">
+                    <a href="#faq" class="faq-aside-button">
+                        <i class="fa-solid fa-arrow-down"></i>
+                        <span>Ver perguntas frequentes</span>
+                    </a>
+                </div>
+            </div>
+
+            <img src="~/img/contatos/gao-faq.png" alt="" class="faq-aside-cat" loading="lazy">
+        </aside>
+
+        <!-- FORMULÁRIO -->
+        <form class="contact-form-card" id="contact-form" data-whatsapp="55419849723090" novalidate>
+
+            <div class="form-field">
+                <label for="contact-nome">Seu nome</label>
+                <input type="text" id="contact-nome" name="nome" placeholder="Como podemos te chamar?"
+                    autocomplete="name" maxlength="80">
+                <span class="form-error" role="alert"></span>
+            </div>
+
+            <div class="form-field">
+                <label for="contact-assunto">Assunto</label>
+                <div class="form-select-wrapper">
+                    <select id="contact-assunto" name="assunto" required>
+                        <option value="" disabled selected>Selecione um assunto</option>
+                        <option value="adotar" data-frase="quero adotar um animal">Quero adotar</option>
+                        <option value="duvida" data-frase="tenho uma dúvida sobre adoção">Dúvida sobre adoção</option>
+                        <option value="ajudar" data-frase="quero ajudar o projeto">Quero ajudar / doar</option>
+                        <option value="resgate" data-frase="gostaria de pedir o resgate de um animal">Pedido de resgate</option>
+                        <option value="outro" data-frase="gostaria de falar sobre outro assunto">Outro assunto</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <span class="form-error" role="alert"></span>
+            </div>
+
+            <div class="form-field">
+                <label for="contact-mensagem">Mensagem <span class="form-optional">(opcional)</span></label>
+                <textarea id="contact-mensagem" name="mensagem" rows="5" maxlength="500"
+                    placeholder="Conte um pouco mais, se quiser."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="form-submit">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span>Enviar pelo WhatsApp</span>
+                </button>
+                <p class="form-note">Ao enviar, o WhatsApp abre com a mensagem pronta para envio.</p>
+            </div>
+
+        </form>
+    </div>
+</section>
 
 <!-- ===================== FAQ ===================== -->
-<section class="faq">
+<section class="faq" id="faq">
     <h2 class="section-title">Perguntas Frequentes</h2>
 
     <div class="faq-layout">
@@ -158,3 +222,7 @@
         </aside>
     </div>
 </section>
+
+@section Scripts {
+    <script src="~/js/contatos.js" asp-append-version="true"></script>
+}
