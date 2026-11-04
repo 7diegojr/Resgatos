@@ -278,16 +278,19 @@
 }
 
 /* ============ FORMULÁRIO ============ */
-/* Bloco lateral (40%) + formulário (60%). O bloco acompanha a altura do formulário. */
+/* Bloco lateral (40%) + formulário (60%).
+   O bloco tem altura fixa e não cresce junto com o formulário quando aparecem erros. */
 .contact-form-layout {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-    align-items: stretch;
+    align-items: start;
     gap: 32px;
 }
 
+/* Altura do formulário sem mensagens de erro.
+   Se mudar os campos (ex.: rows do textarea), ajuste este valor. */
 .form-aside {
-    height: auto;
+    height: 511px;
 }
 
 .contact-form-card {
@@ -304,13 +307,13 @@
 .form-field {
     display: flex;
     flex-direction: column;
-    gap: 6px;
 }
 
 .form-field label {
     font-size: 14px;
     font-weight: 700;
     color: var(--blue-700);
+    margin-bottom: 6px;
     transition: color 0.2s ease;
 }
 
@@ -320,7 +323,6 @@
 }
 
 .form-field input,
-.form-field select,
 .form-field textarea {
     width: 100%;
     padding: 12px 16px;
@@ -345,7 +347,6 @@
 
 /* Foco: borda e rótulo rosa (igual ao FAQ) */
 .form-field input:focus,
-.form-field select:focus,
 .form-field textarea:focus {
     outline: none;
     border-color: var(--pink-500);
@@ -356,45 +357,144 @@
     color: var(--pink-500);
 }
 
-/* Select com seta própria (mesma seta do FAQ) */
+/* Seletor de assunto (lista própria, no estilo do projeto) */
 .form-select-wrapper {
     position: relative;
 }
 
-.form-select-wrapper select {
-    appearance: none;
-    padding-right: 44px;
+.form-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    border: var(--border-soft);
+    border-radius: 12px;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-family: var(--font);
+    font-size: 15px;
     cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-select-wrapper select:required:invalid {
+.form-select-value.is-placeholder {
     color: color-mix(in srgb, var(--blue-700) 50%, transparent);
 }
 
-.form-select-wrapper i {
-    position: absolute;
-    top: 50%;
-    right: 18px;
-    transform: translateY(-50%);
+.form-select-trigger i {
+    flex-shrink: 0;
     font-size: 14px;
     color: var(--blue-700);
-    pointer-events: none;
+    transition: transform 0.25s ease, color 0.2s ease;
 }
 
-/* Erros de validação */
-.form-error {
+/* Focus e aberto: borda rosa e seta rosa virada para cima (igual ao FAQ) */
+.form-select-trigger:focus-visible,
+.form-select-wrapper.is-open .form-select-trigger {
+    outline: none;
+    border-color: var(--pink-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pink-500) 25%, transparent);
+}
+
+.form-select-wrapper.is-open .form-select-trigger i {
+    color: var(--pink-500);
+    transform: rotate(180deg);
+}
+
+.form-select-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    margin: 0;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    list-style: none;
+    background-color: var(--white);
+    border: var(--border-soft);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--blue-700) 15%, transparent);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.form-select-wrapper.is-open .form-select-list {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+}
+
+.form-select-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--blue-700);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.form-select-list li i {
     display: none;
+    font-size: 13px;
+    color: var(--pink-500);
+}
+
+.form-select-list li:hover,
+.form-select-list li.is-active {
+    background-color: color-mix(in srgb, var(--blue-700) 5%, transparent);
+}
+
+.form-select-list li[aria-selected="true"] {
+    font-weight: 800;
+}
+
+.form-select-list li[aria-selected="true"] i {
+    display: block;
+}
+
+/* Erros de validação: a altura anima de 0 até o tamanho do texto,
+   então o formulário desce suavemente (igual às perguntas do FAQ) */
+.form-error {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    visibility: hidden;
+    transition: grid-template-rows 0.35s ease, opacity 0.35s ease, visibility 0.35s;
+}
+
+.form-error > div {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.form-error span {
+    display: block;
+    padding-top: 6px;
     font-size: 13px;
     font-weight: 700;
     color: #B84050;
 }
 
 .form-field.has-error .form-error {
-    display: block;
+    grid-template-rows: 1fr;
+    opacity: 1;
+    visibility: visible;
 }
 
 .form-field.has-error input,
-.form-field.has-error select {
+.form-field.has-error .form-select-trigger {
     border-color: #B84050;
 }
 
@@ -446,7 +546,10 @@
 /* Respeita quem prefere menos movimento (fica no fim para vencer as regras acima) */
 @media (prefers-reduced-motion: reduce) {
     .faq-item::details-content,
-    .faq-item summary i {
+    .faq-item summary i,
+    .form-error,
+    .form-select-list,
+    .form-select-trigger i {
         transition: none;
     }
 }

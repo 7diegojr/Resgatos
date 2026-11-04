@@ -86,7 +86,7 @@
                 </div>
             </div>
 
-            <img src="~/img/contatos/gao-faq.png" alt="" class="faq-aside-cat" loading="lazy">
+            <img src="~/img/contatos/gat-faq.png" alt="" class="faq-aside-cat" loading="lazy">
         </aside>
 
         <!-- FORMULÁRIO -->
@@ -95,24 +95,41 @@
             <div class="form-field">
                 <label for="contact-nome">Seu nome</label>
                 <input type="text" id="contact-nome" name="nome" placeholder="Como podemos te chamar?"
-                    autocomplete="name" maxlength="80">
-                <span class="form-error" role="alert"></span>
+                    autocomplete="name" maxlength="80" aria-describedby="contact-nome-error">
+                <div class="form-error"><div><span id="contact-nome-error"></span></div></div>
             </div>
 
             <div class="form-field">
-                <label for="contact-assunto">Assunto</label>
+                <label id="contact-assunto-label">Assunto</label>
                 <div class="form-select-wrapper">
-                    <select id="contact-assunto" name="assunto" required>
-                        <option value="" disabled selected>Selecione um assunto</option>
-                        <option value="adotar" data-frase="quero adotar um animal">Quero adotar</option>
-                        <option value="duvida" data-frase="tenho uma dúvida sobre adoção">Dúvida sobre adoção</option>
-                        <option value="ajudar" data-frase="quero ajudar o projeto">Quero ajudar / doar</option>
-                        <option value="resgate" data-frase="gostaria de pedir o resgate de um animal">Pedido de resgate</option>
-                        <option value="outro" data-frase="gostaria de falar sobre outro assunto">Outro assunto</option>
-                    </select>
-                    <i class="fa-solid fa-chevron-down"></i>
+                    <div class="form-select-trigger" id="contact-assunto" tabindex="0" role="combobox"
+                        aria-haspopup="listbox" aria-expanded="false" aria-controls="contact-assunto-list"
+                        aria-labelledby="contact-assunto-label contact-assunto-value"
+                        aria-describedby="contact-assunto-error">
+                        <span class="form-select-value is-placeholder" id="contact-assunto-value">Selecione um assunto</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+
+                    <ul class="form-select-list" id="contact-assunto-list" role="listbox"
+                        aria-labelledby="contact-assunto-label">
+                        <li role="option" id="assunto-adotar" aria-selected="false" data-frase="quero adotar um animal">
+                            <span>Quero adotar</span><i class="fa-solid fa-check"></i>
+                        </li>
+                        <li role="option" id="assunto-duvida" aria-selected="false" data-frase="tenho uma dúvida sobre adoção">
+                            <span>Dúvida sobre adoção</span><i class="fa-solid fa-check"></i>
+                        </li>
+                        <li role="option" id="assunto-ajudar" aria-selected="false" data-frase="quero ajudar o projeto">
+                            <span>Quero ajudar / doar</span><i class="fa-solid fa-check"></i>
+                        </li>
+                        <li role="option" id="assunto-resgate" aria-selected="false" data-frase="gostaria de pedir o resgate de um animal">
+                            <span>Pedido de resgate</span><i class="fa-solid fa-check"></i>
+                        </li>
+                        <li role="option" id="assunto-outro" aria-selected="false" data-frase="gostaria de falar sobre outro assunto">
+                            <span>Outro assunto</span><i class="fa-solid fa-check"></i>
+                        </li>
+                    </ul>
                 </div>
-                <span class="form-error" role="alert"></span>
+                <div class="form-error"><div><span id="contact-assunto-error"></span></div></div>
             </div>
 
             <div class="form-field">
