@@ -23,6 +23,13 @@ public enum PorteAnimal
     Grande = 3
 }
 
+public enum FaixaEtariaAnimal
+{
+    Filhote = 1,
+    Adulto = 2,
+    Idoso = 3
+}
+
 public enum StatusAnimal
 {
     [Display(Name = "Em avaliação")]

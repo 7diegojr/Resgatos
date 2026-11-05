@@ -1,0 +1,385 @@
+/* ============ LAYOUT COMPARTILHADO ============ */
+.steps,
+.adoption {
+    width: 100%;
+    padding: 45px 300px;
+}
+
+.adoption {
+    padding-bottom: 80px;
+    scroll-margin-top: 100px; /* compensa o header fixo */
+}
+
+/* ============ ADOTE EM 4 PASSOS ============ */
+.steps-list {
+    list-style: none;
+    padding: 0;           /* o Bootstrap dá padding-left em <ol>/<ul> e vence o reset global */
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.step-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 28px;
+    border-radius: 24px;
+    background-color: var(--white);
+    border: var(--border-soft);
+    font-family: var(--font);
+}
+
+/* Número grande e apagado no canto, só como detalhe visual */
+.step-number {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    font-family: var(--font-title);
+    font-size: 56px;
+    line-height: 1;
+    color: color-mix(in srgb, var(--pink-500) 35%, transparent);
+    user-select: none;
+}
+
+.step-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background-color: var(--pink-500);
+    color: var(--white);
+    font-size: 21px;
+}
+
+.step-card h3 {
+    font-size: 19px;
+    color: var(--blue-700);
+    margin: 4px 0 0;
+}
+
+.step-card p {
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--blue-700);
+    opacity: 0.85;
+    margin: 0;
+}
+
+/* ============ ANIMAIS: FILTROS + CARDS ============ */
+.adoption-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.adoption-header .section-title {
+    margin-bottom: 0;
+}
+
+.adoption-count {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--blue-700);
+    opacity: 0.8;
+    margin: 0;
+}
+
+.adoption-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    align-items: start;   /* o bloco de filtros não estica até o fim da lista */
+    gap: 32px;
+}
+
+/* ---- Filtros ---- */
+.filters {
+    position: sticky;
+    top: 110px;           /* altura do header + folga */
+    padding: 28px;
+    border-radius: 24px;
+    background-color: var(--white);
+    border: var(--border-soft);
+    font-family: var(--font);
+}
+
+.filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.filters-header h3 {
+    font-size: 22px;
+    color: var(--blue-700);
+    margin: 0;
+}
+
+.filters-clear {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    padding: 4px 2px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue-700);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+}
+
+.filters-clear:hover {
+    color: var(--pink-500);
+}
+
+/* O atributo hidden perde para display:flex, então reforçamos */
+.filters-clear[hidden] {
+    display: none;
+}
+
+.filter-group {
+    border: none;
+    margin: 0 0 22px;
+}
+
+.filter-group:last-of-type {
+    margin-bottom: 0;
+}
+
+.filter-group legend {
+    float: none;             /* o Bootstrap flutua a legend; aqui ela deve ocupar a própria linha */
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--blue-700);
+    margin-bottom: 10px;
+}
+
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* A caixinha de marcar fica invisível (mas continua acessível pelo teclado);
+   quem aparece é o <label>, estilizado como pílula. */
+.filter-option {
+    position: relative;
+}
+
+.filter-option input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+}
+
+.filter-option label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1.5px solid var(--blue-700);
+    border-radius: 10px;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-option label i {
+    font-size: 14px;
+}
+
+.filter-letter {
+    font-weight: 800;
+    font-size: 13px;
+    width: 14px;
+    text-align: center;
+}
+
+
+.filter-option input:checked + label {
+    background-color: var(--blue-700);
+    border-color: var(--blue-700);
+    color: var(--white);
+}
+
+.filter-option input:focus-visible + label {
+    border-color: var(--pink-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pink-500) 35%, transparent);
+}
+
+/* ---- Resultado ---- */
+.animals-grid {
+    --cards-por-linha: 3;   /* <-- quantos cards por linha (troque para 2 para testar) */
+    --espaco-cards: 26px;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;   /* a última linha, se incompleta, fica centralizada */
+    gap: var(--espaco-cards);
+}
+
+/* ---- Card do animal ---- */
+.animal-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;   /* arredonda a foto junto com o card */
+    /* largura = (espaço total - espaços entre os cards) / cards por linha */
+    width: calc((100% - (var(--cards-por-linha) - 1) * var(--espaco-cards)) / var(--cards-por-linha) - 0.1px);
+    border-radius: 24px;
+    background-color: var(--white);
+    border: var(--border-soft);
+    font-family: var(--font);
+    transition: transform 0.3s;
+}
+
+.animal-card:hover {
+    transform: translateY(-3px);
+}
+
+.animal-card-image {
+    flex: none;          /* impede o flexbox de encolher a imagem: ela é sempre quadrada */
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    background-color: color-mix(in srgb, var(--blue-700) 10%, transparent);
+}
+
+.animal-card-image img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;   /* preenche sem esticar a foto */
+}
+
+.animal-card-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 64px;
+    color: var(--pink-500);
+}
+
+.animal-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 16px 20px 18px;
+}
+
+.animal-card-name {
+    font-size: 22px;
+    color: var(--blue-700);
+    text-align: center;
+    margin: 0 0 6px;
+}
+
+.animal-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 14px;
+}
+
+.animal-card-tags li {
+    padding: 6px 11px;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--pink-500) 12%, transparent);
+    color: var(--pink-500);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* margin-top:auto empurra o botão para o fim: todos ficam alinhados na mesma linha */
+.animal-card-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+    background-color: var(--blue-700);
+    color: var(--white);
+    text-decoration: none;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.animal-card-button:hover {
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+/* ---- Nenhum resultado ---- */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 56px 32px;
+    border-radius: 24px;
+    border: var(--border-soft);
+    text-align: center;
+    font-family: var(--font);
+}
+
+.empty-state > i {
+    font-size: 40px;
+    color: var(--pink-500);
+}
+
+.empty-state h3 {
+    font-size: 22px;
+    color: var(--blue-700);
+    margin: 0;
+}
+
+.empty-state p {
+    max-width: 420px;
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--blue-700);
+    opacity: 0.85;
+    margin: 0 0 10px;
+}
+
+.empty-state .animal-card-button {
+    width: fit-content;
+    margin-top: 0;
+}
+
+/* Respeita quem prefere menos movimento (fica no fim para vencer as regras acima) */
+@media (prefers-reduced-motion: reduce) {
+    .filter-option label,
+    .filters-clear,
+    .animal-card-button {
+        transition: none;
+    }
+}

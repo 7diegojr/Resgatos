@@ -1,0 +1,221 @@
+@model AdocoesViewModel
+@{
+    ViewData["Title"] = "Adoções";
+
+    // Opções dos filtros: valor (vai na URL), rótulo e ícone do FontAwesome
+    var especies = new[] {
+        (Valor: EspecieAnimal.Gato,     Rotulo: "Gatos", Icone: "fa-cat"),
+        (Valor: EspecieAnimal.Cachorro, Rotulo: "Cães",  Icone: "fa-dog")
+    };
+    var sexos = new[] {
+        (Valor: SexoAnimal.Macho, Rotulo: "Macho", Icone: "fa-mars"),
+        (Valor: SexoAnimal.Femea, Rotulo: "Fêmea", Icone: "fa-venus")
+    };
+    var idades = new[] {
+        (Valor: FaixaEtariaAnimal.Filhote, Rotulo: "Filhote", Icone: "fa-seedling"),
+        (Valor: FaixaEtariaAnimal.Adulto,  Rotulo: "Adulto",  Icone: "fa-bolt"),
+        (Valor: FaixaEtariaAnimal.Idoso,   Rotulo: "Idoso",   Icone: "fa-person-walking-with-cane")
+    };
+    var portes = new[] {
+        (Valor: PorteAnimal.Pequeno, Rotulo: "Pequeno", Letra: "P"),
+        (Valor: PorteAnimal.Medio,   Rotulo: "Médio",   Letra: "M"),
+        (Valor: PorteAnimal.Grande,  Rotulo: "Grande",  Letra: "G")
+    };
+
+    var total = Model.Animais.Count;
+}
+
+<link rel="stylesheet" href="~/css/adocoes.css" asp-append-version="true">
+
+<h1 class="page-title">Adote um novo amigo!</h1>
+
+<!-- ===================== ADOTE EM 4 PASSOS ===================== -->
+<section class="steps">
+    <h2 class="section-title">Adote em 4 passos</h2>
+
+    <ol class="steps-list">
+        <li class="step-card">
+            <span class="step-number" aria-hidden="true">1</span>
+            <div class="step-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <h3>Conheça os animais</h3>
+            <p>Veja os perfis e encontre quem combina com a sua rotina.</p>
+        </li>
+
+        <li class="step-card">
+            <span class="step-number" aria-hidden="true">2</span>
+            <div class="step-icon"><i class="fa-solid fa-paw"></i></div>
+            <h3>Toque em “Quero conhecer”</h3>
+            <p>A ficha do animal vai direto para o WhatsApp da nossa equipe.</p>
+        </li>
+
+        <li class="step-card">
+            <span class="step-number" aria-hidden="true">3</span>
+            <div class="step-icon"><i class="fa-regular fa-comments"></i></div>
+            <h3>Converse com a gente</h3>
+            <p>Vamos falar sobre o animal de seu interesse e as etapas da adoção.</p>
+        </li>
+
+        <li class="step-card">
+            <span class="step-number" aria-hidden="true">4</span>
+            <div class="step-icon"><i class="fa-solid fa-house-chimney"></i></div>
+            <h3>Um novo capítulo</h3>
+            <p>Com tudo combinado, começa uma história para a vida toda.</p>
+        </li>
+    </ol>
+</section>
+
+<!-- ===================== ANIMAIS ===================== -->
+<section class="adoption" id="animais">
+    <div class="adoption-header">
+        <h2 class="section-title">Animais para adoção</h2>
+        <p class="adoption-count" id="animais-contagem" aria-live="polite">@(total == 0 ? "" : total + (total == 1 ? " animal disponível" : " animais disponíveis"))</p>
+    </div>
+
+    <div class="adoption-layout">
+
+        <!-- FILTROS (bloco fixo: acompanha a rolagem) -->
+        <aside class="filters" aria-label="Filtros">
+            <form id="filtros-form" method="get" asp-controller="Home" asp-action="Adocoes">
+
+                <div class="filters-header">
+                    <h3>Filtros</h3>
+                    <button type="button" class="filters-clear" id="filtros-limpar" data-limpar-filtros
+                            hidden="@(!Model.Filtro.TemFiltroAtivo)">
+                        <i class="fa-solid fa-xmark"></i>
+                        <span>Limpar</span>
+                    </button>
+                </div>
+
+                <fieldset class="filter-group">
+                    <legend>Espécie</legend>
+                    <div class="filter-options">
+                        @foreach (var op in especies)
+                        {
+                            <div class="filter-option">
+                                <input type="checkbox" id="especie-@op.Valor" name="especies" value="@op.Valor"
+                                       checked="@Model.Filtro.Especies.Contains(op.Valor)">
+                                <label for="especie-@op.Valor"><i class="fa-solid @op.Icone"></i><span>@op.Rotulo</span></label>
+                            </div>
+                        }
+                    </div>
+                </fieldset>
+
+                <fieldset class="filter-group">
+                    <legend>Sexo</legend>
+                    <div class="filter-options">
+                        @foreach (var op in sexos)
+                        {
+                            <div class="filter-option">
+                                <input type="checkbox" id="sexo-@op.Valor" name="sexos" value="@op.Valor"
+                                       checked="@Model.Filtro.Sexos.Contains(op.Valor)">
+                                <label for="sexo-@op.Valor"><i class="fa-solid @op.Icone"></i><span>@op.Rotulo</span></label>
+                            </div>
+                        }
+                    </div>
+                </fieldset>
+
+                <fieldset class="filter-group">
+                    <legend>Idade</legend>
+                    <div class="filter-options">
+                        @foreach (var op in idades)
+                        {
+                            <div class="filter-option">
+                                <input type="checkbox" id="idade-@op.Valor" name="faixasEtarias" value="@op.Valor"
+                                       checked="@Model.Filtro.FaixasEtarias.Contains(op.Valor)">
+                                <label for="idade-@op.Valor"><i class="fa-solid @op.Icone"></i><span>@op.Rotulo</span></label>
+                            </div>
+                        }
+                    </div>
+                </fieldset>
+
+                <fieldset class="filter-group">
+                    <legend>Porte</legend>
+                    <div class="filter-options">
+                        @foreach (var op in portes)
+                        {
+                            <div class="filter-option">
+                                <input type="checkbox" id="porte-@op.Valor" name="portes" value="@op.Valor"
+                                       checked="@Model.Filtro.Portes.Contains(op.Valor)">
+                                <label for="porte-@op.Valor"><b class="filter-letter" aria-hidden="true">@op.Letra</b><span>@op.Rotulo</span></label>
+                            </div>
+                        }
+                    </div>
+                </fieldset>
+
+                <!-- Só aparece se o JavaScript estiver desligado (com JS, o filtro é aplicado ao clicar) -->
+                <noscript>
+                    <button type="submit" class="animal-card-button">Aplicar filtros</button>
+                </noscript>
+            </form>
+        </aside>
+
+        <!-- RESULTADO (o JavaScript troca só o conteúdo desta div ao filtrar) -->
+        <div class="adoption-results" id="animais-resultado">
+            @if (total > 0)
+            {
+                <div class="animals-grid">
+                    @foreach (var animal in Model.Animais)
+                    {
+                        <article class="animal-card">
+                            <div class="animal-card-image">
+                                @if (!string.IsNullOrEmpty(animal.FotoCapa))
+                                {
+                                    <img src="@Url.Content("~/" + animal.FotoCapa)" alt="Foto de @animal.Nome" loading="lazy">
+                                }
+                                else
+                                {
+                                    <!-- sem foto ainda: placeholder -->
+                                    <div class="animal-card-placeholder" aria-hidden="true"><i class="fa-solid fa-paw"></i></div>
+                                }
+                            </div>
+
+                            <div class="animal-card-body">
+                                <h3 class="animal-card-name">@animal.Nome</h3>
+
+                                <ul class="animal-card-tags">
+                                    <li>@animal.IdadeEstimada</li>
+                                    <li>Porte @animal.Porte.GetDisplayName().ToLower()</li>
+                                    <li>@animal.Sexo.GetDisplayName()</li>
+                                </ul>
+
+                                <a href="@animal.LinkWhatsApp" target="_blank" rel="noopener" class="animal-card-button">
+                                    <i class="fa-solid fa-paw"></i>
+                                    <span>Quero conhecer</span>
+                                </a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+            else if (Model.Filtro.TemFiltroAtivo)
+            {
+                <div class="empty-state">
+                    <i class="fa-solid fa-paw" aria-hidden="true"></i>
+                    <h3>Nenhum animal com esses filtros</h3>
+                    <p>Tente tirar algum filtro para ver mais bichinhos.</p>
+                    <a asp-controller="Home" asp-action="Adocoes" class="animal-card-button" data-limpar-filtros>
+                        <i class="fa-solid fa-xmark"></i>
+                        <span>Limpar filtros</span>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fa-solid fa-paw" aria-hidden="true"></i>
+                    <h3>No momento não temos animais disponíveis</h3>
+                    <p>Estamos com todos os lares preenchidos! Acompanhe o nosso Instagram para saber quando novos bichinhos chegarem.</p>
+                    <a href="https://instagram.com/resgatoscwb" target="_blank" rel="noopener" class="animal-card-button">
+                        <i class="fa-brands fa-instagram"></i>
+                        <span>Seguir no Instagram</span>
+                    </a>
+                </div>
+            }
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/adocoes.js" asp-append-version="true"></script>
+}

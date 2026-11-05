@@ -25,6 +25,10 @@ public class Animal
     [StringLength(100)]
     public string Cor { get; set; }
 
+    [Required]
+    [Display(Name = "Faixa etária")]
+    public FaixaEtariaAnimal FaixaEtaria { get; set; }
+
     [Required(ErrorMessage = "A idade estimada é obrigatória")]
     [StringLength(50)]
     [Display(Name = "Idade estimada")]

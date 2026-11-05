@@ -39,6 +39,13 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await context.Database.EnsureCreatedAsync();
+
+    // Dados de teste dos animais (TEMPORÁRIO: remover quando o CRUD de animais da Sprint 13 existir).
+    // Rode uma vez com:  dotnet run --seed-teste
+    if (args.Contains("--seed-teste"))
+    {
+        await DadosDeTeste.PopularAnimaisAsync(context);
+    }
 }
 
 app.Run();
