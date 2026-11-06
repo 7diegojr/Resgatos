@@ -1,0 +1,168 @@
+@model AnimalDetalheViewModel
+@{
+    // "o" ou "a", para concordar com o sexo do animal (Castrado/Castrada, Vacinado/Vacinada...)
+    var o = Model.Sexo == SexoAnimal.Femea ? "a" : "o";
+    var ehGato = Model.Especie == EspecieAnimal.Gato;
+    var ehFilhote = Model.FaixaEtaria == FaixaEtariaAnimal.Filhote;
+
+    // Cada item de saúde tem um estado:
+    //   "ok"       = feito / resultado tranquilo   (círculo rosa com check)
+    //   "info"     = vale uma explicação           (círculo azul com "i")
+    //   "pendente" = ainda não feito               (círculo apagado com relógio)
+    var saude = new List<(string Rotulo, string Detalhe, string Estado)>();
+
+    saude.Add(("Antipulgas", Model.AntipulgasOk ? "em dia" : "ainda não aplicado", Model.AntipulgasOk ? "ok" : "pendente"));
+    saude.Add(("Vermifugação", Model.VermifugadoOk ? "feita" : "ainda não feita", Model.VermifugadoOk ? "ok" : "pendente"));
+    saude.Add(("Vacinação", Model.VacinadoOk ? "em dia" : "ainda não feita", Model.VacinadoOk ? "ok" : "pendente"));
+
+    // Regra do projeto: filhotes têm a castração pré-agendada; nos adultos o procedimento já foi feito
+    if (Model.CastradoOk)
+    {
+        var quando = Model.DataCastracao.HasValue ? "em " + Model.DataCastracao.Value.ToString("MM/yyyy") : "feita";
+        saude.Add(("Castração", quando, "ok"));
+    }
+    else if (ehFilhote)
+    {
+        saude.Add(("Castração", "já agendada", "info"));
+    }
+    else
+    {
+        saude.Add(("Castração", "ainda não feita", "pendente"));
+    }
+
+    // FIV e FeLV só existem para gatos. Negativo é o resultado esperado ("ok");
+    // positivo/inconclusivo ganham destaque de informação, sem alarde.
+    if (ehGato)
+    {
+        var fiv = Model.FivTestado ? (Model.ResultadoFiv?.ToString().ToLower() ?? "testado") : null;
+        var felv = Model.FelvTestado ? (Model.ResultadoFelv?.ToString().ToLower() ?? "testado") : null;
+
+        saude.Add(("FIV", fiv ?? "não testad" + o, fiv == null ? "pendente" : fiv == "negativo" ? "ok" : "info"));
+        saude.Add(("FeLV", felv ?? "não testad" + o, felv == null ? "pendente" : felv == "negativo" ? "ok" : "info"));
+    }
+
+    var icones = new Dictionary<string, string>
+    {
+        ["ok"] = "fa-solid fa-check",
+        ["info"] = "fa-solid fa-info",
+        ["pendente"] = "fa-regular fa-clock"
+    };
+
+    // "da Mel" / "do Thor" e "ela" / "ele"
+    var deDo = Model.Sexo == SexoAnimal.Femea ? "da" : "do";
+    var elaEle = Model.Sexo == SexoAnimal.Femea ? "ela" : "ele";
+
+    var temFotos = Model.Fotos.Count > 0;
+    var variasFotos = Model.Fotos.Count > 1;
+}
+
+<div class="animal-modal-grid">
+
+    <!-- ===================== GALERIA ===================== -->
+    <div class="animal-gallery" data-galeria data-indice="0">
+        <div class="animal-gallery-main">
+            @if (temFotos)
+            {
+                <img src="@Url.Content("~/" + Model.Fotos[0])" alt="Foto 1 de @Model.Nome" data-galeria-imagem>
+
+                @if (variasFotos)
+                {
+                    <button type="button" class="animal-gallery-arrow animal-gallery-prev" data-foto-anterior aria-label="Foto anterior">
+                        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="animal-gallery-arrow animal-gallery-next" data-foto-proxima aria-label="Próxima foto">
+                        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                    <span class="animal-gallery-counter" data-galeria-contador aria-hidden="true">1 / @Model.Fotos.Count</span>
+                }
+            }
+            else
+            {
+                <div class="animal-gallery-placeholder" aria-hidden="true"><i class="fa-solid fa-paw"></i></div>
+            }
+        </div>
+
+        @if (variasFotos)
+        {
+            <ul class="animal-gallery-thumbs">
+                @for (var i = 0; i < Model.Fotos.Count; i++)
+                {
+                    <li>
+                        <button type="button" data-foto-indice="@i"
+                                data-foto="@Url.Content("~/" + Model.Fotos[i])"
+                                data-alt="Foto @(i + 1) de @Model.Nome"
+                                aria-label="Ver foto @(i + 1) de @Model.Fotos.Count"
+                                aria-current="@(i == 0 ? "true" : "false")">
+                            <img src="@Url.Content("~/" + Model.Fotos[i])" alt="" loading="lazy">
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+
+    <!-- ===================== INFORMAÇÕES ===================== -->
+    <div class="animal-info">
+        <h2 class="animal-info-name" id="animal-modal-titulo">@Model.Nome</h2>
+
+        <ul class="animal-info-tags">
+            <li>@Model.Especie.GetDisplayName()</li>
+            <li>@Model.Sexo.GetDisplayName()</li>
+            <li>@Model.IdadeEstimada</li>
+            <li>Porte @Model.Porte.GetDisplayName().ToLower()</li>
+            <li>@Model.Cor</li>
+        </ul>
+
+        <section class="animal-info-section">
+            <h3>A história @deDo @Model.Nome</h3>
+            @if (!string.IsNullOrWhiteSpace(Model.Historia))
+            {
+                <p class="animal-info-story">@Model.Historia</p>
+            }
+            else
+            {
+                <p class="animal-info-story">
+                    Ainda estamos escrevendo a história @deDo @Model.Nome. Chama a gente no WhatsApp
+                    que contamos tudo o que sabemos sobre @elaEle!
+                </p>
+            }
+        </section>
+
+        <section class="animal-info-section">
+            <h3>Cuidados com a saúde</h3>
+            <ul class="animal-health">
+                @foreach (var item in saude)
+                {
+                    <li class="animal-health-item animal-health-@item.Estado">
+                        <span class="animal-health-icon" aria-hidden="true">
+                            <i class="@icones[item.Estado]"></i>
+                        </span>
+                        <span class="animal-health-text">
+                            <strong>@item.Rotulo</strong>
+                            <small>@item.Detalhe</small>
+                        </span>
+                    </li>
+                }
+            </ul>
+        </section>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Observacoes))
+        {
+            <section class="animal-info-section">
+                <h3>Bom saber</h3>
+                <p class="animal-info-story">@Model.Observacoes</p>
+            </section>
+        }
+
+        <div class="animal-info-cta">
+            <a href="@Model.LinkWhatsApp" target="_blank" rel="noopener" class="animal-card-button">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                <span>Quero conhecer @Model.Nome</span>
+            </a>
+            <p class="animal-info-note">
+                Adoções somente em Curitiba.
+            </p>
+        </div>
+    </div>
+
+</div>

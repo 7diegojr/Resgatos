@@ -1,0 +1,430 @@
+/* ============ TRAVA DA PÁGINA ============ */
+/* Com o modal aberto, o fundo não rola.
+   scrollbar-gutter mantém o espaço da barra de rolagem, para a página não "pular" de lado
+   quando o overflow: hidden faz a barra desaparecer. */
+html.modal-aberto {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+}
+
+/* ============ MODAL (<dialog>) ============ */
+/* O <dialog> aberto com showModal() já traz de graça: camada acima de tudo (header incluso),
+   fundo "inerte" (nada atrás recebe clique ou foco), Esc para fechar e foco preso dentro dele. */
+.animal-modal {
+    /* O <dialog> é centralizado pelo margin: auto do navegador, mas o reset global do site.css
+       (* { margin: 0 }) apaga isso. Sem esta linha, o modal ficaria colado no canto da tela. */
+    margin: auto;
+    width: min(980px, calc(100% - 32px));
+    max-height: calc(100dvh - 48px);
+    padding: 0;
+    border: none;
+    border-radius: 28px;
+    overflow: hidden;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-family: var(--font);
+    box-shadow: 0 24px 60px rgb(18 29 49 / 0.35);
+}
+
+/* A escurecida do fundo. (Cor literal de propósito: o ::backdrop não enxerga as variáveis do :root
+   em todos os navegadores.) */
+.animal-modal::backdrop {
+    background-color: rgb(18 29 49 / 0.65);
+    backdrop-filter: blur(3px);
+}
+
+.animal-modal[open] {
+    animation: modal-entrar 0.25s ease;
+}
+
+.animal-modal[open]::backdrop {
+    animation: modal-fundo 0.25s ease;
+}
+
+@keyframes modal-entrar {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes modal-fundo {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* A área que rola é esta, e não o <dialog>: assim o botão de fechar fica parado no canto */
+.animal-modal-scroll {
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+    overscroll-behavior: contain;   /* o fim da rolagem do modal não "vaza" para a página */
+}
+
+.animal-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: var(--border-soft);
+    border-radius: 50%;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.animal-modal-close:hover {
+    transform: rotate(90deg);
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+/* ---- Carregando / erro ---- */
+.animal-modal-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 72px 32px;
+    text-align: center;
+}
+
+.animal-modal-status > i {
+    font-size: 44px;
+    color: var(--pink-500);
+}
+
+.animal-modal-status h2 {
+    margin: 14px 0 0;
+    font-size: 24px;
+    color: var(--blue-700);
+}
+
+.animal-modal-status p {
+    max-width: 380px;
+    margin: 0 0 14px;
+    font-size: 15px;
+    line-height: 1.4;
+    opacity: 0.85;
+}
+
+.animal-modal-status .animal-card-button {
+    width: fit-content;
+    margin-top: 0;
+}
+
+/* ============ CONTEÚDO ============ */
+.animal-modal-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 36px;
+    padding: 32px;
+}
+
+/* ---- Galeria ---- */
+.animal-gallery {
+    align-self: start;
+    position: sticky;     /* se o texto for longo, a foto acompanha a rolagem */
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.animal-gallery-main {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    border-radius: 22px;
+    background-color: color-mix(in srgb, var(--blue-700) 10%, transparent);
+}
+
+.animal-gallery-main img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.animal-gallery-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 80px;
+    color: var(--pink-500);
+}
+
+.animal-gallery-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgb(255 255 255 / 0.9);
+    color: var(--blue-700);
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.animal-gallery-arrow:hover {
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+.animal-gallery-prev { left: 12px; }
+.animal-gallery-next { right: 12px; }
+
+.animal-gallery-counter {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    background-color: rgb(18 29 49 / 0.6);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.animal-gallery-thumbs {
+    display: flex;
+    gap: 10px;
+    list-style: none;
+    padding: 4px;          /* folga para o contorno de foco não ser cortado pelo overflow */
+    margin: 0;
+    overflow-x: auto;
+}
+
+.animal-gallery-thumbs li {
+    flex: none;
+}
+
+.animal-gallery-thumbs button {
+    display: block;
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 14px;
+    background: none;
+    opacity: 0.65;
+    cursor: pointer;
+    transition: opacity 0.3s ease, border-color 0.3s ease;
+}
+
+.animal-gallery-thumbs button:hover,
+.animal-gallery-thumbs button[aria-current="true"] {
+    opacity: 1;
+}
+
+.animal-gallery-thumbs button[aria-current="true"] {
+    border-color: var(--pink-500);
+}
+
+.animal-gallery-thumbs img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ---- Informações ---- */
+.animal-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding-right: 44px;   /* espaço para o botão de fechar não ficar sobre o nome */
+}
+
+.animal-info-name {
+    margin: 0 0 4px;
+    font-size: 36px;
+    color: var(--blue-700);
+}
+
+.animal-info-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Mesma pílula rosa dos cards da listagem */
+.animal-info-tags li {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--pink-500) 12%, transparent);
+    color: var(--pink-500);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.animal-info-section {
+    margin-top: 22px;
+}
+
+.animal-info-section h3 {
+    margin: 0 0 2px;
+    font-size: 20px;
+    color: var(--blue-700);
+}
+
+.animal-info-story {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.55;
+    opacity: 0.85;
+}
+
+/* ---- Saúde ---- */
+.animal-health {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.animal-health-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: var(--border-soft);
+    border-radius: 14px;
+}
+
+.animal-health-icon {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 12px;
+}
+
+.animal-health-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+.animal-health-text strong {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.animal-health-text small {
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.animal-health-ok .animal-health-icon {
+    background-color: var(--pink-500);
+    color: var(--white);
+}
+
+.animal-health-info .animal-health-icon {
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+.animal-health-pendente {
+    opacity: 0.7;
+}
+
+.animal-health-pendente .animal-health-icon {
+    background-color: color-mix(in srgb, var(--blue-700) 12%, transparent);
+    color: var(--blue-700);
+}
+
+/* ---- Botão e aviso ---- */
+.animal-info-cta {
+    margin-top: 28px;
+}
+
+.animal-info-cta .animal-card-button {
+    margin-top: 0;
+    padding: 14px 22px;
+    font-size: 16px;
+}
+
+.animal-info-note {
+    margin: 8px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: center;
+    opacity: 0.75;
+}
+
+/* ============ TELAS MENORES ============ */
+@media (max-width: 800px) {
+    .animal-modal {
+        width: calc(100% - 16px);
+        max-height: calc(100dvh - 16px);
+        border-radius: 22px;
+    }
+
+    .animal-modal-scroll {
+        max-height: calc(100dvh - 16px);
+    }
+
+    .animal-modal-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 22px;
+        padding: 18px;
+    }
+
+    .animal-gallery {
+        position: static;
+    }
+
+    .animal-info {
+        padding-right: 0;
+    }
+
+    .animal-info-name {
+        font-size: 30px;
+    }
+
+    .animal-health {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Respeita quem prefere menos movimento (fica no fim para vencer as regras acima) */
+@media (prefers-reduced-motion: reduce) {
+    .animal-modal[open],
+    .animal-modal[open]::backdrop {
+        animation: none;
+    }
+
+    .animal-modal-close,
+    .animal-gallery-arrow,
+    .animal-gallery-thumbs button {
+        transition: none;
+    }
+
+    .animal-modal-close:hover {
+        transform: none;
+    }
+}

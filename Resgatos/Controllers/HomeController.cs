@@ -73,6 +73,55 @@ public class HomeController : Controller
         return View(new AdocoesViewModel { Filtro = filtro, Animais = animais });
     }
 
+    // Detalhes de um animal. Devolve só o miolo do modal (partial), que o JavaScript
+    // busca com fetch e encaixa dentro do <dialog> da página de Adoções.
+    public async Task<IActionResult> DetalhesAnimal(int id)
+    {
+        // Mesma regra da listagem: só animais disponíveis aparecem no site.
+        // Se o animal foi adotado/reservado enquanto a pessoa olhava a página, cai no NotFound.
+        var animal = await _context.Animais
+            .AsNoTracking()
+            .Include(a => a.Fotos)
+            .FirstOrDefaultAsync(a => a.IdAnimal == id && a.Status == StatusAnimal.Disponivel);
+
+        if (animal == null)
+            return NotFound();
+
+        var detalhe = new AnimalDetalheViewModel
+        {
+            IdAnimal = animal.IdAnimal,
+            Nome = animal.Nome,
+            Especie = animal.Especie,
+            Sexo = animal.Sexo,
+            Porte = animal.Porte,
+            FaixaEtaria = animal.FaixaEtaria,
+            IdadeEstimada = animal.IdadeEstimada,
+            Cor = animal.Cor,
+            Historia = animal.Historia,
+            Observacoes = animal.Observacoes,
+            // Capa primeiro; as demais na ordem em que foram enviadas
+            Fotos = animal.Fotos
+                .OrderByDescending(f => f.Capa)
+                .ThenBy(f => f.IdAnimalFoto)
+                .Select(f => f.Foto)
+                .ToList(),
+            AntipulgasOk = animal.AntipulgasOk,
+            VermifugadoOk = animal.VermifugadoOk,
+            VacinadoOk = animal.VacinadoOk,
+            FivTestado = animal.FivTestado,
+            ResultadoFiv = animal.ResultadoFiv,
+            FelvTestado = animal.FelvTestado,
+            ResultadoFelv = animal.ResultadoFelv,
+            CastradoOk = animal.CastradoOk,
+            DataCastracao = animal.DataCastracao
+        };
+
+        detalhe.FotoCapa = detalhe.Fotos.FirstOrDefault();
+        detalhe.LinkWhatsApp = WhatsAppHelper.LinkConhecerAnimal(detalhe);
+
+        return PartialView("_DetalhesAnimal", detalhe);
+    }
+
     public IActionResult Doacoes()
     {
         return View();

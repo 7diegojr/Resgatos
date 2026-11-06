@@ -240,6 +240,8 @@
 
 /* ---- Card do animal ---- */
 .animal-card {
+    position: relative;   /* o botão com o nome estica um ::after por cima do card (ver .animal-card-open) */
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     overflow: hidden;   /* arredonda a foto junto com o card */
@@ -294,6 +296,37 @@
     margin: 0 0 6px;
 }
 
+/* Botão do nome: é ele que recebe o foco do teclado e abre o modal.
+   O ::after cobre o card inteiro, então o clique vale em qualquer parte do card. */
+.animal-card-open {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: center;
+    cursor: pointer;
+}
+
+.animal-card-open::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+/* O foco aparece no card todo, e não só em volta do nome */
+.animal-card-open:focus-visible {
+    outline: none;
+}
+
+.animal-card:has(.animal-card-open:focus-visible) {
+    outline: 3px solid var(--pink-500);
+    outline-offset: 3px;
+}
+
 .animal-card-tags {
     display: flex;
     flex-wrap: wrap;
@@ -314,6 +347,8 @@
 
 /* margin-top:auto empurra o botão para o fim: todos ficam alinhados na mesma linha */
 .animal-card-button {
+    position: relative;   /* fica acima da camada clicável do card: o WhatsApp abre direto, sem passar pelo modal */
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -26,6 +26,7 @@
 }
 
 <link rel="stylesheet" href="~/css/adocoes.css" asp-append-version="true">
+<link rel="stylesheet" href="~/css/animal-modal.css" asp-append-version="true">
 
 <h1 class="page-title">Adote um novo amigo!</h1>
 
@@ -170,7 +171,14 @@
                             </div>
 
                             <div class="animal-card-body">
-                                <h3 class="animal-card-name">@animal.Nome</h3>
+                                <h3 class="animal-card-name">
+                                    <!-- O botão cobre o card inteiro (ver .animal-card-open::after no CSS):
+                                         clicar em qualquer lugar do card abre os detalhes -->
+                                    <button type="button" class="animal-card-open"
+                                            data-detalhes-url="@Url.Action("DetalhesAnimal", "Home", new { id = animal.IdAnimal })"
+                                            aria-haspopup="dialog"
+                                            aria-label="Ver detalhes de @animal.Nome">@animal.Nome</button>
+                                </h3>
 
                                 <ul class="animal-card-tags">
                                     <li>@animal.IdadeEstimada</li>
@@ -216,6 +224,16 @@
     </div>
 </section>
 
+<!-- ===================== MODAL DE DETALHES (fica fora da lista: os filtros não o recriam) ===================== -->
+<dialog class="animal-modal" id="animal-modal" aria-label="Detalhes do animal">
+    <button type="button" class="animal-modal-close" data-fechar-modal aria-label="Fechar detalhes">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+    <!-- O JavaScript coloca aqui o que vem de Home/DetalhesAnimal -->
+    <div class="animal-modal-scroll" id="animal-modal-conteudo" aria-live="polite"></div>
+</dialog>
+
 @section Scripts {
     <script src="~/js/adocoes.js" asp-append-version="true"></script>
+    <script src="~/js/animal-modal.js" asp-append-version="true"></script>
 }
