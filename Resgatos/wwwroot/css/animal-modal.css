@@ -213,14 +213,14 @@ html.modal-aberto {
 
 .animal-gallery-thumbs button {
     display: block;
-    width: 64px;
-    height: 64px;
+    width: 80px;
+    height: 80px;
     padding: 0;
     overflow: hidden;
-    border: 2px solid transparent;
+    border: 3px solid transparent;
     border-radius: 14px;
     background: none;
-    opacity: 0.65;
+    opacity: 0.55;
     cursor: pointer;
     transition: opacity 0.3s ease, border-color 0.3s ease;
 }
@@ -231,7 +231,7 @@ html.modal-aberto {
 }
 
 .animal-gallery-thumbs button[aria-current="true"] {
-    border-color: var(--pink-500);
+    border-color: color-mix(in srgb, var(--blue-700) 25%, transparent);
 }
 
 .animal-gallery-thumbs img {
@@ -243,6 +243,11 @@ html.modal-aberto {
 
 /* ---- Informações ---- */
 .animal-info {
+    /* ESPAÇAMENTOS: mexa aqui para ajustar a distância entre os blocos */
+    --espaco-tags-sobre: 14px;     /* entre as tags e o título "Sobre ..." */
+    --espaco-sobre-saude: 14px;    /* entre o texto do "Sobre" e o título "Cuidados com a saúde" */
+    --espaco-titulo-saude: 10px;   /* entre o título "Cuidados com a saúde" e os cards de saúde */
+
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -278,6 +283,19 @@ html.modal-aberto {
     margin-top: 22px;
 }
 
+/* A primeira seção vem logo depois das tags */
+.animal-info-tags + .animal-info-section {
+    margin-top: var(--espaco-tags-sobre);
+}
+
+.animal-info-section-saude {
+    margin-top: var(--espaco-sobre-saude);
+}
+
+.animal-info-section.animal-info-section-saude h3 {
+    margin-bottom: var(--espaco-titulo-saude);
+}
+
 .animal-info-section h3 {
     margin: 0 0 2px;
     font-size: 20px;
@@ -287,8 +305,9 @@ html.modal-aberto {
 .animal-info-story {
     margin: 0;
     font-size: 16px;
-    line-height: 1.55;
+    line-height: 1.4;
     opacity: 0.85;
+    text-align: justify;
 }
 
 /* ---- Saúde ---- */
@@ -338,23 +357,35 @@ html.modal-aberto {
     opacity: 0.8;
 }
 
+/* Feito: mesmo estilo "clarinho" das tags (fundo suave + cor forte), em verde */
 .animal-health-ok .animal-health-icon {
-    background-color: var(--pink-500);
-    color: var(--white);
+    background-color: color-mix(in srgb, #3fae6a 20%, transparent);
+    color: #2e9c59;
 }
 
-.animal-health-info .animal-health-icon {
-    background-color: var(--blue-700);
-    color: var(--white);
+/* Check e relógio têm o mesmo tamanho: o círculo (28px) é igual nos dois estados e
+   o ícone ocupa sempre a mesma caixa, já que cada glifo do FontAwesome tem largura própria */
+.animal-health-icon i {
+    width: 1em;
+    font-size: 13px;
+    line-height: 1;
+    text-align: center;
 }
 
-.animal-health-pendente {
-    opacity: 0.7;
-}
-
+/* Pendente: mesmo estilo "clarinho" das tags rosa (fundo suave + cor forte), só que em amarelo */
 .animal-health-pendente .animal-health-icon {
-    background-color: color-mix(in srgb, var(--blue-700) 12%, transparent);
-    color: var(--blue-700);
+    background-color: color-mix(in srgb, #f0b429 20%, transparent);
+    color: #e0a010;
+}
+
+/* Só para leitores de tela: a cor sozinha não diz se está feito ou pendente */
+.visually-hidden-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
 
 /* ---- Botão e aviso ---- */

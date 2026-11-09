@@ -1,56 +1,31 @@
 @model AnimalDetalheViewModel
 @{
-    // "o" ou "a", para concordar com o sexo do animal (Castrado/Castrada, Vacinado/Vacinada...)
-    var o = Model.Sexo == SexoAnimal.Femea ? "a" : "o";
     var ehGato = Model.Especie == EspecieAnimal.Gato;
-    var ehFilhote = Model.FaixaEtaria == FaixaEtariaAnimal.Filhote;
+    var femea = Model.Sexo == SexoAnimal.Femea;
 
-    // Cada item de saúde tem um estado:
-    //   "ok"       = feito / resultado tranquilo   (círculo rosa com check)
-    //   "info"     = vale uma explicação           (círculo azul com "i")
-    //   "pendente" = ainda não feito               (círculo apagado com relógio)
-    var saude = new List<(string Rotulo, string Detalhe, string Estado)>();
+    // "a"/"o" (Sobre a Mel, Quero conhecer o Thor), "da"/"do" e "ela"/"ele"
+    var artigo = femea ? "a" : "o";
+    var deDo = femea ? "da" : "do";
+    var elaEle = femea ? "ela" : "ele";
 
-    saude.Add(("Antipulgas", Model.AntipulgasOk ? "em dia" : "ainda não aplicado", Model.AntipulgasOk ? "ok" : "pendente"));
-    saude.Add(("Vermifugação", Model.VermifugadoOk ? "feita" : "ainda não feita", Model.VermifugadoOk ? "ok" : "pendente"));
-    saude.Add(("Vacinação", Model.VacinadoOk ? "em dia" : "ainda não feita", Model.VacinadoOk ? "ok" : "pendente"));
-
-    // Regra do projeto: filhotes têm a castração pré-agendada; nos adultos o procedimento já foi feito
-    if (Model.CastradoOk)
+    // Os procedimentos aparecem SEMPRE. Cada um tem só dois estados:
+    //   feito = true  -> círculo rosa com check
+    //   feito = false -> círculo amarelo com relógio (pendente)
+    // "Detalhe" é uma linha pequena opcional (só o resultado do FIV/FeLV, quando já foi testado).
+    var saude = new List<(string Rotulo, bool Feito, string Detalhe)>
     {
-        var quando = Model.DataCastracao.HasValue ? "em " + Model.DataCastracao.Value.ToString("MM/yyyy") : "feita";
-        saude.Add(("Castração", quando, "ok"));
-    }
-    else if (ehFilhote)
-    {
-        saude.Add(("Castração", "já agendada", "info"));
-    }
-    else
-    {
-        saude.Add(("Castração", "ainda não feita", "pendente"));
-    }
-
-    // FIV e FeLV só existem para gatos. Negativo é o resultado esperado ("ok");
-    // positivo/inconclusivo ganham destaque de informação, sem alarde.
-    if (ehGato)
-    {
-        var fiv = Model.FivTestado ? (Model.ResultadoFiv?.ToString().ToLower() ?? "testado") : null;
-        var felv = Model.FelvTestado ? (Model.ResultadoFelv?.ToString().ToLower() ?? "testado") : null;
-
-        saude.Add(("FIV", fiv ?? "não testad" + o, fiv == null ? "pendente" : fiv == "negativo" ? "ok" : "info"));
-        saude.Add(("FeLV", felv ?? "não testad" + o, felv == null ? "pendente" : felv == "negativo" ? "ok" : "info"));
-    }
-
-    var icones = new Dictionary<string, string>
-    {
-        ["ok"] = "fa-solid fa-check",
-        ["info"] = "fa-solid fa-info",
-        ["pendente"] = "fa-regular fa-clock"
+        ("Antipulgas", Model.AntipulgasOk, null),
+        ("Vermifugação", Model.VermifugadoOk, null),
+        ("Vacinação", Model.VacinadoOk, null),
+        ("Castração", Model.CastradoOk, null)
     };
 
-    // "da Mel" / "do Thor" e "ela" / "ele"
-    var deDo = Model.Sexo == SexoAnimal.Femea ? "da" : "do";
-    var elaEle = Model.Sexo == SexoAnimal.Femea ? "ela" : "ele";
+    // FIV e FeLV só existem para gatos. Testado = feito, e o resultado vira a descrição
+    if (ehGato)
+    {
+        saude.Add(("FIV", Model.FivTestado, Model.FivTestado ? Model.ResultadoFiv?.ToString().ToLower() : null));
+        saude.Add(("FeLV", Model.FelvTestado, Model.FelvTestado ? Model.ResultadoFelv?.ToString().ToLower() : null));
+    }
 
     var temFotos = Model.Fotos.Count > 0;
     var variasFotos = Model.Fotos.Count > 1;
@@ -114,7 +89,7 @@
         </ul>
 
         <section class="animal-info-section">
-            <h3>A história @deDo @Model.Nome</h3>
+            <h3>Sobre @artigo @Model.Nome</h3>
             @if (!string.IsNullOrWhiteSpace(Model.Historia))
             {
                 <p class="animal-info-story">@Model.Historia</p>
@@ -128,18 +103,22 @@
             }
         </section>
 
-        <section class="animal-info-section">
+        <section class="animal-info-section animal-info-section-saude">
             <h3>Cuidados com a saúde</h3>
             <ul class="animal-health">
                 @foreach (var item in saude)
                 {
-                    <li class="animal-health-item animal-health-@item.Estado">
+                    <li class="animal-health-item @(item.Feito ? "animal-health-ok" : "animal-health-pendente")">
                         <span class="animal-health-icon" aria-hidden="true">
-                            <i class="@icones[item.Estado]"></i>
+                            <i class="@(item.Feito ? "fa-solid fa-check" : "fa-regular fa-clock")"></i>
                         </span>
                         <span class="animal-health-text">
                             <strong>@item.Rotulo</strong>
-                            <small>@item.Detalhe</small>
+                            @if (!string.IsNullOrEmpty(item.Detalhe))
+                            {
+                                <small>@item.Detalhe</small>
+                            }
+                            <span class="visually-hidden-text">@(item.Feito ? "(feito)" : "(pendente)")</span>
                         </span>
                     </li>
                 }
@@ -157,7 +136,7 @@
         <div class="animal-info-cta">
             <a href="@Model.LinkWhatsApp" target="_blank" rel="noopener" class="animal-card-button">
                 <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
-                <span>Quero conhecer @Model.Nome</span>
+                <span>Quero conhecer @artigo @Model.Nome</span>
             </a>
             <p class="animal-info-note">
                 Adoções somente em Curitiba.

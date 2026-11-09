@@ -41,8 +41,13 @@ using (var scope = app.Services.CreateScope())
     await context.Database.EnsureCreatedAsync();
 
     // Dados de teste dos animais (TEMPORÁRIO: remover quando o CRUD de animais da Sprint 13 existir).
-    // Rode uma vez com:  dotnet run --seed-teste
-    if (args.Contains("--seed-teste"))
+    // Rode uma vez com:  dotnet run --seed-teste   (não faz nada se já houver animais)
+    // Para apagar os animais e recriar a seed:  dotnet run --refazer-seed-teste
+    if (args.Contains("--refazer-seed-teste"))
+    {
+        await DadosDeTeste.RefazerAnimaisAsync(context);
+    }
+    else if (args.Contains("--seed-teste"))
     {
         await DadosDeTeste.PopularAnimaisAsync(context);
     }

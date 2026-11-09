@@ -330,6 +330,7 @@
 .animal-card-tags {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;   /* tags centralizadas no card */
     gap: 6px;
     list-style: none;
     padding: 0;
