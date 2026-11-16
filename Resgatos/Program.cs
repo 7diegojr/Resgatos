@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Resgatos.Data;
+using Resgatos.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,26 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Serviço de login do admin (validação de senha e geração de hash)
+builder.Services.AddScoped<AuthService>();
+
+// Autenticação por cookie (só o admin tem login; não há cadastro de usuários)
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/admin/conta/login";       // para onde manda quem não está logado
+        options.Cookie.Name = "Resgatos.Admin";
+        options.Cookie.HttpOnly = true;                  // JavaScript não consegue ler o cookie
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        // Em produção o cookie só trafega por HTTPS; no desenvolvimento (http://localhost) aceita os dois
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);  // sessão expira após 8h sem uso
+        options.SlidingExpiration = true;                // e é renovada enquanto a pessoa usa o painel
+    });
 
 var app = builder.Build();
 
@@ -28,7 +51,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAuthentication(); // descobre QUEM é a pessoa (lê o cookie); precisa vir antes da autorização
+app.UseAuthorization();  // decide se essa pessoa PODE acessar (o [Authorize])
+
+// Rota da Area Admin: "/admin" cai em Areas/Admin/Controllers/DashboardController.
+// Precisa vir ANTES da rota padrão.
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
@@ -40,26 +70,32 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await context.Database.EnsureCreatedAsync();
 
+    // Seeds: rodam sempre que a aplicação inicia (dotnet watch run). Todas são idempotentes:
+    // não duplicam nada se os dados já existirem.
+
+    // Administrador padrão (junin@gmail.com): só é criado se ainda não existir.
+    await AdminSeed.CriarAsync(context, scope.ServiceProvider.GetRequiredService<AuthService>());
+
     // Dados de teste dos animais (TEMPORÁRIO: remover quando o CRUD de animais da Sprint 13 existir).
-    // Rode uma vez com:  dotnet run --seed-teste   (não faz nada se já houver animais)
+    // Não faz nada se já houver animais.
     // Para apagar os animais e recriar a seed:  dotnet run --refazer-seed-teste
     if (args.Contains("--refazer-seed-teste"))
     {
         await DadosDeTeste.RefazerAnimaisAsync(context);
     }
-    else if (args.Contains("--seed-teste"))
+    else
     {
         await DadosDeTeste.PopularAnimaisAsync(context);
     }
 
     // Dados de teste da Transparência (TEMPORÁRIO: remover quando o CRUD da Sprint 15 existir).
-    // Rode uma vez com:  dotnet run --seed-transparencia   (não faz nada se já houver lançamentos)
+    // Não faz nada se já houver lançamentos.
     // Para apagar os lançamentos e recriar a seed:  dotnet run --refazer-seed-transparencia
     if (args.Contains("--refazer-seed-transparencia"))
     {
         await DadosDeTeste.RefazerTransparenciaAsync(context);
     }
-    else if (args.Contains("--seed-transparencia"))
+    else
     {
         await DadosDeTeste.PopularTransparenciaAsync(context);
     }
