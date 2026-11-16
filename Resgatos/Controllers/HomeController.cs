@@ -127,6 +127,98 @@ public class HomeController : Controller
         return View();
     }
 
+    public async Task<IActionResult> Transparencia(TransparenciaFiltroViewModel filtro)
+    {
+        var hoje = DateTime.Today;
+        var inicioMes = new DateTime(hoje.Year, hoje.Month, 1);
+        var inicioProximoMes = inicioMes.AddMonths(1);
+
+        var todos = _context.Transparencias.AsNoTracking();
+
+        // ---------- Cards do topo: mês atual (não dependem do filtro) ----------
+        var doMes = todos.Where(t => t.Data >= inicioMes && t.Data < inicioProximoMes);
+        var quantidadeMes = await doMes.CountAsync();
+        var totalMes = await doMes.SumAsync(t => (decimal?)t.Valor) ?? 0m;
+        var ultimaData = await todos.MaxAsync(t => (DateTime?)t.Data);
+
+        // ---------- Resumo por categoria (todos os gastos, não depende do filtro) ----------
+        var somas = await todos
+            .GroupBy(t => t.Categoria)
+            .Select(g => new { Categoria = g.Key, Total = g.Sum(t => t.Valor), Quantidade = g.Count() })
+            .ToListAsync();
+
+        var totalGeral = somas.Sum(s => s.Total);
+
+        var porCategoria = somas
+            .OrderByDescending(s => s.Total)
+            .Select(s => new TransparenciaCategoriaResumoViewModel
+            {
+                Categoria = s.Categoria,
+                Total = s.Total,
+                Quantidade = s.Quantidade,
+                Percentual = totalGeral > 0 ? Math.Round(s.Total / totalGeral * 100, 1) : 0
+            })
+            .ToList();
+
+        // ---------- Lista (respeita o filtro) ----------
+        var consulta = todos;
+
+        // Nada marcado = "todas as categorias"
+        if (filtro.Categorias.Count > 0)
+            consulta = consulta.Where(t => filtro.Categorias.Contains(t.Categoria));
+
+        switch (filtro.Periodo)
+        {
+            case PeriodoTransparencia.Semana:   // últimos 7 dias (hoje + 6 anteriores)
+                var seteDias = hoje.AddDays(-6);
+                consulta = consulta.Where(t => t.Data >= seteDias);
+                break;
+            case PeriodoTransparencia.Mes:      // mês atual do calendário
+                consulta = consulta.Where(t => t.Data >= inicioMes && t.Data < inicioProximoMes);
+                break;
+            case PeriodoTransparencia.Meses:    // últimos 3 meses
+                var tresMeses = hoje.AddMonths(-3);
+                consulta = consulta.Where(t => t.Data >= tresMeses);
+                break;
+        }
+
+        // Em empate, o mais recente (e o lançado por último) vem primeiro
+        IQueryable<Transparencia> ordenada = filtro.Ordem switch
+        {
+            OrdenacaoTransparencia.MaisAntigos => consulta.OrderBy(t => t.Data).ThenBy(t => t.IdTransparencia),
+            OrdenacaoTransparencia.MaiorValor  => consulta.OrderByDescending(t => t.Valor).ThenByDescending(t => t.Data),
+            OrdenacaoTransparencia.MenorValor  => consulta.OrderBy(t => t.Valor).ThenByDescending(t => t.Data),
+            _                                  => consulta.OrderByDescending(t => t.Data).ThenByDescending(t => t.IdTransparencia)
+        };
+
+        var lancamentos = await ordenada
+            .Select(t => new TransparenciaItemViewModel
+            {
+                IdTransparencia = t.IdTransparencia,
+                Categoria = t.Categoria,
+                Titulo = t.Titulo,
+                Valor = t.Valor,
+                Data = t.Data,
+                Comprovante = t.Comprovante,
+                Imagem = t.Imagem
+            })
+            .ToListAsync();
+
+        return View(new TransparenciaViewModel
+        {
+            Filtro = filtro,
+            Lancamentos = lancamentos,
+            TotalFiltrado = lancamentos.Sum(l => l.Valor),
+            MesReferencia = inicioMes,
+            TotalMes = totalMes,
+            QuantidadeMes = quantidadeMes,
+            UltimaData = ultimaData,
+            TotalGeral = totalGeral,
+            QuantidadeGeral = somas.Sum(s => s.Quantidade),
+            PorCategoria = porCategoria
+        });
+    }
+
     public IActionResult Contatos()
     {
         return View();

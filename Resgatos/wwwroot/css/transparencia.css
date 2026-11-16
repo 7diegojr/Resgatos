@@ -1,0 +1,646 @@
+/* ============ LAYOUT COMPARTILHADO ============ */
+.summary,
+.expenses {
+    width: 100%;
+    padding: 45px 300px;
+}
+
+.expenses {
+    padding-bottom: 80px;
+    scroll-margin-top: 100px; /* compensa o header fixo */
+}
+
+/* Texto de abertura, logo abaixo do título da página */
+.page-intro {
+    max-width: 680px;
+    margin: 14px auto 0;
+    padding: 0 20px;
+    text-align: center;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--blue-700);
+    opacity: 0.8;
+}
+
+/* ============ RESUMO ============ */
+.summary {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.summary-stats {
+    list-style: none;
+    padding: 0;           /* o Bootstrap dá padding-left em <ul> e vence o reset global */
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.summary-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 28px 24px;
+    border-radius: 24px;
+    background-color: var(--white);
+    border: var(--border-soft);
+    font-family: var(--font);
+}
+
+.summary-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+    background-color: var(--pink-500);
+    color: var(--white);
+    font-size: 21px;
+}
+
+.summary-stat-value {
+    font-family: var(--font-title);
+    font-size: 30px;
+    line-height: 1.15;
+    color: var(--blue-700);
+}
+
+.summary-stat-label {
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--blue-700);
+    opacity: 0.85;
+}
+
+/* O primeiro card (total) destaca-se: fundo azul, igual aos blocos de destaque de Doações */
+.summary-stat-main {
+    background-color: var(--blue-700);
+    border-color: var(--blue-700);
+}
+
+.summary-stat-main .summary-stat-value,
+.summary-stat-main .summary-stat-label {
+    color: var(--white);
+}
+
+.summary-stat-main .summary-stat-label {
+    opacity: 0.9;
+}
+
+/* ---- Em que usamos os recursos ---- */
+.breakdown-note {
+    margin: -8px 0 16px;
+    font-size: 15px;
+    color: var(--blue-700);
+    opacity: 0.8;
+}
+
+.breakdown-list {
+    list-style: none;
+    padding: 28px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    border-radius: 24px;
+    background-color: var(--white);
+    border: var(--border-soft);
+    font-family: var(--font);
+}
+
+.breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.breakdown-icon {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background-color: color-mix(in srgb, var(--pink-500) 18%, transparent);
+    color: var(--pink-500);
+    font-size: 18px;
+}
+
+.breakdown-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.breakdown-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 8px;
+    color: var(--blue-700);
+}
+
+.breakdown-name {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.breakdown-value {
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.breakdown-value small {
+    margin-left: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0.65;
+}
+
+.breakdown-bar {
+    height: 10px;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--blue-700) 10%, transparent);
+    overflow: hidden;
+}
+
+.breakdown-bar span {
+    display: block;
+    height: 100%;
+    min-width: 6px;   /* categorias com percentual minúsculo continuam visíveis */
+    border-radius: 999px;
+    background-color: var(--pink-500);
+}
+
+/* ============ LISTA DE GASTOS ============ */
+.expenses-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.expenses-header .section-title {
+    margin-bottom: 0;
+}
+
+.expenses-count {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--blue-700);
+    opacity: 0.8;
+    margin: 0;
+}
+
+/* ---- Filtro por categoria (pílulas, igual aos filtros de Adoções) ---- */
+.expense-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px 16px;
+    margin-bottom: 26px;
+}
+
+.expense-filters-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Lado direito: período, ordenação e "Limpar" */
+.expense-filters-side {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Só para leitores de tela: o ícone ao lado já mostra visualmente o que o campo faz */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* ---- Selects (período e ordenação), com o mesmo visual das pílulas ---- */
+.expense-select {
+    position: relative;
+}
+
+.expense-select > i {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--blue-700);
+    pointer-events: none;   /* o clique passa para o select */
+}
+
+.expense-select select {
+    appearance: none;
+    padding: 8px 36px 8px 38px;
+    border: 1.5px solid var(--blue-700);
+    border-radius: 10px;
+    background-color: var(--white);
+    /* setinha à direita (SVG embutido, na cor azul do projeto) */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%232d4772' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 11px;
+    color: var(--blue-700);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.expense-select select:focus-visible {
+    outline: 3px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+/* A caixinha de marcar fica invisível (mas continua acessível pelo teclado);
+   quem aparece é o <label>, estilizado como pílula. */
+.filter-option {
+    position: relative;
+}
+
+.filter-option input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+}
+
+.filter-option label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1.5px solid var(--blue-700);
+    border-radius: 10px;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-option label i {
+    font-size: 14px;
+}
+
+.filter-option input:checked + label {
+    background-color: var(--blue-700);
+    border-color: var(--blue-700);
+    color: var(--white);
+}
+
+.filter-option input:focus-visible + label {
+    outline: 3px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+.filters-clear {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    background: none;
+    border: none;
+    padding: 4px 2px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pink-500);
+    cursor: pointer;
+    text-underline-offset: 3px;
+}
+
+.filters-clear:hover span {
+    text-decoration: underline;
+}
+
+/* Escondido, mas ainda ocupando espaço: a linha dos filtros não muda de altura.
+   (!important porque o Bootstrap usa [hidden]{display:none !important}) */
+.filters-clear[hidden] {
+    display: flex !important;
+    visibility: hidden;
+}
+
+/* ---- Grade de cards ---- */
+.expenses-grid {
+    --cards-por-linha: 3;   /* <-- quantos cards por linha */
+    --espaco-cards: 26px;
+
+    display: grid;
+    grid-template-columns: repeat(var(--cards-por-linha), minmax(0, 1fr));
+    gap: var(--espaco-cards);
+}
+
+.expense-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;   /* arredonda a foto junto com o card */
+    border-radius: 24px;
+    background-color: var(--white);
+    border: var(--border-soft);
+    font-family: var(--font);
+    transition: transform 0.3s;
+}
+
+.expense-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Foto do gasto (ou ícone da categoria, se não houver foto): proporção igual em todos os cards */
+.expense-card-image {
+    position: relative;
+    display: block;
+    flex: none;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    padding: 0;
+    border: none;
+    overflow: hidden;
+    background-color: color-mix(in srgb, var(--blue-700) 10%, transparent);
+}
+
+button.expense-card-image {
+    cursor: zoom-in;
+}
+
+.expense-card-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.expense-card-image:focus-visible {
+    outline: 3px solid var(--pink-500);
+    outline-offset: -3px;
+}
+
+.expense-card-zoom {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgb(255 255 255 / 0.9);
+    color: var(--blue-700);
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.expense-card-image:hover .expense-card-zoom,
+.expense-card-image:focus-visible .expense-card-zoom {
+    opacity: 1;
+}
+
+.expense-card-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    color: var(--pink-500);
+}
+
+.expense-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 18px 20px 20px;
+}
+
+.expense-card-category {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--pink-500) 12%, transparent);
+    color: var(--pink-500);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.expense-card-title {
+    margin: 12px 0 0;
+    font-family: var(--font-body);
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.3;
+    color: var(--blue-700);
+}
+
+.expense-card-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 10px 0 16px;
+    color: var(--blue-700);
+}
+
+.expense-card-value {
+    font-family: var(--font-title);
+    font-size: 24px;
+    font-weight: 400;
+}
+
+.expense-card-date {
+    font-size: 14px;
+    font-weight: 700;
+    opacity: 0.7;
+}
+
+/* margin-top:auto empurra o botão para o fim: todos ficam alinhados na mesma linha */
+.expense-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+    background-color: var(--blue-700);
+    color: var(--white);
+    text-decoration: none;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.expense-button:hover {
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+.expense-button-pink {
+    background-color: var(--pink-500);
+}
+
+/* Sem comprovante: ocupa o lugar do botão, para os cards continuarem alinhados */
+.expense-card-no-proof {
+    margin-top: auto;
+    padding: 12px 22px;
+    border: 1.5px dashed color-mix(in srgb, var(--blue-700) 30%, transparent);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue-700);
+    opacity: 0.6;
+}
+
+/* ---- Nenhum resultado ---- */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 56px 32px;
+    border-radius: 24px;
+    border: var(--border-soft);
+    text-align: center;
+    font-family: var(--font);
+}
+
+.empty-state > i {
+    font-size: 40px;
+    color: var(--pink-500);
+}
+
+.empty-state h3 {
+    font-size: 22px;
+    color: var(--blue-700);
+    margin: 17px 0 0;
+}
+
+.empty-state p {
+    max-width: 420px;
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--blue-700);
+    opacity: 0.85;
+    margin: 0 0 17px;
+}
+
+.empty-state .expense-button {
+    width: fit-content;
+    margin-top: 0;
+}
+
+/* ============ FOTO AMPLIADA (<dialog>) ============ */
+/* Com a foto aberta, o fundo não rola (scrollbar-gutter evita o "pulo" lateral) */
+html.foto-aberta {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+}
+
+.photo-modal {
+    margin: auto;   /* o reset global (* { margin: 0 }) apagaria a centralização do <dialog> */
+    width: fit-content;
+    max-width: min(960px, calc(100% - 32px));
+    max-height: calc(100dvh - 48px);
+    padding: 0;
+    border: none;
+    border-radius: 24px;
+    overflow: hidden;
+    background-color: var(--white);
+    box-shadow: 0 24px 60px rgb(18 29 49 / 0.35);
+}
+
+.photo-modal::backdrop {
+    background-color: rgb(18 29 49 / 0.65);
+    backdrop-filter: blur(3px);
+}
+
+.photo-modal[open] {
+    animation: foto-entrar 0.25s ease;
+}
+
+@keyframes foto-entrar {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+}
+
+.photo-modal img {
+    display: block;
+    max-width: 100%;
+    max-height: calc(100dvh - 48px);
+    object-fit: contain;
+}
+
+.photo-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: var(--border-soft);
+    border-radius: 50%;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.photo-modal-close:hover {
+    transform: rotate(90deg);
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+/* Respeita quem prefere menos movimento (fica no fim para vencer as regras acima) */
+@media (prefers-reduced-motion: reduce) {
+    .filter-option label,
+    .expense-select select,
+    .expense-button,
+    .expense-card,
+    .expense-card-zoom,
+    .photo-modal-close {
+        transition: none;
+    }
+
+    .photo-modal[open] {
+        animation: none;
+    }
+
+    .photo-modal-close:hover {
+        transform: none;
+    }
+}

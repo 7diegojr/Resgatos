@@ -58,6 +58,62 @@ public static class DadosDeTeste
         await context.SaveChangesAsync();
     }
 
+    // ---------- Transparência ----------
+
+    // Apaga TODOS os lançamentos e cria a seed de novo.
+    // Rode com:  dotnet run --refazer-seed-transparencia
+    public static async Task RefazerTransparenciaAsync(AppDbContext context)
+    {
+        context.Transparencias.RemoveRange(await context.Transparencias.ToListAsync());
+        await context.SaveChangesAsync();
+
+        await PopularTransparenciaAsync(context);
+    }
+
+    // Lançamentos de gastos de teste (só se a tabela estiver vazia).
+    // Rode com:  dotnet run --seed-transparencia
+    public static async Task PopularTransparenciaAsync(AppDbContext context)
+    {
+        if (await context.Transparencias.AnyAsync()) return;
+
+        // Cobre os casos da página: com foto + comprovante, só comprovante, sem nada anexado,
+        // e todas as categorias (as imagens são as de teste dos animais, só para ver o layout).
+        // As datas são relativas a hoje, para testar os filtros de período (semana, mês, 3 meses).
+        var hoje = DateTime.Today;
+
+        const string imagem = "img/adocoes/gato-teste.png";
+        const string comprovante = "img/adocoes/gato-teste-2.png";
+
+        context.Transparencias.AddRange(
+            Gasto(CategoriaTransparencia.Alimentacao,  "Ração premium para gatos filhotes (10 kg)", 189.90m, hoje.AddDays(-2), comprovante, imagem),
+            Gasto(CategoriaTransparencia.Castracao,    "Castração de 3 gatas",                     540.00m, hoje.AddDays(-4), comprovante),
+            Gasto(CategoriaTransparencia.Medicamentos, "Antipulgas e vermífugo (lote de 6)",       214.50m, hoje.AddDays(-9),  comprovante),
+            Gasto(CategoriaTransparencia.Estrutura,    "Caixas de areia e kit de caixas de transporte", 326.80m, hoje.AddDays(-15), comprovante, imagem),
+            Gasto(CategoriaTransparencia.Alimentacao,  "Ração úmida (sachês) para recuperação",    132.40m, hoje.AddDays(-24),  comprovante),
+            Gasto(CategoriaTransparencia.Castracao,    "Castração de 2 machos adultos",            420.00m, hoje.AddDays(-33), comprovante),
+            Gasto(CategoriaTransparencia.Medicamentos, "Vacina V4 (4 doses)",                      360.00m, hoje.AddDays(-47),  comprovante),
+            Gasto(CategoriaTransparencia.Outros,       "Transporte de gato resgatado até a clínica", 48.00m, hoje.AddDays(-62)),
+            Gasto(CategoriaTransparencia.Alimentacao,  "Ração adulto (20 kg)",                     279.90m, hoje.AddDays(-80),  comprovante, imagem),
+            Gasto(CategoriaTransparencia.Estrutura,    "Areia higiênica (sacos de 4 kg)",           96.00m, hoje.AddDays(-110))
+        );
+
+        await context.SaveChangesAsync();
+    }
+
+    private static Transparencia Gasto(CategoriaTransparencia categoria, string titulo, decimal valor,
+        DateTime data, string comprovante = null, string imagem = null)
+    {
+        return new Transparencia
+        {
+            Categoria = categoria,
+            Titulo = titulo,
+            Valor = valor,
+            Data = data,
+            Comprovante = comprovante,
+            Imagem = imagem
+        };
+    }
+
     private static Animal Novo(string nome, EspecieAnimal especie, SexoAnimal sexo, PorteAnimal porte,
         FaixaEtariaAnimal faixa, string idade, string cor,
         StatusAnimal status = StatusAnimal.Disponivel, string historia = null,

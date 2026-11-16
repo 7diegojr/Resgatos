@@ -1,0 +1,246 @@
+@using System.Globalization
+@model TransparenciaViewModel
+@{
+    ViewData["Title"] = "Transparência";
+
+    // Ícone do FontAwesome de cada categoria (usado nos cards, nos filtros e no resumo)
+    var icones = new Dictionary<CategoriaTransparencia, string>
+    {
+        [CategoriaTransparencia.Alimentacao] = "fa-utensils",
+        [CategoriaTransparencia.Castracao]   = "fa-stethoscope",
+        [CategoriaTransparencia.Medicamentos] = "fa-pills",
+        [CategoriaTransparencia.Estrutura]   = "fa-house-chimney",
+        [CategoriaTransparencia.Outros]      = "fa-box-open"
+    };
+
+    // Opções dos selects: valor (vai na URL) e rótulo
+    var periodos = new[] {
+        (Valor: PeriodoTransparencia.Todos,  Rotulo: "Todo o período"),
+        (Valor: PeriodoTransparencia.Semana, Rotulo: "Última semana"),
+        (Valor: PeriodoTransparencia.Mes,    Rotulo: "Este mês"),
+        (Valor: PeriodoTransparencia.Meses,  Rotulo: "Últimos 3 meses")
+    };
+    var ordens = new[] {
+        (Valor: OrdenacaoTransparencia.MaisRecentes, Rotulo: "Mais recentes"),
+        (Valor: OrdenacaoTransparencia.MaisAntigos,  Rotulo: "Mais antigos"),
+        (Valor: OrdenacaoTransparencia.MaiorValor,   Rotulo: "Maior valor"),
+        (Valor: OrdenacaoTransparencia.MenorValor,   Rotulo: "Menor valor")
+    };
+
+    var total = Model.Lancamentos.Count;
+    var temLancamentos = Model.QuantidadeGeral > 0;
+}
+
+<link rel="stylesheet" href="~/css/transparencia.css" asp-append-version="true">
+
+<h1 class="page-title">Como cuidamos da sua doação?</h1>
+<p class="page-intro">
+    O Resgatos é um projeto pequeno e voluntário, mantido com a ajuda de quem acredita no nosso trabalho.
+    Por isso, mostramos aqui cada gasto que fizemos, com data, valor e comprovante.
+</p>
+
+@if (temLancamentos)
+{
+    <!-- ===================== RESUMO ===================== -->
+    <section class="summary" aria-label="Resumo das contas">
+        <ul class="summary-stats">
+            <li class="summary-stat summary-stat-main">
+                <span class="summary-stat-icon"><i class="fa-solid fa-hand-holding-heart" aria-hidden="true"></i></span>
+                <span class="summary-stat-value">@Model.TotalMes.ToReais()</span>
+                <span class="summary-stat-label">gastos em @Model.MesReferencia.ToMes()</span>
+            </li>
+            <li class="summary-stat">
+                <span class="summary-stat-icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
+                <span class="summary-stat-value">@Model.QuantidadeMes</span>
+                <span class="summary-stat-label">@(Model.QuantidadeMes == 1 ? "gasto registrado" : "gastos registrados") em @Model.MesReferencia.ToMes()</span>
+            </li>
+            <li class="summary-stat">
+                <span class="summary-stat-icon"><i class="fa-regular fa-calendar-check" aria-hidden="true"></i></span>
+                <span class="summary-stat-value">@Model.UltimaData.Value.ToDataBr()</span>
+                <span class="summary-stat-label">último gasto lançado</span>
+            </li>
+        </ul>
+
+        <div class="breakdown">
+            <h2 class="section-title">Em que usamos os recursos</h2>
+            <p class="breakdown-note">Soma de todos os gastos registrados até hoje.</p>
+
+            <ul class="breakdown-list">
+                @foreach (var item in Model.PorCategoria)
+                {
+                    // Ponto decimal (cultura invariante) no CSS; vírgula (pt-BR) só no texto que a pessoa lê
+                    var largura = item.Percentual.ToString("0.##", CultureInfo.InvariantCulture);
+                    var percentualTexto = item.Percentual.ToString("0.#", new CultureInfo("pt-BR"));
+                    <li class="breakdown-item">
+                        <span class="breakdown-icon"><i class="fa-solid @icones[item.Categoria]" aria-hidden="true"></i></span>
+
+                        <div class="breakdown-body">
+                            <div class="breakdown-top">
+                                <span class="breakdown-name">@item.Categoria.GetDisplayName()</span>
+                                <span class="breakdown-value">
+                                    @item.Total.ToReais()
+                                    <small>@(percentualTexto)%</small>
+                                </span>
+                            </div>
+                            <!-- A barra é decorativa: o valor e o percentual já estão escritos ao lado -->
+                            <div class="breakdown-bar" aria-hidden="true">
+                                <span style="width: @(largura)%"></span>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+}
+
+<!-- ===================== LANÇAMENTOS ===================== -->
+<section class="expenses" id="gastos">
+    <div class="expenses-header">
+        <h2 class="section-title">Gastos e comprovantes</h2>
+        <p class="expenses-count" id="gastos-contagem" aria-live="polite">@(total == 0 ? "" : total + (total == 1 ? " gasto" : " gastos") + " · " + Model.TotalFiltrado.ToReais())</p>
+    </div>
+
+    @if (temLancamentos)
+    {
+        <form id="gastos-filtros" method="get" asp-controller="Home" asp-action="Transparencia" class="expense-filters" aria-label="Filtrar e ordenar os gastos">
+            <div class="expense-filters-options">
+                @foreach (var categoria in Enum.GetValues<CategoriaTransparencia>())
+                {
+                    <div class="filter-option">
+                        <input type="checkbox" id="categoria-@categoria" name="categorias" value="@categoria"
+                               checked="@Model.Filtro.Categorias.Contains(categoria)">
+                        <label for="categoria-@categoria"><i class="fa-solid @icones[categoria]" aria-hidden="true"></i><span>@categoria.GetDisplayName()</span></label>
+                    </div>
+                }
+            </div>
+
+            <div class="expense-filters-side">
+                <div class="expense-select">
+                    <label for="gastos-periodo" class="visually-hidden">Período</label>
+                    <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                    <select id="gastos-periodo" name="periodo" data-padrao="@PeriodoTransparencia.Todos">
+                        @foreach (var op in periodos)
+                        {
+                            <option value="@op.Valor" selected="@(Model.Filtro.Periodo == op.Valor)">@op.Rotulo</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="expense-select">
+                    <label for="gastos-ordem" class="visually-hidden">Ordenar por</label>
+                    <i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i>
+                    <select id="gastos-ordem" name="ordem" data-padrao="@OrdenacaoTransparencia.MaisRecentes">
+                        @foreach (var op in ordens)
+                        {
+                            <option value="@op.Valor" selected="@(Model.Filtro.Ordem == op.Valor)">@op.Rotulo</option>
+                        }
+                    </select>
+                </div>
+
+                <button type="button" class="filters-clear" id="gastos-limpar" data-limpar-filtros
+                        hidden="@(!Model.Filtro.TemFiltroAtivo)">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    <span>Limpar</span>
+                </button>
+            </div>
+
+            <!-- Só aparece se o JavaScript estiver desligado (com JS, o filtro é aplicado ao clicar) -->
+            <noscript>
+                <button type="submit" class="expense-button">Aplicar filtros</button>
+            </noscript>
+        </form>
+    }
+
+    <!-- O JavaScript troca só o conteúdo desta div ao filtrar -->
+    <div id="gastos-resultado">
+        @if (total > 0)
+        {
+            <div class="expenses-grid">
+                @foreach (var gasto in Model.Lancamentos)
+                {
+                    <article class="expense-card">
+                        @if (!string.IsNullOrEmpty(gasto.Imagem))
+                        {
+                            <!-- Foto do gasto: clicar abre ampliada -->
+                            <button type="button" class="expense-card-image" data-imagem-url="@Url.Content("~/" + gasto.Imagem)"
+                                    data-imagem-alt="Foto de: @gasto.Titulo" aria-haspopup="dialog"
+                                    aria-label="Ampliar foto de @gasto.Titulo">
+                                <img src="@Url.Content("~/" + gasto.Imagem)" alt="" loading="lazy">
+                                <span class="expense-card-zoom" aria-hidden="true"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <div class="expense-card-image expense-card-placeholder" aria-hidden="true">
+                                <i class="fa-solid @icones[gasto.Categoria]"></i>
+                            </div>
+                        }
+
+                        <div class="expense-card-body">
+                            <span class="expense-card-category">
+                                <i class="fa-solid @icones[gasto.Categoria]" aria-hidden="true"></i>
+                                @gasto.Categoria.GetDisplayName()
+                            </span>
+
+                            <h3 class="expense-card-title">@gasto.Titulo</h3>
+
+                            <div class="expense-card-meta">
+                                <strong class="expense-card-value">@gasto.Valor.ToReais()</strong>
+                                <time class="expense-card-date" datetime="@gasto.Data.ToString("yyyy-MM-dd")">@gasto.Data.ToDataBr()</time>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(gasto.Comprovante))
+                            {
+                                <a href="@Url.Content("~/" + gasto.Comprovante)" target="_blank" rel="noopener" class="expense-button">
+                                    <i class="fa-solid fa-file-invoice" aria-hidden="true"></i>
+                                    <span>Ver comprovante</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="expense-card-no-proof">Comprovante não anexado</span>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+        else if (Model.Filtro.TemFiltroAtivo)
+        {
+            <div class="empty-state">
+                <i class="fa-solid fa-paw" aria-hidden="true"></i>
+                <h3>Nenhum gasto com esses filtros</h3>
+                <p>Tente tirar algum filtro para ver mais lançamentos.</p>
+                <a asp-controller="Home" asp-action="Transparencia" class="expense-button expense-button-pink" data-limpar-filtros>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    <span>Limpar filtros</span>
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i>
+                <h3>Ainda não temos gastos registrados</h3>
+                <p>Assim que a equipe lançar as prestações de contas, elas aparecem aqui. Enquanto isso, você pode acompanhar o nosso dia a dia pelo Instagram.</p>
+                <a href="https://instagram.com/resgatoscwb" target="_blank" rel="noopener" class="expense-button">
+                    <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+                    <span>Seguir no Instagram</span>
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- ===================== FOTO AMPLIADA (fica fora da lista: o filtro não a recria) ===================== -->
+<dialog class="photo-modal" id="foto-modal" aria-label="Foto ampliada">
+    <button type="button" class="photo-modal-close" data-fechar-foto aria-label="Fechar foto">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+    <img id="foto-modal-imagem" src="" alt="">
+</dialog>
+
+@section Scripts {
+    <script src="~/js/transparencia.js" asp-append-version="true"></script>
+}

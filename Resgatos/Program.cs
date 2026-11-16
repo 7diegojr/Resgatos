@@ -51,6 +51,18 @@ using (var scope = app.Services.CreateScope())
     {
         await DadosDeTeste.PopularAnimaisAsync(context);
     }
+
+    // Dados de teste da Transparência (TEMPORÁRIO: remover quando o CRUD da Sprint 15 existir).
+    // Rode uma vez com:  dotnet run --seed-transparencia   (não faz nada se já houver lançamentos)
+    // Para apagar os lançamentos e recriar a seed:  dotnet run --refazer-seed-transparencia
+    if (args.Contains("--refazer-seed-transparencia"))
+    {
+        await DadosDeTeste.RefazerTransparenciaAsync(context);
+    }
+    else if (args.Contains("--seed-transparencia"))
+    {
+        await DadosDeTeste.PopularTransparenciaAsync(context);
+    }
 }
 
 app.Run();
