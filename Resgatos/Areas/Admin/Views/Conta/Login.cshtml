@@ -15,13 +15,13 @@
 
         <div class="login-field">
             <label asp-for="Email"></label>
-            <input asp-for="Email" type="email" autocomplete="username" autofocus />
+            <input asp-for="Email" type="email" placeholder="seuemail@exemplo.com" autocomplete="username" autofocus />
             <span asp-validation-for="Email" class="login-error"></span>
         </div>
 
         <div class="login-field">
             <label asp-for="Senha"></label>
-            <input asp-for="Senha" autocomplete="current-password" />
+            <input asp-for="Senha" placeholder="Digite sua senha" autocomplete="current-password" />
             <span asp-validation-for="Senha" class="login-error"></span>
         </div>
 

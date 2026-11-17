@@ -8,27 +8,33 @@
 
 <body class="admin-body">
 
-    <header class="admin-header">
-        <a class="admin-logo" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-            <img src="~/img/layout/logo.png" alt="Resgatos">
-            <span class="admin-logo-tag">Admin</span>
-        </a>
+    <div class="admin-shell">
 
-        <div class="admin-user">
-            <span class="admin-user-name"><i class="fa-solid fa-circle-user" aria-hidden="true"></i> @User.Identity.Name</span>
+        <partial name="_Sidebar" />
 
-            <form asp-area="Admin" asp-controller="Conta" asp-action="Logout" method="post">
-                <button type="submit" class="admin-logout">
-                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sair
+        <div class="sidebar-overlay" id="admin-overlay"></div>
+
+        <div class="admin-content">
+
+            @* Barra de topo: só aparece no celular/tablet, onde o menu lateral fica escondido *@
+            <header class="admin-topbar">
+                <button type="button" class="admin-menu-toggle" id="admin-menu-toggle"
+                        aria-label="Abrir menu" aria-controls="admin-sidebar" aria-expanded="false">
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
                 </button>
-            </form>
+                <a class="admin-topbar-logo" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <img src="~/img/layout/logo.png" alt="Resgatos">
+                </a>
+            </header>
+
+            <main class="admin-main" role="main">
+                @RenderBody()
+            </main>
+
         </div>
-    </header>
+    </div>
 
-    <main class="admin-main" role="main">
-        @RenderBody()
-    </main>
-
+    <script src="~/js/admin/admin.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

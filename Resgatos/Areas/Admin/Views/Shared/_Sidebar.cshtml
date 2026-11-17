@@ -1,0 +1,81 @@
+@using System.Security.Claims
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    bool EhAtual(string nome) => string.Equals(controller, nome, StringComparison.OrdinalIgnoreCase);
+
+    var nomeUsuario = User.Identity?.Name ?? "Administrador";
+    var emailUsuario = User.FindFirstValue(ClaimTypes.Email);
+    var inicial = nomeUsuario.Substring(0, 1).ToUpper();
+}
+
+<aside class="sidebar" id="admin-sidebar" aria-label="Menu do admin">
+
+    <div class="sidebar-top">
+        <a class="sidebar-logo" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+            <img src="~/img/layout/logo.png" alt="Resgatos">
+        </a>
+
+        <button type="button" class="sidebar-close" id="admin-menu-close" aria-label="Fechar menu">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-user">
+        <span class="sidebar-avatar" aria-hidden="true">@inicial</span>
+        <div class="sidebar-user-info">
+            <strong class="sidebar-user-name">@nomeUsuario</strong>
+            <span class="sidebar-user-email">@emailUsuario</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Páginas do admin">
+        <ul class="sidebar-list">
+            <li>
+                <a class="sidebar-link@(EhAtual("Dashboard") ? " is-active" : "")" aria-current="@(EhAtual("Dashboard") ? "page" : null)"
+                   asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i><span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a class="sidebar-link@(EhAtual("Animais") ? " is-active" : "")" aria-current="@(EhAtual("Animais") ? "page" : null)"
+                   asp-area="Admin" asp-controller="Animais" asp-action="Index">
+                    <i class="fa-solid fa-paw" aria-hidden="true"></i><span>Animais</span>
+                </a>
+            </li>
+            <li>
+                <a class="sidebar-link@(EhAtual("Adotados") ? " is-active" : "")" aria-current="@(EhAtual("Adotados") ? "page" : null)"
+                   asp-area="Admin" asp-controller="Adotados" asp-action="Index">
+                    <i class="fa-solid fa-heart" aria-hidden="true"></i><span>Adotados</span>
+                </a>
+            </li>
+            <li>
+                <a class="sidebar-link@(EhAtual("Transparencia") ? " is-active" : "")" aria-current="@(EhAtual("Transparencia") ? "page" : null)"
+                   asp-area="Admin" asp-controller="Transparencia" asp-action="Index">
+                    <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i><span>Transparência</span>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="sidebar-list sidebar-list-separated">
+            <li>
+                <a class="sidebar-link@(EhAtual("Lixeira") ? " is-active" : "")" aria-current="@(EhAtual("Lixeira") ? "page" : null)"
+                   asp-area="Admin" asp-controller="Lixeira" asp-action="Index">
+                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Lixeira</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <a class="sidebar-link" asp-area="" asp-controller="Home" asp-action="Index" target="_blank" rel="noopener">
+            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span>Ver o site</span>
+        </a>
+
+        <form asp-area="Admin" asp-controller="Conta" asp-action="Logout" method="post">
+            <button type="submit" class="sidebar-link sidebar-link-logout">
+                <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Sair</span>
+            </button>
+        </form>
+    </div>
+
+</aside>
