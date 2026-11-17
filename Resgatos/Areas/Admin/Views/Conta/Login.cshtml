@@ -21,7 +21,13 @@
 
         <div class="login-field">
             <label asp-for="Senha"></label>
-            <input asp-for="Senha" placeholder="Digite sua senha" autocomplete="current-password" />
+            <div class="login-password">
+                <input asp-for="Senha" placeholder="Digite sua senha" autocomplete="current-password" />
+                <button type="button" class="login-password-toggle" id="login-toggle-senha"
+                        aria-label="Mostrar senha" aria-pressed="false">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                </button>
+            </div>
             <span asp-validation-for="Senha" class="login-error"></span>
         </div>
 

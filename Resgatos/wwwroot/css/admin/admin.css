@@ -59,8 +59,9 @@ body {
 }
 
 .login-logo {
-    height: 56px;
+    height: 65px;
     width: auto;
+    margin-right: 16px;
 }
 
 .login-card {
@@ -74,13 +75,13 @@ body {
 .login-title {
     font-size: 36px;
     color: var(--blue-700);
-    margin-bottom: 8px;
+    line-height: 1.1;
 }
 
 .login-subtitle {
     font-size: 17px;
     opacity: 0.8;
-    margin-bottom: 34px;
+    margin-bottom: 28px;
 }
 
 .login-form {
@@ -127,6 +128,45 @@ body {
 
 .login-field:focus-within label {
     color: var(--pink-500);
+}
+
+/* Campo de senha com o botão de mostrar/esconder dentro */
+.login-password {
+    position: relative;
+}
+
+.login-password input {
+    padding-right: 60px;
+}
+
+.login-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 10px;
+    background-color: transparent;
+    color: var(--blue-700);
+    font-size: 16px;
+    opacity: 0.6;
+    cursor: pointer;
+    transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.login-password-toggle:hover,
+.login-password-toggle[aria-pressed="true"] {
+    opacity: 1;
+}
+
+.login-password-toggle:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 1px;
 }
 
 .login-error {
@@ -211,15 +251,15 @@ body {
 
 /* ============ PAINEL: menu lateral ============ */
 .sidebar {
-    flex: 0 0 280px;
-    width: 280px;
+    flex: 0 0 290px;
+    width: 290px;
     height: 100vh;
     position: sticky;
     top: 0;
     display: flex;
     flex-direction: column;
     gap: 22px;
-    padding: 26px 16px 20px;
+    padding: 34px 16px 28px;
     background-color: var(--blue-700);
     color: var(--white);
     overflow-y: auto;
@@ -244,6 +284,7 @@ body {
 .sidebar-logo img {
     height: 36px;
     width: auto;
+    margin-right: 16px;
 }
 
 /* O botão de fechar só existe no celular */
@@ -309,7 +350,7 @@ body {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
 }
 
 .sidebar-list-separated {
@@ -334,7 +375,7 @@ body {
     text-decoration: none;
     cursor: pointer;
     opacity: 0.85;
-    transition: background-color 0.2s ease, opacity 0.2s ease;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
 }
 
 .sidebar-link i {
@@ -372,10 +413,6 @@ body {
     gap: 4px;
     padding-top: 14px;
     border-top: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-.sidebar-link-logout:hover {
-    background-color: var(--pink-500);
 }
 
 /* Fundo escurecido atrás do menu aberto (só no celular) */
