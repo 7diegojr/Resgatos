@@ -1,0 +1,518 @@
+/*
+  Admin > Animais (listagem).
+  Os componentes compartilhados (botões, cartão, estado vazio) ficam no admin.css.
+*/
+
+/* ============ Abas de status ============ */
+.status-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding-bottom: 4px;
+    overflow-x: auto;           /* no celular rola para o lado em vez de quebrar linha */
+    scrollbar-width: thin;
+}
+
+.status-tab {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    background-color: var(--white);
+    border: var(--border-soft);
+    color: var(--blue-700);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.status-tab:hover {
+    background-color: color-mix(in srgb, var(--blue-700) 8%, var(--white));
+}
+
+.status-tab:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+.status-tab-count {
+    min-width: 24px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--blue-700) 10%, transparent);
+    font-size: 13px;
+    text-align: center;
+}
+
+.status-tab.is-active {
+    background-color: var(--blue-700);
+    border-color: var(--blue-700);
+    color: var(--white);
+}
+
+.status-tab.is-active .status-tab-count {
+    background-color: var(--pink-500);
+    color: var(--blue-700);
+}
+
+/* ============ Busca e filtros ============ */
+.animais-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.toolbar-search {
+    position: relative;
+    flex: 1 1 260px;
+}
+
+.toolbar-search i {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    font-size: 15px;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.toolbar-search input {
+    width: 100%;
+    height: 46px;
+    border: var(--border-soft);
+    border-radius: 12px;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-family: var(--font);
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.toolbar-search input {
+    padding: 0 16px 0 42px;
+}
+
+.toolbar-search input::placeholder {
+    color: color-mix(in srgb, var(--blue-700) 50%, transparent);
+}
+
+/* Foco: igual ao login e ao formulário de Contatos (borda e rótulo rosa) */
+.toolbar-search input:focus {
+    outline: none;
+    border-color: var(--pink-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pink-500) 25%, transparent);
+}
+
+.toolbar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 0 1 190px;
+}
+
+.toolbar-field label {
+    font-size: 13px;
+    font-weight: 800;
+    transition: color 0.2s ease;
+}
+
+.toolbar-field:focus-within label {
+    color: var(--pink-500);
+}
+
+.toolbar-submit {
+    height: 46px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.toolbar-clear {
+    align-self: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue-700);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.toolbar-clear:hover {
+    color: var(--pink-500);
+}
+
+/* ============ Tabela ============ */
+.animais-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;        /* colunas com largura fixa: os títulos não mudam de lugar ao trocar de página */
+}
+
+/* Larguras das colunas (a coluna "Animal" fica com o que sobra) */
+.animais-table th:nth-child(2) { width: 14%; }   /* Espécie e sexo */
+.animais-table th:nth-child(3) { width: 11%; }   /* Idade */
+.animais-table th:nth-child(4) { width: 16%; }   /* Status */
+.animais-table th:nth-child(5) { width: 17%; }   /* Saúde */
+.animais-table th:nth-child(6) { width: 9%; }    /* Cadastro */
+.animais-table th:nth-child(7) { width: 140px; } /* Ações (3 botões) */
+
+.animais-table caption {
+    text-align: left;
+}
+
+.animais-table th {
+    padding: 16px 14px;
+    background-color: color-mix(in srgb, var(--blue-700) 6%, var(--white));
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.animais-table td {
+    padding: 14px 12px;
+    border-top: var(--border-soft);
+    vertical-align: middle;
+    font-size: 15px;
+}
+
+.animais-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.animais-table tbody tr:hover {
+    background-color: color-mix(in srgb, var(--pink-500) 8%, var(--white));
+}
+
+.cell-main {
+    display: block;
+    font-weight: 700;
+}
+
+.cell-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.cell-species {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+}
+
+.cell-species i {
+    color: var(--pink-500);
+}
+
+/* Foto + nome */
+.animal-ident {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.animal-ident:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 4px;
+    border-radius: 12px;
+}
+
+.animal-thumb {
+    flex: 0 0 56px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 14px;
+    background-color: color-mix(in srgb, var(--pink-500) 22%, transparent);
+    color: var(--pink-500);
+    font-size: 22px;
+}
+
+.animal-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;          /* preenche o quadrado sem esticar a foto */
+}
+
+.animal-ident-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.animal-name {
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.animal-ident:hover .animal-name {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.animal-meta {
+    overflow: hidden;
+    font-size: 13px;
+    opacity: 0.7;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ============ Status ============ */
+.status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+    background-color: color-mix(in srgb, var(--blue-700) 12%, transparent);
+    color: var(--blue-700);
+}
+
+.status-emtratamento {
+    background-color: color-mix(in srgb, var(--admin-amber) 16%, transparent);
+    color: var(--admin-amber);
+}
+
+.status-disponivel {
+    background-color: color-mix(in srgb, var(--admin-green) 16%, transparent);
+    color: var(--admin-green);
+}
+
+.status-reservado {
+    background-color: color-mix(in srgb, var(--pink-500) 28%, transparent);
+    color: var(--admin-pink-dark);
+}
+
+.status-adotado {
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+/* ============ Saúde ============ */
+.health-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.health-ok {
+    color: var(--admin-green);
+}
+
+.health-pending {
+    color: var(--admin-amber);
+}
+
+/* ============ Ações da linha ============ */
+.col-acoes {
+    width: 1%;
+}
+
+.row-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.row-action {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background-color: color-mix(in srgb, var(--blue-700) 8%, transparent);
+    color: var(--blue-700);
+    font-size: 15px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.row-action:hover {
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+.row-action-danger:hover {
+    background-color: var(--admin-danger);
+}
+
+.row-action:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+/* ============ Rodapé da tabela ============ */
+.animais-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 16px 18px;
+    border-top: var(--border-soft);
+}
+
+.animais-count {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.page-link {
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background-color: color-mix(in srgb, var(--blue-700) 8%, transparent);
+    color: var(--blue-700);
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a.page-link:hover {
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+a.page-link:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+.page-link.is-current {
+    background-color: var(--pink-500);
+    color: var(--blue-700);
+}
+
+.page-gap {
+    padding: 0 2px;
+    opacity: 0.6;
+}
+
+/* ============ Telas médias: some a coluna "Cadastro" para a tabela caber ============ */
+@media (min-width: 1280px) and (max-width: 1449px) {
+    .animais-table th:nth-child(6),
+    .animais-table td:nth-child(6) {
+        display: none;
+    }
+}
+
+/* ============ Celular e tablet: cada linha vira um cartão ============ */
+@media (max-width: 1279px) {
+    .animais-table,
+    .animais-table tbody {
+        display: block;
+    }
+
+    /* O cabeçalho some (só leitores de tela), cada campo ganha o próprio rótulo */
+    .animais-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .animais-table tbody tr {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 20px;
+        padding: 18px;
+        border-top: var(--border-soft);
+    }
+
+    .animais-table tbody tr:first-child {
+        border-top: none;
+    }
+
+    .animais-table td {
+        padding: 0;
+        border: none;
+    }
+
+    .animais-table td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 4px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        opacity: 0.55;
+    }
+
+    .animais-table .cell-animal,
+    .animais-table .cell-acoes {
+        grid-column: 1 / -1;
+    }
+
+    .row-actions {
+        justify-content: flex-start;
+    }
+
+    .row-action {
+        width: auto;
+        padding: 0 16px;
+    }
+}
+
+@media (max-width: 575px) {
+    .animais-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .toolbar-search,
+    .toolbar-field {
+        flex: none;          /* em coluna, o flex-basis viraria altura */
+    }
+
+    .toolbar-submit {
+        width: 100%;
+    }
+
+    .toolbar-clear {
+        align-self: flex-start;
+    }
+
+    .animais-footer {
+        justify-content: center;
+    }
+}

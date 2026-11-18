@@ -4,6 +4,7 @@
 <head>
     <partial name="_AdminHead" />
     <title>@ViewData["Title"] - Admin Resgatos</title>
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body class="admin-body">
@@ -35,6 +36,7 @@
     </div>
 
     <script src="~/js/admin/admin.js" asp-append-version="true"></script>
+    <script src="~/js/admin/custom-select.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

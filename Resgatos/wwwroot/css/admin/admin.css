@@ -219,7 +219,7 @@ body {
 /* ============ PAINEL: estrutura ============ */
 .admin-body {
     min-height: 100vh;
-    background-color: #f6f8fc;
+    background-color: var(--white);
 }
 
 .admin-shell {
@@ -242,6 +242,7 @@ body {
 .admin-page-title {
     font-size: 30px;
     color: var(--blue-700);
+    line-height: 1.3;
 }
 
 /* Barra de topo: só no celular/tablet (veja a media query no fim do arquivo) */
@@ -500,5 +501,261 @@ body {
 
     .admin-main {
         padding: 24px 16px;
+    }
+}
+
+/* ============ PAINEL: componentes compartilhados (todas as páginas do admin) ============ */
+:root {
+    --admin-green: #2f8f5b;
+    --admin-amber: #a8680f;
+    --admin-pink-dark: #b5627f;
+    --admin-danger: #b84050;
+}
+
+/* Texto só para leitores de tela */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Cabeçalho da página: título + subtítulo à esquerda, ação principal à direita */
+.admin-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+}
+
+.admin-page-subtitle {
+    font-size: 16px;
+    opacity: 0.75;
+}
+
+/* Botões do admin (menores que o .btn-pill do login, para caber em barras e linhas) */
+.admin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.admin-btn:hover {
+    transform: translateY(-2px);
+}
+
+.admin-btn:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+.admin-btn-primary {
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+.admin-btn-outline {
+    background-color: transparent;
+    border-color: var(--blue-700);
+    color: var(--blue-700);
+}
+
+.admin-btn-outline:hover {
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+/* Cartão branco (tabelas, formulários) */
+.admin-card {
+    background-color: var(--white);
+    border: var(--border-soft);
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+/* Estado vazio (nenhum item / nenhum resultado) */
+.admin-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 56px 24px;
+    border: var(--border-soft);
+    border-radius: 24px;
+    background-color: var(--white);
+    text-align: center;
+}
+
+.admin-empty-icon {
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--pink-500) 22%, transparent);
+    color: var(--pink-500);
+    font-size: 28px;
+    margin-bottom: 6px;
+}
+
+.admin-empty-title {
+    font-size: 24px;
+    color: var(--blue-700);
+}
+
+.admin-empty-text {
+    max-width: 440px;
+    margin-bottom: 14px;
+    opacity: 0.75;
+}
+
+@media (max-width: 575px) {
+    .admin-page-header .admin-btn {
+        width: 100%;
+    }
+}
+
+/* Reserva o espaço da barra de rolagem: o conteúdo não se mexe quando a página passa a ter (ou deixa de ter) rolagem */
+html {
+    scrollbar-gutter: stable;
+}
+
+/* ============ PAINEL: caixa de seleção própria (mesmo visual do seletor de Contatos) ============
+   O admin.js / custom-select.js transforma todo <select> do painel nisto.
+   O <select> original continua na página (escondido) e é ele que vai no formulário. */
+.form-select-wrapper {
+    position: relative;
+}
+
+.form-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 16px;
+    border: var(--border-soft);
+    border-radius: 12px;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-family: var(--font);
+    font-size: 15px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-select-value.is-placeholder {
+    color: color-mix(in srgb, var(--blue-700) 50%, transparent);
+}
+
+.form-select-trigger i {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: var(--blue-700);
+    transition: transform 0.25s ease, color 0.2s ease;
+}
+
+/* Focus e aberto: borda rosa e seta rosa virada para cima */
+.form-select-trigger:focus-visible,
+.form-select-wrapper.is-open .form-select-trigger {
+    outline: none;
+    border-color: var(--pink-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pink-500) 25%, transparent);
+}
+
+.form-select-wrapper.is-open .form-select-trigger i {
+    color: var(--pink-500);
+    transform: rotate(180deg);
+}
+
+.form-select-trigger[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.form-select-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    margin: 0;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    list-style: none;
+    background-color: var(--white);
+    border: var(--border-soft);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--blue-700) 15%, transparent);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.form-select-wrapper.is-open .form-select-list {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+}
+
+.form-select-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--blue-700);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.form-select-list li i {
+    display: none;
+    font-size: 13px;
+    color: var(--pink-500);
+}
+
+.form-select-list li:hover,
+.form-select-list li.is-active {
+    background-color: color-mix(in srgb, var(--blue-700) 5%, transparent);
+}
+
+.form-select-list li[aria-selected="true"] {
+    font-weight: 800;
+}
+
+.form-select-list li[aria-selected="true"] i {
+    display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .form-select-list,
+    .form-select-trigger i {
+        transition: none;
     }
 }

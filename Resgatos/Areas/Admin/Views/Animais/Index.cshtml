@@ -1,5 +1,305 @@
+@model AnimaisIndexViewModel
+@using Resgatos.Helpers
 @{
     ViewData["Title"] = "Animais";
+
+    var filtro = Model.Filtro;
+
+    // Monta os parâmetros da URL mantendo os filtros atuais (busca, espécie, ordem),
+    // trocando só o que muda (status da aba ou página).
+    Dictionary<string, string> Rota(StatusAnimal? status, int pagina = 1)
+    {
+        var d = new Dictionary<string, string>();
+        if (!string.IsNullOrWhiteSpace(filtro.Busca)) d["busca"] = filtro.Busca;
+        if (filtro.Especie.HasValue) d["especie"] = filtro.Especie.Value.ToString();
+        if (status.HasValue) d["status"] = status.Value.ToString();
+        if (filtro.Ordem != OrdenacaoAnimaisAdmin.MaisRecentes) d["ordem"] = filtro.Ordem.ToString();
+        if (pagina > 1) d["pagina"] = pagina.ToString();
+        return d;
+    }
+
+    // Páginas a mostrar na paginação (0 = "…")
+    var paginas = new List<int>();
+    for (var p = 1; p <= Model.TotalPaginas; p++)
+    {
+        if (p == 1 || p == Model.TotalPaginas || Math.Abs(p - Model.Pagina) <= 1)
+            paginas.Add(p);
+        else if (paginas.Count > 0 && paginas[^1] != 0)
+            paginas.Add(0);
+    }
+
+    var semAnimais = Model.TotalGeral == 0;
 }
 
-<h1 class="admin-page-title">Animais</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/animais.css" asp-append-version="true" />
+}
+
+<header class="admin-page-header">
+    <div class="admin-page-header-text">
+        <h1 class="admin-page-title">Animais</h1>
+        <p class="admin-page-subtitle">
+            @if (semAnimais)
+            {
+                <text>Cadastre os animais resgatados para que eles apareçam no site quando estiverem disponíveis.</text>
+            }
+            else
+            {
+                <text>@Model.TotalGeral @(Model.TotalGeral == 1 ? "animal cadastrado" : "animais cadastrados"). Só os <strong>disponíveis</strong> aparecem no site.</text>
+            }
+        </p>
+    </div>
+
+    <a class="admin-btn admin-btn-primary" asp-area="Admin" asp-controller="Animais" asp-action="Criar">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i><span>Novo animal</span>
+    </a>
+</header>
+
+@if (semAnimais)
+{
+    <section class="admin-empty" aria-label="Nenhum animal cadastrado">
+        <span class="admin-empty-icon" aria-hidden="true"><i class="fa-solid fa-paw"></i></span>
+        <h2 class="admin-empty-title">Nenhum animal cadastrado ainda</h2>
+        <p class="admin-empty-text">Quando você cadastrar o primeiro, ele aparece aqui.</p>
+        <a class="admin-btn admin-btn-primary" asp-area="Admin" asp-controller="Animais" asp-action="Criar">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i><span>Cadastrar o primeiro animal</span>
+        </a>
+    </section>
+}
+else
+{
+    @* ============ Abas de status ============ *@
+    <nav class="status-tabs" aria-label="Filtrar por status">
+        <a class="status-tab@(filtro.Status == null ? " is-active" : "")"
+           aria-current="@(filtro.Status == null ? "true" : null)"
+           asp-area="Admin" asp-controller="Animais" asp-action="Index" asp-all-route-data="Rota(null)">
+            Todos <span class="status-tab-count">@Model.TotalGeral</span>
+        </a>
+
+        @foreach (var status in Enum.GetValues<StatusAnimal>())
+        {
+            var quantidade = Model.ContagemPorStatus.GetValueOrDefault(status);
+            var ativa = filtro.Status == status;
+            <a class="status-tab@(ativa ? " is-active" : "")"
+               aria-current="@(ativa ? "true" : null)"
+               asp-area="Admin" asp-controller="Animais" asp-action="Index" asp-all-route-data="Rota(status)">
+                @status.GetDisplayName() <span class="status-tab-count">@quantidade</span>
+            </a>
+        }
+    </nav>
+
+    @* ============ Busca e filtros ============ *@
+    <form class="animais-toolbar" method="get" asp-area="Admin" asp-controller="Animais" asp-action="Index" role="search" id="animais-filtros">
+        @if (filtro.Status.HasValue)
+        {
+            <input type="hidden" name="status" value="@filtro.Status.Value" />
+        }
+
+        <div class="toolbar-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input type="search" name="busca" value="@filtro.Busca" placeholder="Buscar pelo nome do animal"
+                   aria-label="Buscar pelo nome do animal" autocomplete="off" />
+        </div>
+
+        <div class="toolbar-field">
+            <label for="filtro-especie">Espécie</label>
+            <select id="filtro-especie" name="especie" data-auto-submit>
+                <option value="">Todas</option>
+                @foreach (var especie in Enum.GetValues<EspecieAnimal>())
+                {
+                    <option value="@especie" selected="@(filtro.Especie == especie)">@(especie == EspecieAnimal.Gato ? "Gatos" : "Cachorros")</option>
+                }
+            </select>
+        </div>
+
+        <div class="toolbar-field">
+            <label for="filtro-ordem">Ordenar por</label>
+            <select id="filtro-ordem" name="ordem" data-auto-submit>
+                <option value="@OrdenacaoAnimaisAdmin.MaisRecentes" selected="@(filtro.Ordem == OrdenacaoAnimaisAdmin.MaisRecentes)">Mais recentes</option>
+                <option value="@OrdenacaoAnimaisAdmin.MaisAntigos" selected="@(filtro.Ordem == OrdenacaoAnimaisAdmin.MaisAntigos)">Mais antigos</option>
+                <option value="@OrdenacaoAnimaisAdmin.NomeAZ" selected="@(filtro.Ordem == OrdenacaoAnimaisAdmin.NomeAZ)">Nome (A–Z)</option>
+                <option value="@OrdenacaoAnimaisAdmin.NomeZA" selected="@(filtro.Ordem == OrdenacaoAnimaisAdmin.NomeZA)">Nome (Z–A)</option>
+            </select>
+        </div>
+
+        <button type="submit" class="admin-btn admin-btn-outline toolbar-submit">
+            <i class="fa-solid fa-filter" aria-hidden="true"></i><span>Filtrar</span>
+        </button>
+
+        @if (filtro.TemFiltroAtivo)
+        {
+            <a class="toolbar-clear" asp-area="Admin" asp-controller="Animais" asp-action="Index"
+               asp-route-status="@filtro.Status">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i> Limpar filtros
+            </a>
+        }
+    </form>
+
+    @if (Model.Animais.Count == 0)
+    {
+        <section class="admin-empty" aria-label="Nenhum animal encontrado">
+            <span class="admin-empty-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <h2 class="admin-empty-title">Nenhum animal encontrado</h2>
+            <p class="admin-empty-text">Nenhum animal bate com esses filtros. Tente outra busca ou outra aba de status.</p>
+            <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Animais" asp-action="Index">
+                <span>Ver todos os animais</span>
+            </a>
+        </section>
+    }
+    else
+    {
+        @* ============ Tabela ============ *@
+        <div class="admin-card animais-card">
+            <table class="animais-table">
+                <caption class="visually-hidden">Lista de animais cadastrados</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Animal</th>
+                        <th scope="col">Espécie e sexo</th>
+                        <th scope="col">Idade</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Saúde</th>
+                        <th scope="col">Cadastro</th>
+                        <th scope="col" class="col-acoes"><span class="visually-hidden">Ações</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var animal in Model.Animais)
+                    {
+                        var pendencias = animal.Pendencias;
+                        var ehGato = animal.Especie == EspecieAnimal.Gato;
+
+                        <tr>
+                            <td class="cell-animal">
+                                <a class="animal-ident" asp-area="Admin" asp-controller="Animais" asp-action="Detalhes" asp-route-id="@animal.IdAnimal">
+                                    <span class="animal-thumb">
+                                        @if (!string.IsNullOrEmpty(animal.FotoCapa))
+                                        {
+                                            <img src="@Url.Content("~/" + animal.FotoCapa)" alt="Foto de @animal.Nome" loading="lazy">
+                                        }
+                                        else
+                                        {
+                                            <i class="fa-solid fa-paw" aria-hidden="true"></i>
+                                        }
+                                    </span>
+                                    <span class="animal-ident-text">
+                                        <strong class="animal-name">@animal.Nome</strong>
+                                        <span class="animal-meta">
+                                            @animal.Cor
+                                            <span aria-hidden="true">·</span>
+                                            <i class="fa-regular fa-image" aria-hidden="true"></i>
+                                            @animal.QtdFotos <span class="visually-hidden">@(animal.QtdFotos == 1 ? "foto" : "fotos")</span>
+                                        </span>
+                                    </span>
+                                </a>
+                            </td>
+
+                            <td data-label="Espécie e sexo">
+                                <span class="cell-species">
+                                    <i class="fa-solid @(ehGato ? "fa-cat" : "fa-dog")" aria-hidden="true"></i>
+                                    @animal.Especie.GetDisplayName()
+                                </span>
+                                <span class="cell-sub">@animal.Sexo.GetDisplayName()</span>
+                            </td>
+
+                            <td data-label="Idade">
+                                <span class="cell-main">@animal.IdadeEstimada</span>
+                                <span class="cell-sub">@animal.FaixaEtaria.GetDisplayName()</span>
+                            </td>
+
+                            <td data-label="Status">
+                                <span class="status-badge status-@animal.Status.ToString().ToLower()">@animal.Status.GetDisplayName()</span>
+                            </td>
+
+                            <td data-label="Saúde">
+                                @if (pendencias.Count == 0)
+                                {
+                                    <span class="health-pill health-ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Completa</span>
+                                }
+                                else
+                                {
+                                    <span class="health-pill health-pending" title="Falta: @(string.Join(", ", pendencias))">
+                                        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                                        @pendencias.Count @(pendencias.Count == 1 ? "pendência" : "pendências")
+                                    </span>
+                                    <span class="cell-sub">@(string.Join(", ", pendencias.Take(2)))@(pendencias.Count > 2 ? " +" + (pendencias.Count - 2) : "")</span>
+                                }
+                            </td>
+
+                            <td data-label="Cadastro">
+                                <span class="cell-main">@animal.CriadoEm.ToDataBr()</span>
+                            </td>
+
+                            <td class="cell-acoes">
+                                <div class="row-actions">
+                                    <a class="row-action" asp-area="Admin" asp-controller="Animais" asp-action="Detalhes" asp-route-id="@animal.IdAnimal"
+                                       title="Ver detalhes" aria-label="Ver detalhes de @animal.Nome">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    </a>
+                                    <a class="row-action" asp-area="Admin" asp-controller="Animais" asp-action="Editar" asp-route-id="@animal.IdAnimal"
+                                       title="Editar" aria-label="Editar @animal.Nome">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                    </a>
+                                    <a class="row-action row-action-danger" asp-area="Admin" asp-controller="Animais" asp-action="Excluir" asp-route-id="@animal.IdAnimal"
+                                       title="Excluir" aria-label="Excluir @animal.Nome">
+                                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @* ============ Rodapé: contagem + paginação ============ *@
+            <div class="animais-footer">
+                <p class="animais-count">
+                    Mostrando <strong>@Model.PrimeiroItem–@Model.UltimoItem</strong> de <strong>@Model.TotalFiltrado</strong>
+                    @(Model.TotalFiltrado == 1 ? "animal" : "animais")
+                </p>
+
+                @if (Model.TotalPaginas > 1)
+                {
+                    <nav class="pagination" aria-label="Paginação">
+                        @if (Model.Pagina > 1)
+                        {
+                            <a class="page-link" asp-area="Admin" asp-controller="Animais" asp-action="Index"
+                               asp-all-route-data="Rota(filtro.Status, Model.Pagina - 1)" aria-label="Página anterior">
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        }
+
+                        @foreach (var p in paginas)
+                        {
+                            if (p == 0)
+                            {
+                                <span class="page-gap" aria-hidden="true">…</span>
+                            }
+                            else if (p == Model.Pagina)
+                            {
+                                <span class="page-link is-current" aria-current="page">@p</span>
+                            }
+                            else
+                            {
+                                <a class="page-link" asp-area="Admin" asp-controller="Animais" asp-action="Index"
+                                   asp-all-route-data="Rota(filtro.Status, p)" aria-label="Página @p">@p</a>
+                            }
+                        }
+
+                        @if (Model.Pagina < Model.TotalPaginas)
+                        {
+                            <a class="page-link" asp-area="Admin" asp-controller="Animais" asp-action="Index"
+                               asp-all-route-data="Rota(filtro.Status, Model.Pagina + 1)" aria-label="Próxima página">
+                                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                            </a>
+                        }
+                    </nav>
+                }
+            </div>
+        </div>
+    }
+}
+
+@section Scripts {
+    <script src="~/js/admin/animais.js" asp-append-version="true"></script>
+}
