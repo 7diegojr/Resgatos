@@ -1,0 +1,261 @@
+@*
+    Formulário compartilhado por Criar e Editar.
+    Os campos são escritos à mão (e não com asp-for) para o visual ficar igual ao resto do painel;
+    o servidor continua sendo quem manda: as mesmas regras são conferidas no AnimaisController.
+*@
+@model AnimalFormViewModel
+@using Resgatos.Helpers
+@{
+    var edicao = Model.EhEdicao;
+    var hoje = DateTime.Today.ToString("yyyy-MM-dd");
+
+    // Primeira mensagem de erro de um campo (vem do servidor depois de um envio inválido); null = sem erro
+    string Erro(string campo)
+    {
+        if (!ViewData.ModelState.TryGetValue(campo, out var entrada) || entrada.Errors.Count == 0) return null;
+        var mensagem = entrada.Errors[0].ErrorMessage;
+        return string.IsNullOrEmpty(mensagem) ? "Valor inválido." : mensagem;
+    }
+
+    string ClasseCampo(string campo, string extra = null) =>
+        "form-field" + (extra != null ? " " + extra : "") + (Erro(campo) != null ? " has-error" : "");
+
+    // Monta os dados de uma caixa de seleção a partir de um enum
+    CampoSelectViewModel Campo<T>(string nome, string rotulo, T? atual, string mensagem) where T : struct, Enum => new()
+    {
+        Nome = nome,
+        Rotulo = rotulo,
+        MensagemObrigatorio = mensagem,
+        Erro = Erro(nome),
+        Opcoes = Enum.GetValues<T>()
+            .Select(v => new OpcaoSelectViewModel(v.ToString(), ((Enum)v).GetDisplayName(), atual.HasValue && EqualityComparer<T>.Default.Equals(atual.Value, v)))
+            .ToList()
+    };
+
+    var campoEspecie = Campo("Especie", "Espécie", Model.Especie, "Selecione a espécie.");
+    var campoSexo = Campo("Sexo", "Sexo", Model.Sexo, "Selecione o sexo.");
+    var campoPorte = Campo("Porte", "Porte", Model.Porte, "Selecione o porte.");
+    var campoFaixa = Campo("FaixaEtaria", "Faixa etária", Model.FaixaEtaria, "Selecione a faixa etária.");
+    var campoStatus = Campo("Status", "Status", Model.Status, "Selecione o status.");
+    var campoFiv = Campo("ResultadoFiv", "Resultado da FIV", Model.ResultadoFiv, "Informe o resultado do teste de FIV.");
+    var campoFelv = Campo("ResultadoFelv", "Resultado da FeLV", Model.ResultadoFelv, "Informe o resultado do teste de FeLV.");
+
+    // Capa marcada: a que voltou do formulário ou, na edição, a capa atual do animal
+    var capaAtual = Model.CapaSelecionada;
+    if (string.IsNullOrEmpty(capaAtual))
+    {
+        var fotoCapa = Model.FotosExistentes.FirstOrDefault(f => f.Capa);
+        if (fotoCapa != null) capaAtual = "foto-" + fotoCapa.IdAnimalFoto;
+    }
+
+    var ehGato = Model.Especie == EspecieAnimal.Gato;
+    var enviouFotos = Model.NovasFotos.Any(f => f.Length > 0);
+}
+
+<form method="post" enctype="multipart/form-data" class="animal-form" id="animal-form" novalidate
+      asp-area="Admin" asp-controller="Animais" asp-action="@(edicao ? "Editar" : "Criar")"
+      asp-route-id="@(edicao ? Model.IdAnimal : (int?)null)">
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="form-alert" role="alert">
+            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            <div>
+                <strong>Confira os campos destacados antes de salvar.</strong>
+                @if (enviouFotos)
+                {
+                    <p>As fotos novas não são guardadas quando o formulário volta com erro: escolha-as de novo.</p>
+                }
+            </div>
+        </div>
+    }
+
+    @* ===================== Dados do animal ===================== *@
+    <section class="form-card" aria-labelledby="titulo-dados">
+        <h2 class="form-card-title" id="titulo-dados">Dados do animal</h2>
+
+        <div class="form-grid">
+            <div class="@ClasseCampo("Nome")">
+                <label for="Nome">Nome<span class="form-required" aria-hidden="true">*</span></label>
+                <input type="text" id="Nome" name="Nome" value="@Model.Nome" maxlength="100" autocomplete="off"
+                       data-required data-msg="Informe o nome do animal." />
+                <span class="field-error" role="alert">@Erro("Nome")</span>
+            </div>
+
+            <partial name="_CampoSelect" model="campoEspecie" />
+            <partial name="_CampoSelect" model="campoSexo" />
+            <partial name="_CampoSelect" model="campoPorte" />
+
+            <div class="@ClasseCampo("Cor")">
+                <label for="Cor">Cor<span class="form-required" aria-hidden="true">*</span></label>
+                <input type="text" id="Cor" name="Cor" value="@Model.Cor" maxlength="100" autocomplete="off"
+                       placeholder="Ex.: Caramelo, Preto e branco" data-required data-msg="Informe a cor do animal." />
+                <span class="field-error" role="alert">@Erro("Cor")</span>
+            </div>
+
+            <partial name="_CampoSelect" model="campoFaixa" />
+
+            <div class="@ClasseCampo("IdadeEstimada")">
+                <label for="IdadeEstimada">Idade estimada<span class="form-required" aria-hidden="true">*</span></label>
+                <input type="text" id="IdadeEstimada" name="IdadeEstimada" value="@Model.IdadeEstimada" maxlength="50" autocomplete="off"
+                       placeholder="Ex.: 2 meses, 3 anos" data-required data-msg="Informe a idade estimada (ex.: 2 meses)." />
+                <span class="field-error" role="alert">@Erro("IdadeEstimada")</span>
+            </div>
+
+            <partial name="_CampoSelect" model="campoStatus" />
+
+            <div class="@ClasseCampo("DataResgate")">
+                <label for="DataResgate">Data do resgate</label>
+                <input type="date" id="DataResgate" name="DataResgate" value="@(Model.DataResgate?.ToString("yyyy-MM-dd"))" max="@hoje" />
+                <span class="field-error" role="alert">@Erro("DataResgate")</span>
+            </div>
+        </div>
+    </section>
+
+    @* ===================== Textos que aparecem no site ===================== *@
+    <section class="form-card" aria-labelledby="titulo-textos">
+        <h2 class="form-card-title" id="titulo-textos">História do animal</h2>
+        <p class="form-card-hint">Esses textos aparecem na ficha do animal, no site de adoção.</p>
+
+        <div class="form-grid">
+            <div class="@ClasseCampo("Historia", "form-field-full")">
+                <label for="Historia">História</label>
+                <textarea id="Historia" name="Historia" maxlength="4000"
+                          placeholder="Como o animal foi encontrado, como ele é, do que gosta...">@Model.Historia</textarea>
+                <span class="field-error" role="alert">@Erro("Historia")</span>
+            </div>
+
+            <div class="@ClasseCampo("Observacoes", "form-field-full")">
+                <label for="Observacoes">Bom saber</label>
+                <textarea id="Observacoes" name="Observacoes" maxlength="4000"
+                          placeholder="Algo importante para quem vai adotar (ex.: precisa de ração específica, não se dá bem com outros gatos)...">@Model.Observacoes</textarea>
+                <span class="field-error" role="alert">@Erro("Observacoes")</span>
+            </div>
+        </div>
+    </section>
+
+    @* ===================== Saúde ===================== *@
+    <section class="form-card" aria-labelledby="titulo-saude">
+        <h2 class="form-card-title" id="titulo-saude">Saúde</h2>
+        <p class="form-card-hint">Marque o que já foi feito. O que ficar sem marcar aparece como pendência na lista.</p>
+
+        <div class="check-grid">
+            <label class="check-card">
+                <input type="checkbox" id="AntipulgasOk" name="AntipulgasOk" value="true" checked="@Model.AntipulgasOk" />
+                <span class="check-box" aria-hidden="true"></span>
+                <span>Antipulgas em dia</span>
+            </label>
+            <label class="check-card">
+                <input type="checkbox" id="VermifugadoOk" name="VermifugadoOk" value="true" checked="@Model.VermifugadoOk" />
+                <span class="check-box" aria-hidden="true"></span>
+                <span>Vermifugado</span>
+            </label>
+            <label class="check-card">
+                <input type="checkbox" id="VacinadoOk" name="VacinadoOk" value="true" checked="@Model.VacinadoOk" />
+                <span class="check-box" aria-hidden="true"></span>
+                <span>Vacinado</span>
+            </label>
+            <label class="check-card">
+                <input type="checkbox" id="CastradoOk" name="CastradoOk" value="true" checked="@Model.CastradoOk" />
+                <span class="check-box" aria-hidden="true"></span>
+                <span>Castrado</span>
+            </label>
+        </div>
+
+        <div class="@ClasseCampo("DataCastracao", "saude-extra")" id="campo-data-castracao" data-depende-de="CastradoOk" hidden="@(!Model.CastradoOk)">
+            <label for="DataCastracao">Data da castração</label>
+            <input type="date" id="DataCastracao" name="DataCastracao" value="@(Model.DataCastracao?.ToString("yyyy-MM-dd"))" max="@hoje" />
+            <span class="field-error" role="alert">@Erro("DataCastracao")</span>
+        </div>
+
+        @* FIV e FeLV só existem para gatos: o bloco aparece quando a espécie é Gato *@
+        <div class="saude-gatos" id="bloco-gatos" hidden="@(!ehGato)">
+            <h3 class="saude-gatos-titulo">Testes de FIV e FeLV <span>(só para gatos)</span></h3>
+
+            <div class="saude-gatos-grid">
+                <div class="teste-grupo">
+                    <label class="check-card">
+                        <input type="checkbox" id="FivTestado" name="FivTestado" value="true" checked="@Model.FivTestado" />
+                        <span class="check-box" aria-hidden="true"></span>
+                        <span>Testado para FIV</span>
+                    </label>
+                    <div id="campo-resultado-fiv" data-depende-de="FivTestado" hidden="@(!Model.FivTestado)">
+                        <partial name="_CampoSelect" model="campoFiv" />
+                    </div>
+                </div>
+
+                <div class="teste-grupo">
+                    <label class="check-card">
+                        <input type="checkbox" id="FelvTestado" name="FelvTestado" value="true" checked="@Model.FelvTestado" />
+                        <span class="check-box" aria-hidden="true"></span>
+                        <span>Testado para FeLV</span>
+                    </label>
+                    <div id="campo-resultado-felv" data-depende-de="FelvTestado" hidden="@(!Model.FelvTestado)">
+                        <partial name="_CampoSelect" model="campoFelv" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @* ===================== Fotos ===================== *@
+    <section class="form-card" aria-labelledby="titulo-fotos" id="fotos-card"
+             data-max-fotos="@Resgatos.Services.UploadService.MaxFotosPorAnimal" data-max-bytes="@Resgatos.Services.UploadService.TamanhoMaximoBytes">
+        <h2 class="form-card-title" id="titulo-fotos">Fotos</h2>
+        <p class="form-card-hint">
+            Até @Resgatos.Services.UploadService.MaxFotosPorAnimal fotos (JPG, PNG ou WebP, até 5 MB cada).
+            Escolha qual é a <strong>capa</strong>: é a foto que aparece no card do animal no site.
+        </p>
+
+        @if (Model.FotosExistentes.Count > 0)
+        {
+            <h3 class="fotos-subtitulo">Fotos atuais</h3>
+            <ul class="foto-grid" id="fotos-existentes">
+                @for (var i = 0; i < Model.FotosExistentes.Count; i++)
+                {
+                    var foto = Model.FotosExistentes[i];
+                    var removida = Model.FotosRemover.Contains(foto.IdAnimalFoto);
+                    <li class="foto-tile@(removida ? " is-removida" : "")">
+                        <img src="@Url.Content("~/" + foto.Caminho)" alt="Foto @(i + 1) de @Model.Nome" loading="lazy" />
+                        <div class="foto-tile-footer">
+                            <label class="foto-opcao foto-opcao-capa">
+                                <input type="radio" name="CapaSelecionada" value="foto-@foto.IdAnimalFoto"
+                                       checked="@(capaAtual == "foto-" + foto.IdAnimalFoto)" disabled="@removida" />
+                                <span><i class="fa-solid fa-star" aria-hidden="true"></i> Capa</span>
+                            </label>
+                            <label class="foto-opcao foto-opcao-remover">
+                                <input type="checkbox" name="FotosRemover" value="@foto.IdAnimalFoto" checked="@removida" />
+                                <span><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remover</span>
+                            </label>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+
+        <div class="@ClasseCampo("NovasFotos", "campo-novas-fotos")" id="campo-fotos">
+            <h3 class="fotos-subtitulo">@(Model.FotosExistentes.Count > 0 ? "Adicionar fotos" : "Escolher fotos")</h3>
+
+            <input type="file" id="NovasFotos" name="NovasFotos" class="visually-hidden" multiple
+                   accept="image/jpeg,image/png,image/webp" />
+            <label for="NovasFotos" class="foto-dropzone" id="foto-dropzone">
+                <span class="foto-dropzone-icone" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
+                <span class="foto-dropzone-titulo">Clique para escolher as fotos</span>
+                <span class="foto-dropzone-texto">ou arraste e solte aqui</span>
+            </label>
+
+            <span class="field-error" id="erro-novas-fotos" role="alert">@Erro("NovasFotos")</span>
+
+            <ul class="foto-grid" id="novas-fotos-lista" aria-label="Fotos que serão adicionadas"></ul>
+        </div>
+    </section>
+
+    <div class="form-actions">
+        <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Animais"
+           asp-action="@(edicao ? "Detalhes" : "Index")" asp-route-id="@(edicao ? Model.IdAnimal : (int?)null)">Cancelar</a>
+        <button type="submit" class="admin-btn admin-btn-primary" id="animal-form-salvar">
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            <span>@(edicao ? "Salvar alterações" : "Cadastrar animal")</span>
+        </button>
+    </div>
+</form>

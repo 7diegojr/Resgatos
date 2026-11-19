@@ -1,0 +1,243 @@
+/*
+  Admin > Animais > Criar / Editar.
+  Campos, caixas de marcar, erros, botões e modal ficam no admin.css (compartilhados).
+  Aqui só o que é específico deste formulário: bloco de saúde e fotos.
+*/
+
+/* ============ Saúde ============ */
+.saude-extra {
+    max-width: 320px;
+    margin-top: 18px;
+}
+
+.saude-gatos {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: var(--border-soft);
+}
+
+.saude-gatos-titulo {
+    margin-bottom: 14px;
+    font-size: 18px;
+    color: var(--blue-700);
+}
+
+.saude-gatos-titulo span {
+    font-family: var(--font);
+    font-size: 14px;
+    opacity: 0.65;
+}
+
+.saude-gatos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px 22px;
+}
+
+/* Caixa "Testado para..." com o resultado logo abaixo */
+.teste-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* ============ Fotos ============ */
+.fotos-subtitulo {
+    margin: 4px 0 14px;
+    font-size: 18px;
+    color: var(--blue-700);
+}
+
+.campo-novas-fotos {
+    margin-top: 8px;
+}
+
+.foto-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    margin: 0 0 22px;
+    padding: 0;
+    list-style: none;
+}
+
+.campo-novas-fotos .foto-grid {
+    margin: 18px 0 0;
+}
+
+.foto-grid:empty {
+    display: none;
+}
+
+.foto-tile {
+    position: relative;
+    overflow: hidden;
+    border: var(--border-soft);
+    border-radius: 14px;
+    background-color: var(--white);
+}
+
+.foto-tile img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+/* Foto marcada para remover: fica apagada até salvar */
+.foto-tile.is-removida img {
+    opacity: 0.3;
+    filter: grayscale(1);
+}
+
+.foto-selo-nova {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background-color: var(--pink-500);
+    color: var(--blue-700);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.foto-tile-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px;
+}
+
+/* Cada opção é um "pill": o input fica escondido e o <span> faz o papel de botão */
+.foto-opcao {
+    position: relative;
+    padding: 0;
+    border: none;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.foto-opcao input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.foto-opcao > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border: var(--border-soft);
+    border-radius: 999px;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.foto-opcao:hover > span {
+    border-color: var(--blue-700);
+}
+
+.foto-opcao-capa input:checked + span {
+    background-color: var(--blue-700);
+    border-color: var(--blue-700);
+    color: var(--white);
+}
+
+.foto-opcao-capa input:checked + span i {
+    color: var(--pink-500);
+}
+
+.foto-opcao-remover:hover > span,
+.foto-opcao-remover input:checked + span {
+    border-color: var(--admin-danger);
+    color: var(--admin-danger);
+}
+
+.foto-opcao-remover input:checked + span {
+    background-color: color-mix(in srgb, var(--admin-danger) 12%, var(--white));
+}
+
+.foto-opcao input:disabled + span {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.foto-opcao input:focus-visible + span,
+button.foto-opcao:focus-visible > span {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+/* Área de escolher / arrastar fotos */
+.foto-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 30px 20px;
+    border: 2px dashed color-mix(in srgb, var(--blue-700) 35%, transparent);
+    border-radius: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.foto-dropzone:hover,
+.foto-dropzone.is-arrastando,
+#NovasFotos:focus-visible ~ .foto-dropzone {
+    border-color: var(--pink-500);
+    background-color: color-mix(in srgb, var(--pink-500) 8%, var(--white));
+}
+
+#NovasFotos:focus-visible ~ .foto-dropzone {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+.foto-dropzone-icone {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--pink-500) 22%, transparent);
+    color: var(--pink-500);
+    font-size: 22px;
+}
+
+.foto-dropzone-titulo {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.foto-dropzone-texto {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.campo-novas-fotos.has-error .foto-dropzone {
+    border-color: var(--admin-danger);
+}
+
+/* Mais de uma mensagem de erro de foto: uma por linha */
+#erro-novas-fotos {
+    margin-top: 6px;
+    white-space: pre-line;
+}
+
+@media (max-width: 575px) {
+    .foto-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+}

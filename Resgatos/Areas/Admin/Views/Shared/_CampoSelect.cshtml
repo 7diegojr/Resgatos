@@ -1,0 +1,20 @@
+@*
+    Campo com rótulo + caixa de seleção + mensagem de erro. O custom-select.js troca o <select> pelo visual do site.
+    Uso:  <partial name="_CampoSelect" model="campo" />   (campo = CampoSelectViewModel montado na view)
+*@
+@model CampoSelectViewModel
+
+<div class="form-field@(Model.Erro != null ? " has-error" : "")">
+    <label for="@Model.Nome">@Model.Rotulo@if (Model.Obrigatorio){<span class="form-required" aria-hidden="true">*</span>}</label>
+
+    <select id="@Model.Nome" name="@Model.Nome"
+            data-required="@(Model.Obrigatorio ? "" : null)" data-msg="@Model.MensagemObrigatorio">
+        <option value="">@Model.Placeholder</option>
+        @foreach (var opcao in Model.Opcoes)
+        {
+            <option value="@opcao.Valor" selected="@opcao.Selecionada">@opcao.Texto</option>
+        }
+    </select>
+
+    <span class="field-error" role="alert">@Model.Erro</span>
+</div>

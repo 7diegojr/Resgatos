@@ -1,0 +1,26 @@
+@*
+    Modal de confirmação reutilizável. Fica no layout e é aberto por qualquer botão assim:
+
+    <button type="button" data-confirmar
+            data-url="/Admin/Animais/Excluir/5"     (para onde o POST é enviado ao confirmar)
+            data-titulo="Mandar Mel para a lixeira?"
+            data-texto="Texto explicando o que acontece."
+            data-botao="Mandar para a lixeira">     (texto do botão de confirmar; opcional)
+
+    O formulário já leva o token antifalsificação, então a action só precisa de [HttpPost] [ValidateAntiForgeryToken].
+*@
+<dialog class="admin-modal" id="admin-modal-confirmacao"
+        aria-labelledby="modal-confirmacao-titulo" aria-describedby="modal-confirmacao-texto">
+    <form method="post" class="admin-modal-form" id="modal-confirmacao-form">
+        @Html.AntiForgeryToken()
+
+        <span class="admin-modal-icon" aria-hidden="true"><i class="fa-solid fa-trash-can"></i></span>
+        <h2 class="admin-modal-title" id="modal-confirmacao-titulo">Confirmar</h2>
+        <p class="admin-modal-text" id="modal-confirmacao-texto"></p>
+
+        <div class="admin-modal-actions">
+            <button type="button" class="admin-btn admin-btn-outline" data-modal-cancelar>Cancelar</button>
+            <button type="submit" class="admin-btn admin-btn-danger" id="modal-confirmacao-ok">Confirmar</button>
+        </div>
+    </form>
+</dialog>

@@ -80,6 +80,11 @@ public class Animal
     [Display(Name = "Criado em")]
     public DateTime CriadoEm { get; set; } = DateTime.Now;
 
+    // Lixeira (exclusão lógica): preenchido = o animal está na lixeira e some do site e das listas do admin.
+    [DataType(DataType.DateTime)]
+    [Display(Name = "Excluído em")]
+    public DateTime? ExcluidoEm { get; set; }
+
     public virtual ICollection<AnimalFoto> Fotos { get; set; } = new List<AnimalFoto>();
     public virtual Adotado? Adotado { get; set; }
 }

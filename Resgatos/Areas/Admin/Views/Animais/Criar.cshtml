@@ -1,0 +1,25 @@
+@model AnimalFormViewModel
+@{
+    ViewData["Title"] = "Novo animal";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/animal-form.css" asp-append-version="true" />
+}
+
+<a class="admin-back-link" asp-area="Admin" asp-controller="Animais" asp-action="Index">
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para os animais
+</a>
+
+<header class="admin-page-header">
+    <div class="admin-page-header-text">
+        <h1 class="admin-page-title">Novo animal</h1>
+        <p class="admin-page-subtitle">Preencha os dados do animal resgatado. Os campos com <span class="form-required">*</span> são obrigatórios.</p>
+    </div>
+</header>
+
+<partial name="_Formulario" model="Model" />
+
+@section Scripts {
+    <script src="~/js/admin/animal-form.js" asp-append-version="true"></script>
+}
