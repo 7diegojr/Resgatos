@@ -1,0 +1,273 @@
+/*
+  Admin > Animais > Detalhes.
+  Usa também o animais.css (selo de status) e o admin.css (cartões, botões).
+*/
+
+.det-titulo {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+}
+
+.det-titulo .status-badge {
+    font-family: var(--font);
+    font-size: 14px;
+}
+
+/* Fotos à esquerda, informações à direita */
+.det-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.det-coluna {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+/* ============ Galeria ============ */
+.det-galeria {
+    position: sticky;
+    top: 24px;
+    padding: 14px;
+    border: var(--border-soft);
+    border-radius: 18px;
+    background-color: var(--white);
+}
+
+.det-foto-principal {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 12px;
+    background-color: color-mix(in srgb, var(--pink-500) 18%, transparent);
+}
+
+.det-foto-principal img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.det-foto-capa {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background-color: var(--blue-700);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.det-foto-capa i {
+    color: var(--pink-500);
+}
+
+.det-sem-foto {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pink-500);
+    font-size: 64px;
+}
+
+.det-miniaturas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: 10px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.det-miniatura {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: none;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.det-miniatura img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.det-miniatura:hover {
+    opacity: 1;
+}
+
+.det-miniatura.is-ativa {
+    border-color: var(--pink-500);
+    opacity: 1;
+}
+
+.det-miniatura:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+/* ============ Aviso: aparece (ou não) no site ============ */
+.det-site {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 15px;
+}
+
+.det-site i {
+    flex-shrink: 0;
+    font-size: 20px;
+}
+
+.det-site-sim {
+    background-color: color-mix(in srgb, var(--admin-green) 12%, var(--white));
+    color: var(--admin-green);
+}
+
+.det-site-nao {
+    background-color: color-mix(in srgb, var(--blue-700) 8%, var(--white));
+    color: var(--blue-700);
+}
+
+/* ============ Cartões ============ */
+.det-card {
+    padding: 24px 26px 26px;
+}
+
+.det-card-titulo {
+    margin-bottom: 18px;
+    font-size: 22px;
+    color: var(--blue-700);
+}
+
+.det-dados {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 18px 24px;
+    margin: 0;
+}
+
+.det-dados dt {
+    margin-bottom: 3px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.55;
+}
+
+.det-dados dd {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Saúde: um item por linha, verde quando feito, âmbar quando pendente */
+.det-saude {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.det-saude-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: var(--border-soft);
+    border-radius: 12px;
+}
+
+.det-saude-icone {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 14px;
+}
+
+.det-saude-item.is-ok .det-saude-icone {
+    background-color: color-mix(in srgb, var(--admin-green) 16%, transparent);
+    color: var(--admin-green);
+}
+
+.det-saude-item.is-pendente .det-saude-icone {
+    background-color: color-mix(in srgb, var(--admin-amber) 16%, transparent);
+    color: var(--admin-amber);
+}
+
+.det-saude-texto {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.det-saude-texto small {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+/* Textos: respeita os parágrafos digitados no formulário */
+.det-texto {
+    font-size: 16px;
+    line-height: 1.7;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.det-vazio {
+    font-size: 15px;
+    opacity: 0.65;
+}
+
+.det-vazio a {
+    color: var(--blue-700);
+    font-weight: 700;
+}
+
+@media (max-width: 1099px) {
+    .det-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .det-galeria {
+        position: static;
+        max-width: 520px;
+    }
+}
+
+@media (max-width: 575px) {
+    .det-card {
+        padding: 20px 18px 22px;
+    }
+}

@@ -29,14 +29,40 @@
             </header>
 
             <main class="admin-main" role="main">
+                @* Aviso rápido depois de uma ação (salvar, excluir...). O controller preenche TempData["Sucesso"] ou TempData["Erro"] *@
+                @if (TempData["Sucesso"] is string mensagemSucesso)
+                {
+                    <div class="admin-toast" role="status" data-toast>
+                        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                        <span>@mensagemSucesso</span>
+                        <button type="button" class="admin-toast-fechar" data-toast-fechar aria-label="Fechar aviso">
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                }
+                @if (TempData["Erro"] is string mensagemErro)
+                {
+                    <div class="admin-toast admin-toast-erro" role="alert" data-toast>
+                        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                        <span>@mensagemErro</span>
+                        <button type="button" class="admin-toast-fechar" data-toast-fechar aria-label="Fechar aviso">
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                }
+
                 @RenderBody()
             </main>
 
         </div>
     </div>
 
+    @* Modal de confirmação usado por qualquer botão com data-confirmar (ex.: excluir) *@
+    <partial name="_ModalConfirmacao" />
+
     <script src="~/js/admin/admin.js" asp-append-version="true"></script>
     <script src="~/js/admin/custom-select.js" asp-append-version="true"></script>
+    <script src="~/js/admin/confirmacao.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

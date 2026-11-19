@@ -1,0 +1,175 @@
+@model Animal
+@using Resgatos.Helpers
+@{
+    ViewData["Title"] = Model.Nome;
+
+    var fotos = Model.Fotos.OrderByDescending(f => f.Capa).ThenBy(f => f.IdAnimalFoto).ToList();
+    var ehGato = Model.Especie == EspecieAnimal.Gato;
+    var aparecenoSite = Model.Status == StatusAnimal.Disponivel;
+
+    // Texto do resultado de um teste: "Negativo", "Positivo"... ou "Não testado"
+    string Resultado(bool testado, Enum resultado) => testado && resultado != null ? resultado.GetDisplayName() : "Não testado";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/animais.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/animal-detalhes.css" asp-append-version="true" />
+}
+
+<a class="admin-back-link" asp-area="Admin" asp-controller="Animais" asp-action="Index">
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para os animais
+</a>
+
+<header class="admin-page-header">
+    <div class="admin-page-header-text">
+        <h1 class="admin-page-title det-titulo">
+            @Model.Nome
+            <span class="status-badge status-@Model.Status.ToString().ToLower()">@Model.Status.GetDisplayName()</span>
+        </h1>
+        <p class="admin-page-subtitle">Cadastrado em @Model.CriadoEm.ToDataBr()</p>
+    </div>
+
+    <div class="admin-page-actions">
+        <a class="admin-btn admin-btn-primary" asp-area="Admin" asp-controller="Animais" asp-action="Editar" asp-route-id="@Model.IdAnimal">
+            <i class="fa-solid fa-pen" aria-hidden="true"></i><span>Editar</span>
+        </a>
+        <button type="button" class="admin-btn admin-btn-danger-outline" data-confirmar
+                data-url="@Url.Action("Excluir", "Animais", new { area = "Admin", id = Model.IdAnimal })"
+                data-titulo="Mandar @Model.Nome para a lixeira?"
+                data-texto="@Model.Nome deixa de aparecer no site e na lista de animais, e fica guardado na lixeira."
+                data-botao="Mandar para a lixeira">
+            <i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Excluir</span>
+        </button>
+    </div>
+</header>
+
+<div class="det-layout">
+
+    @* ===================== Fotos ===================== *@
+    <section class="det-galeria" aria-label="Fotos de @Model.Nome">
+        <div class="det-foto-principal">
+            @if (fotos.Count > 0)
+            {
+                <img id="det-foto-principal" src="@Url.Content("~/" + fotos[0].Foto)" alt="Foto de @Model.Nome" />
+                <span class="det-foto-capa" id="det-foto-capa" hidden="@(!fotos[0].Capa)"><i class="fa-solid fa-star" aria-hidden="true"></i> Capa</span>
+            }
+            else
+            {
+                <span class="det-sem-foto" aria-hidden="true"><i class="fa-solid fa-paw"></i></span>
+            }
+        </div>
+
+        @if (fotos.Count == 0)
+        {
+            <p class="det-vazio">Nenhuma foto cadastrada. <a asp-area="Admin" asp-controller="Animais" asp-action="Editar" asp-route-id="@Model.IdAnimal">Adicionar fotos</a></p>
+        }
+        else if (fotos.Count > 1)
+        {
+            <ul class="det-miniaturas">
+                @for (var i = 0; i < fotos.Count; i++)
+                {
+                    <li>
+                        <button type="button" class="det-miniatura@(i == 0 ? " is-ativa" : "")" data-foto="@Url.Content("~/" + fotos[i].Foto)"
+                                data-capa="@(fotos[i].Capa ? "true" : "false")" aria-label="Ver foto @(i + 1) de @fotos.Count"
+                                aria-pressed="@(i == 0 ? "true" : "false")">
+                            <img src="@Url.Content("~/" + fotos[i].Foto)" alt="" loading="lazy" />
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+
+    <div class="det-coluna">
+
+        @* ===================== Aviso do site ===================== *@
+        <div class="det-site @(aparecenoSite ? "det-site-sim" : "det-site-nao")">
+            <i class="fa-solid @(aparecenoSite ? "fa-globe" : "fa-eye-slash")" aria-hidden="true"></i>
+            <p>
+                @if (aparecenoSite)
+                {
+                    <text><strong>Aparece no site.</strong> O animal está disponível para adoção.</text>
+                }
+                else
+                {
+                    <text><strong>Não aparece no site.</strong> Só os animais com status “Disponível” ficam no catálogo de adoção.</text>
+                }
+            </p>
+        </div>
+
+        @* ===================== Dados ===================== *@
+        <section class="admin-card det-card" aria-labelledby="det-dados">
+            <h2 class="det-card-titulo" id="det-dados">Dados do animal</h2>
+            <dl class="det-dados">
+                <div><dt>Espécie</dt><dd>@Model.Especie.GetDisplayName()</dd></div>
+                <div><dt>Sexo</dt><dd>@Model.Sexo.GetDisplayName()</dd></div>
+                <div><dt>Porte</dt><dd>@Model.Porte.GetDisplayName()</dd></div>
+                <div><dt>Cor</dt><dd>@Model.Cor</dd></div>
+                <div><dt>Faixa etária</dt><dd>@Model.FaixaEtaria.GetDisplayName()</dd></div>
+                <div><dt>Idade estimada</dt><dd>@Model.IdadeEstimada</dd></div>
+                <div><dt>Data do resgate</dt><dd>@(Model.DataResgate.HasValue ? Model.DataResgate.Value.ToDataBr() : "Não informada")</dd></div>
+            </dl>
+        </section>
+
+        @* ===================== Saúde ===================== *@
+        <section class="admin-card det-card" aria-labelledby="det-saude">
+            <h2 class="det-card-titulo" id="det-saude">Saúde</h2>
+            <ul class="det-saude">
+                @{
+                    // (nome, feito, detalhe)
+                    var itens = new List<(string Nome, bool Feito, string Detalhe)>
+                    {
+                        ("Antipulgas", Model.AntipulgasOk, null),
+                        ("Vermífugo", Model.VermifugadoOk, null),
+                        ("Vacina", Model.VacinadoOk, null),
+                        ("Castração", Model.CastradoOk, Model.CastradoOk && Model.DataCastracao.HasValue ? Model.DataCastracao.Value.ToDataBr() : null)
+                    };
+                    if (ehGato)
+                    {
+                        itens.Add(("FIV", Model.FivTestado, Resultado(Model.FivTestado, Model.ResultadoFiv)));
+                        itens.Add(("FeLV", Model.FelvTestado, Resultado(Model.FelvTestado, Model.ResultadoFelv)));
+                    }
+                }
+                @foreach (var item in itens)
+                {
+                    <li class="det-saude-item @(item.Feito ? "is-ok" : "is-pendente")">
+                        <span class="det-saude-icone" aria-hidden="true"><i class="fa-solid @(item.Feito ? "fa-check" : "fa-minus")"></i></span>
+                        <span class="det-saude-texto">
+                            <strong>@item.Nome</strong>
+                            <small>@(item.Detalhe ?? (item.Feito ? "Feito" : "Pendente"))</small>
+                        </span>
+                    </li>
+                }
+            </ul>
+        </section>
+
+        @* ===================== Textos ===================== *@
+        <section class="admin-card det-card" aria-labelledby="det-historia">
+            <h2 class="det-card-titulo" id="det-historia">História</h2>
+            @if (string.IsNullOrWhiteSpace(Model.Historia))
+            {
+                <p class="det-vazio">Nenhuma história cadastrada.</p>
+            }
+            else
+            {
+                <p class="det-texto">@Model.Historia</p>
+            }
+        </section>
+
+        <section class="admin-card det-card" aria-labelledby="det-saber">
+            <h2 class="det-card-titulo" id="det-saber">Bom saber</h2>
+            @if (string.IsNullOrWhiteSpace(Model.Observacoes))
+            {
+                <p class="det-vazio">Nenhuma observação cadastrada.</p>
+            }
+            else
+            {
+                <p class="det-texto">@Model.Observacoes</p>
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/admin/animal-detalhes.js" asp-append-version="true"></script>
+}

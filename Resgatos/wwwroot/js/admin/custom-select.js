@@ -109,6 +109,8 @@
             });
             var escolhida = select.options[select.selectedIndex];
             valor.textContent = escolhida ? escolhida.textContent.trim() : "";
+            // Opção sem valor ("Selecione") aparece com a cor de placeholder; nos filtros, "Todas" é uma opção sem valor mas é resposta de verdade (data-sem-placeholder)
+            valor.classList.toggle("is-placeholder", !!escolhida && escolhida.value === "" && !select.hasAttribute("data-sem-placeholder"));
         }
 
         function abrir() {

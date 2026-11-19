@@ -19,6 +19,9 @@ builder.Services.AddControllersWithViews();
 // Serviço de login do admin (validação de senha e geração de hash)
 builder.Services.AddScoped<AuthService>();
 
+// Upload e exclusão das fotos dos animais (wwwroot/uploads/animais)
+builder.Services.AddScoped<UploadService>();
+
 // Autenticação por cookie (só o admin tem login; não há cadastro de usuários)
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -69,6 +72,10 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await context.Database.EnsureCreatedAsync();
+
+    // O EnsureCreated só cria o banco quando ele não existe: não adiciona colunas novas em um banco que já existe.
+    // Este ajuste (idempotente) cria as colunas que foram adicionadas depois, como a da lixeira.
+    await SchemaAjustes.GarantirColunasAsync(context);
 
     // Seeds: rodam sempre que a aplicação inicia (dotnet watch run). Todas são idempotentes:
     // não duplicam nada se os dados já existirem.

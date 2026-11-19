@@ -46,5 +46,18 @@ public class AppDbContext : DbContext
             .WithOne(a => a.Adotado) // cada Animal tem, no máximo, um Adotado (1:1)
             .HasForeignKey<Adotado>(ad => ad.IdAnimal)
             .OnDelete(DeleteBehavior.NoAction);
+
+        // ---------- Lixeira (exclusão lógica) ----------
+        // Animal com ExcluidoEm preenchido está na lixeira: some de TODAS as consultas (site e admin)
+        // sem precisar lembrar de filtrar em cada uma. Quem precisa enxergar a lixeira usa .IgnoreQueryFilters().
+        // Fotos e adoção seguem o animal (o EF exige o mesmo filtro nos dois lados da relação).
+        modelBuilder.Entity<Animal>()
+            .HasQueryFilter(a => a.ExcluidoEm == null);
+
+        modelBuilder.Entity<AnimalFoto>()
+            .HasQueryFilter(af => af.Animal.ExcluidoEm == null);
+
+        modelBuilder.Entity<Adotado>()
+            .HasQueryFilter(ad => ad.Animal.ExcluidoEm == null);
     }
 }

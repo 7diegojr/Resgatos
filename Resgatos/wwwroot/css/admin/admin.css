@@ -586,7 +586,7 @@ body {
 .admin-card {
     background-color: var(--white);
     border: var(--border-soft);
-    border-radius: 24px;
+    border-radius: 18px;
     overflow: hidden;
 }
 
@@ -757,5 +757,473 @@ html {
     .form-select-list,
     .form-select-trigger i {
         transition: none;
+    }
+}
+
+/* ============ PAINEL: itens com o atributo hidden sempre somem (mesmo com display definido) ============ */
+[hidden] {
+    display: none !important;
+}
+
+/* ============ PAINEL: voltar, ações do cabeçalho, botão de perigo ============ */
+.admin-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    color: var(--blue-700);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.admin-back-link:hover {
+    color: var(--pink-500);
+}
+
+.admin-back-link:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+.admin-page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.admin-btn-danger {
+    background-color: var(--admin-danger);
+    color: var(--white);
+}
+
+.admin-btn-danger-outline {
+    background-color: transparent;
+    border-color: var(--admin-danger);
+    color: var(--admin-danger);
+}
+
+.admin-btn-danger-outline:hover {
+    background-color: var(--admin-danger);
+    color: var(--white);
+}
+
+.admin-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+}
+
+@media (max-width: 575px) {
+    .admin-page-actions {
+        width: 100%;
+    }
+
+    .admin-page-actions .admin-btn {
+        flex: 1 1 0;
+    }
+}
+
+/* ============ PAINEL: aviso rápido (toast) depois de salvar, excluir etc. ============ */
+.admin-toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: min(440px, calc(100% - 32px));
+    padding: 14px 16px 14px 18px;
+    border: var(--border-soft);
+    border-left: 5px solid var(--admin-green);
+    border-radius: 14px;
+    background-color: var(--white);
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--blue-700) 18%, transparent);
+    color: var(--blue-700);
+    font-size: 15px;
+    font-weight: 700;
+    animation: toast-entrar 0.35s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.admin-toast > i:first-child {
+    font-size: 20px;
+    color: var(--admin-green);
+}
+
+.admin-toast-erro {
+    border-left-color: var(--admin-danger);
+}
+
+.admin-toast-erro > i:first-child {
+    color: var(--admin-danger);
+}
+
+.admin-toast.is-saindo {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.admin-toast-fechar {
+    margin-left: 4px;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--blue-700);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.admin-toast-fechar:hover {
+    background-color: color-mix(in srgb, var(--blue-700) 10%, transparent);
+}
+
+.admin-toast-fechar:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+@keyframes toast-entrar {
+    from { opacity: 0; transform: translateY(-14px); }
+    to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 575px) {
+    .admin-toast {
+        top: 76px;      /* abaixo da barra de topo do celular */
+        right: 16px;
+    }
+}
+
+/* ============ PAINEL: modal de confirmação (<dialog>, mesmo padrão do modal do site) ============ */
+html.modal-aberto {
+    overflow: hidden;
+}
+
+.admin-modal {
+    /* O reset global (* { margin: 0 }) apaga o margin: auto que centraliza o <dialog> */
+    margin: auto;
+    width: min(500px, calc(100% - 32px));
+    padding: 0;
+    border: none;
+    border-radius: 20px;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-family: var(--font);
+    box-shadow: 0 24px 60px rgb(18 29 49 / 0.35);
+}
+
+.admin-modal::backdrop {
+    background-color: rgb(18 29 49 / 0.65);
+    backdrop-filter: blur(3px);
+}
+
+.admin-modal[open] {
+    animation: admin-modal-entrar 0.25s ease;
+}
+
+@keyframes admin-modal-entrar {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+}
+
+.admin-modal-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 32px 28px 26px;
+    text-align: center;
+}
+
+.admin-modal-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--admin-danger) 14%, transparent);
+    color: var(--admin-danger);
+    font-size: 26px;
+}
+
+.admin-modal-title {
+    font-size: 24px;
+    line-height: 1.3;
+    color: var(--blue-700);
+}
+
+.admin-modal-text {
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 1.6;
+    opacity: 0.85;
+}
+
+.admin-modal-actions {
+    width: 100%;
+    display: flex;
+    gap: 12px;
+}
+
+.admin-modal-actions .admin-btn {
+    flex: 1 1 0;
+}
+
+@media (max-width: 575px) {
+    .admin-modal-actions {
+        flex-direction: column-reverse;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-toast,
+    .admin-modal[open] {
+        animation: none;
+    }
+}
+
+/* ============ PAINEL: formulários (criar/editar) ============ */
+.form-card {
+    margin-bottom: 22px;
+    padding: 26px 28px 28px;
+    border: var(--border-soft);
+    border-radius: 18px;
+    background-color: var(--white);
+}
+
+.form-card-title {
+    margin-bottom: 4px;
+    font-size: 22px;
+    color: var(--blue-700);
+}
+
+.form-card-hint {
+    margin-bottom: 20px;
+    font-size: 14.5px;
+    opacity: 0.75;
+}
+
+.form-card-title + .form-grid,
+.form-card-title + .check-grid {
+    margin-top: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px 22px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.form-field label {
+    font-size: 14px;
+    font-weight: 800;
+    transition: color 0.2s ease;
+}
+
+.form-required {
+    margin-left: 2px;
+    color: var(--pink-500);
+}
+
+.form-field input[type="text"],
+.form-field input[type="date"],
+.form-field textarea {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 16px;
+    border: var(--border-soft);
+    border-radius: 12px;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-family: var(--font);
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-field textarea {
+    min-height: 150px;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+    color: color-mix(in srgb, var(--blue-700) 50%, transparent);
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: var(--pink-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pink-500) 25%, transparent);
+}
+
+.form-field:focus-within label {
+    color: var(--pink-500);
+}
+
+.form-field-full {
+    grid-column: 1 / -1;
+}
+
+.form-hint {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+/* Erro: borda e mensagem vermelhas. A mensagem vazia não ocupa espaço. */
+.field-error {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--admin-danger);
+}
+
+.field-error:empty {
+    display: none;
+}
+
+.form-field.has-error input,
+.form-field.has-error textarea,
+.form-field.has-error .form-select-trigger {
+    border-color: var(--admin-danger);
+}
+
+.form-field.has-error:not(:focus-within) label {
+    color: var(--admin-danger);
+}
+
+.form-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    background-color: #fdecea;
+    color: var(--admin-danger);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.form-alert i {
+    margin-top: 3px;
+}
+
+.form-alert p {
+    margin-top: 2px;
+    font-weight: 600;
+}
+
+/* Caixa de marcar (sim/não) no mesmo estilo do site */
+.check-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+}
+
+.check-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: var(--border-soft);
+    border-radius: 12px;
+    background-color: var(--white);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.check-card input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.check-box {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border: 2px solid color-mix(in srgb, var(--blue-700) 55%, transparent);
+    border-radius: 7px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.check-box::after {
+    content: "";
+    width: 10px;
+    height: 5px;
+    margin-top: -2px;
+    border-left: 2.5px solid var(--white);
+    border-bottom: 2.5px solid var(--white);
+    transform: rotate(-45deg) scale(0);
+    transition: transform 0.15s ease;
+}
+
+.check-card input:checked + .check-box {
+    background-color: var(--blue-700);
+    border-color: var(--blue-700);
+}
+
+.check-card input:checked + .check-box::after {
+    transform: rotate(-45deg) scale(1);
+}
+
+.check-card:has(input:checked) {
+    border-color: var(--pink-500);
+    background-color: color-mix(in srgb, var(--pink-500) 10%, var(--white));
+}
+
+.check-card:hover {
+    border-color: var(--pink-500);
+}
+
+.check-card input:focus-visible + .check-box {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+/* Barra de botões no fim do formulário */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 4px;
+}
+
+@media (max-width: 575px) {
+    .form-card {
+        padding: 22px 18px 24px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .admin-btn {
+        width: 100%;
     }
 }

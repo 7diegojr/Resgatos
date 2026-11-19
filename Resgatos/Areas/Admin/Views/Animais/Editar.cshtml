@@ -1,0 +1,25 @@
+@model AnimalFormViewModel
+@{
+    ViewData["Title"] = "Editar animal";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/animal-form.css" asp-append-version="true" />
+}
+
+<a class="admin-back-link" asp-area="Admin" asp-controller="Animais" asp-action="Detalhes" asp-route-id="@Model.IdAnimal">
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para os detalhes
+</a>
+
+<header class="admin-page-header">
+    <div class="admin-page-header-text">
+        <h1 class="admin-page-title">Editar @Model.Nome</h1>
+        <p class="admin-page-subtitle">Altere o que for preciso e salve. Os campos com <span class="form-required">*</span> são obrigatórios.</p>
+    </div>
+</header>
+
+<partial name="_Formulario" model="Model" />
+
+@section Scripts {
+    <script src="~/js/admin/animal-form.js" asp-append-version="true"></script>
+}
