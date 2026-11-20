@@ -159,16 +159,29 @@
 }
 
 .det-card-titulo {
-    margin-bottom: 18px;
+    margin-bottom: 3px;
     font-size: 22px;
     color: var(--blue-700);
 }
 
+/* 4 informações na primeira linha e 3 na segunda: a última (chegada ao Resgatos) ocupa 2 colunas */
 .det-dados {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-    gap: 18px 24px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px 24px;
     margin: 0;
+}
+
+.det-dado-largo {
+    grid-column: span 2;
+}
+
+.det-dado-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.7;
 }
 
 .det-dados dt {
@@ -263,6 +276,12 @@
     .det-galeria {
         position: static;
         max-width: 520px;
+    }
+}
+
+@media (max-width: 767px) {
+    .det-dados {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 

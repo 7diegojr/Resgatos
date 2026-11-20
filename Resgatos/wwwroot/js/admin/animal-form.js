@@ -56,6 +56,20 @@
     form.addEventListener("change", atualizarCamposDependentes);
     atualizarCamposDependentes();
 
+    /* ============ Contador de caracteres (ex.: história, "45/200") ============ */
+    form.querySelectorAll("[data-contador-de]").forEach(function (contador) {
+        var campo = document.getElementById(contador.getAttribute("data-contador-de"));
+        var maximo = parseInt(campo.getAttribute("maxlength"), 10);
+
+        function atualizar() {
+            contador.textContent = campo.value.length + "/" + maximo;
+            contador.classList.toggle("is-no-limite", campo.value.length >= maximo);
+        }
+
+        campo.addEventListener("input", atualizar);
+        atualizar();
+    });
+
     /* ============ 2. Fotos ============ */
     var input = document.getElementById("NovasFotos");
     var lista = document.getElementById("novas-fotos-lista");
@@ -276,12 +290,25 @@
             }
         });
 
-        form.querySelectorAll('input[type="date"][max]').forEach(function (campo) {
-            if (campo.closest("[hidden]")) return;
-            if (campo.value && campo.value > campo.max) {
-                falha(campo, "A data não pode ser no futuro.");
+        // Caixa de texto maior que o limite (acontece quando o texto já vinha salvo com mais caracteres)
+        form.querySelectorAll("textarea[maxlength]").forEach(function (campo) {
+            if (campo.value.length > parseInt(campo.getAttribute("maxlength"), 10)) {
+                falha(campo, campo.getAttribute("data-msg-max") || "O texto passou do limite de caracteres.");
             }
         });
+
+        // Data de chegada: mês e ano juntos (ou nenhum), e não pode ser depois do mês atual
+        var mesChegada = document.getElementById("MesChegada");
+        var anoChegada = document.getElementById("AnoChegada");
+        if ((mesChegada.value === "") !== (anoChegada.value === "")) {
+            falha(mesChegada.value === "" ? mesChegada : anoChegada, "Informe o mês e o ano da chegada.");
+        } else if (mesChegada.value !== "") {
+            var hoje = new Date();
+            var valorChegada = parseInt(anoChegada.value, 10) * 12 + parseInt(mesChegada.value, 10);
+            if (valorChegada > hoje.getFullYear() * 12 + hoje.getMonth() + 1) {
+                falha(mesChegada, "A data de chegada não pode ser no futuro.");
+            }
+        }
 
         // Só aparece no site quem está disponível, e o card do site precisa de foto
         if (campoStatus.value === "Disponivel" && totalFotos() === 0) {

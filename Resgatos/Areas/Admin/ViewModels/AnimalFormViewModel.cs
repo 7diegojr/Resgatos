@@ -39,11 +39,13 @@ public class AnimalFormViewModel
     [Required(ErrorMessage = "Selecione o status.")]
     public StatusAnimal? Status { get; set; }
 
-    [DataType(DataType.Date)]
-    public DateTime? DataResgate { get; set; }
+    // Data de chegada ao Resgatos: só mês e ano (os dois juntos ou nenhum). Vira o dia 1 daquele mês no banco.
+    public int? MesChegada { get; set; }
+    public int? AnoChegada { get; set; }
 
     // ---------- Textos (aparecem no site) ----------
-    [StringLength(4000, ErrorMessage = "A história pode ter no máximo 4000 caracteres.")]
+    // Limite de 200 caracteres conferido no AnimaisController (ele conta cada quebra de linha como 1 caractere,
+    // enquanto o navegador envia as quebras como 2 e o [StringLength] contaria a mais).
     public string Historia { get; set; }
 
     [StringLength(4000, ErrorMessage = "O texto pode ter no máximo 4000 caracteres.")]
@@ -54,9 +56,6 @@ public class AnimalFormViewModel
     public bool VermifugadoOk { get; set; }
     public bool VacinadoOk { get; set; }
     public bool CastradoOk { get; set; }
-
-    [DataType(DataType.Date)]
-    public DateTime? DataCastracao { get; set; }
 
     // FIV e FeLV só existem para gatos (as regras ficam no controller)
     public bool FivTestado { get; set; }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Resgatos.Areas.Admin.ViewModels;
 using Resgatos.Data;
+using Resgatos.Helpers;
 using Resgatos.Models;
 using Resgatos.Services;
 
@@ -12,6 +13,7 @@ namespace Resgatos.Areas.Admin.Controllers;
 public class AnimaisController : AdminBaseController
 {
     private const int TamanhoPagina = 10;
+    private const int MaxCaracteresHistoria = 225;
 
     // Até 10 fotos de 5 MB = 50 MB. O limite padrão do ASP.NET é ~30 MB, então os formulários com foto o aumentam.
     private const long LimiteEnvio = 60 * 1024 * 1024;
@@ -133,8 +135,7 @@ public class AnimaisController : AdminBaseController
     [HttpGet]
     public IActionResult Criar()
     {
-        // Todo animal que chega começa "em avaliação"; a pessoa muda se precisar
-        return View(new AnimalFormViewModel { Status = StatusAnimal.EmAvaliacao });
+        return View(new AnimalFormViewModel());
     }
 
     [HttpPost]
@@ -168,7 +169,7 @@ public class AnimaisController : AdminBaseController
             throw;
         }
 
-        TempData["Sucesso"] = $"{animal.Nome} foi cadastrado com sucesso.";
+        TempData["Sucesso"] = animal.Sexo.MensagemCadastrado(animal.Nome);
         return RedirectToAction(nameof(Detalhes), new { id = animal.IdAnimal });
     }
 
@@ -196,14 +197,14 @@ public class AnimaisController : AdminBaseController
             FaixaEtaria = animal.FaixaEtaria,
             IdadeEstimada = animal.IdadeEstimada,
             Status = animal.Status,
-            DataResgate = animal.DataResgate,
+            MesChegada = animal.DataChegada?.Month,
+            AnoChegada = animal.DataChegada?.Year,
             Historia = animal.Historia,
             Observacoes = animal.Observacoes,
             AntipulgasOk = animal.AntipulgasOk,
             VermifugadoOk = animal.VermifugadoOk,
             VacinadoOk = animal.VacinadoOk,
             CastradoOk = animal.CastradoOk,
-            DataCastracao = animal.DataCastracao,
             FivTestado = animal.FivTestado,
             ResultadoFiv = animal.ResultadoFiv,
             FelvTestado = animal.FelvTestado,
@@ -264,7 +265,7 @@ public class AnimaisController : AdminBaseController
         fotosRemovidas.ForEach(f => _upload.ExcluirArquivo(f.Foto));
 
         TempData["Sucesso"] = $"As alterações de {animal.Nome} foram salvas.";
-        return RedirectToAction(nameof(Detalhes), new { id });
+        return RedirectToAction(nameof(Index));
     }
 
     // =====================================================================
@@ -282,7 +283,7 @@ public class AnimaisController : AdminBaseController
         animal.ExcluidoEm = DateTime.Now;
         await _context.SaveChangesAsync();
 
-        TempData["Sucesso"] = $"{animal.Nome} foi para a lixeira.";
+        TempData["Sucesso"] = animal.Sexo.MensagemExcluido(animal.Nome);
         return RedirectToAction(nameof(Index));
     }
 
@@ -298,6 +299,11 @@ public class AnimaisController : AdminBaseController
         form.Cor = form.Cor?.Trim();
         form.IdadeEstimada = form.IdadeEstimada?.Trim();
 
+        // O navegador envia a quebra de linha como 2 caracteres (\r\n); contamos e guardamos como 1 (\n)
+        form.Historia = form.Historia?.Replace("\r\n", "\n").Trim();
+        if (form.Historia != null && form.Historia.Length > MaxCaracteresHistoria)
+            ModelState.AddModelError(nameof(form.Historia), $"A história pode ter no máximo {MaxCaracteresHistoria} caracteres.");
+
         // FIV e FeLV só valem para gatos; e o resultado só vale se o teste foi feito
         if (form.Especie != EspecieAnimal.Gato)
         {
@@ -312,13 +318,22 @@ public class AnimaisController : AdminBaseController
         if (form.FelvTestado && form.ResultadoFelv == null)
             ModelState.AddModelError(nameof(form.ResultadoFelv), "Informe o resultado do teste de FeLV.");
 
-        // Data da castração só faz sentido se o animal foi castrado
-        if (!form.CastradoOk) form.DataCastracao = null;
+        // Data de chegada: mês e ano juntos (ou nenhum), e não pode ser depois do mês atual
+        if (form.MesChegada.HasValue != form.AnoChegada.HasValue)
+        {
+            ModelState.AddModelError("DataChegada", "Informe o mês e o ano da chegada.");
+        }
+        else if (form.MesChegada.HasValue)
+        {
+            var mes = form.MesChegada.Value;
+            var ano = form.AnoChegada.Value;
+            var hoje = DateTime.Today;
 
-        if (form.DataResgate.HasValue && form.DataResgate.Value.Date > DateTime.Today)
-            ModelState.AddModelError(nameof(form.DataResgate), "A data do resgate não pode ser no futuro.");
-        if (form.DataCastracao.HasValue && form.DataCastracao.Value.Date > DateTime.Today)
-            ModelState.AddModelError(nameof(form.DataCastracao), "A data da castração não pode ser no futuro.");
+            if (mes < 1 || mes > 12 || ano < 2000 || ano > hoje.Year)
+                ModelState.AddModelError("DataChegada", "Data de chegada inválida.");
+            else if (new DateTime(ano, mes, 1) > new DateTime(hoje.Year, hoje.Month, 1))
+                ModelState.AddModelError("DataChegada", "A data de chegada não pode ser no futuro.");
+        }
 
         // Fotos
         foreach (var foto in novasFotos)
@@ -348,7 +363,9 @@ public class AnimaisController : AdminBaseController
         animal.FaixaEtaria = form.FaixaEtaria.Value;
         animal.IdadeEstimada = form.IdadeEstimada;
         animal.Status = form.Status.Value;
-        animal.DataResgate = form.DataResgate?.Date;
+        animal.DataChegada = form.MesChegada.HasValue && form.AnoChegada.HasValue
+            ? new DateTime(form.AnoChegada.Value, form.MesChegada.Value, 1)
+            : null;
 
         animal.Historia = string.IsNullOrWhiteSpace(form.Historia) ? null : form.Historia.Trim();
         animal.Observacoes = string.IsNullOrWhiteSpace(form.Observacoes) ? null : form.Observacoes.Trim();
@@ -357,7 +374,6 @@ public class AnimaisController : AdminBaseController
         animal.VermifugadoOk = form.VermifugadoOk;
         animal.VacinadoOk = form.VacinadoOk;
         animal.CastradoOk = form.CastradoOk;
-        animal.DataCastracao = form.DataCastracao?.Date;
 
         animal.FivTestado = form.FivTestado;
         animal.ResultadoFiv = form.ResultadoFiv;

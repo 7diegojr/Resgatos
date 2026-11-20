@@ -3,9 +3,9 @@
 
     <button type="button" data-confirmar
             data-url="/Admin/Animais/Excluir/5"     (para onde o POST é enviado ao confirmar)
-            data-titulo="Mandar Mel para a lixeira?"
+            data-titulo="Excluir Mel?"
             data-texto="Texto explicando o que acontece."
-            data-botao="Mandar para a lixeira">     (texto do botão de confirmar; opcional)
+            data-botao="Excluir">                   (texto do botão de confirmar; opcional)
 
     O formulário já leva o token antifalsificação, então a action só precisa de [HttpPost] [ValidateAntiForgeryToken].
 *@
@@ -19,8 +19,8 @@
         <p class="admin-modal-text" id="modal-confirmacao-texto"></p>
 
         <div class="admin-modal-actions">
-            <button type="button" class="admin-btn admin-btn-outline" data-modal-cancelar>Cancelar</button>
             <button type="submit" class="admin-btn admin-btn-danger" id="modal-confirmacao-ok">Confirmar</button>
+            <button type="button" class="admin-btn admin-btn-outline" data-modal-cancelar>Cancelar</button>
         </div>
     </form>
 </dialog>

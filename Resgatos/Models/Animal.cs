@@ -40,9 +40,11 @@ public class Animal
     [Required]
     public StatusAnimal Status { get; set; }
 
+    // Só o mês e o ano importam: guardamos sempre o dia 1 do mês de chegada.
+    // O tempo que o animal está no Resgatos é calculado a partir daqui (Helpers/FormatacaoExtensions.ToTempoDecorrido).
     [DataType(DataType.Date)]
-    [Display(Name = "Data do resgate")]
-    public DateTime? DataResgate { get; set; }
+    [Display(Name = "Data de chegada ao Resgatos")]
+    public DateTime? DataChegada { get; set; }
 
     [Display(Name = "Antipulgas em dia")]
     public bool AntipulgasOk { get; set; } = false;
@@ -67,10 +69,6 @@ public class Animal
 
     [Display(Name = "Castrado")]
     public bool CastradoOk { get; set; } = false;
-
-    [DataType(DataType.Date)]
-    [Display(Name = "Data da castração")]
-    public DateTime? DataCastracao { get; set; }
 
     [Display(Name = "Observações")]
     public string? Observacoes { get; set; }

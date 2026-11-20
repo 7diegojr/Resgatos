@@ -112,8 +112,7 @@ public class HomeController : Controller
             ResultadoFiv = animal.ResultadoFiv,
             FelvTestado = animal.FelvTestado,
             ResultadoFelv = animal.ResultadoFelv,
-            CastradoOk = animal.CastradoOk,
-            DataCastracao = animal.DataCastracao
+            CastradoOk = animal.CastradoOk
         };
 
         detalhe.FotoCapa = detalhe.Fotos.FirstOrDefault();

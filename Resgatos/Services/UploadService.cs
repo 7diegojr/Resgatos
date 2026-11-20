@@ -5,7 +5,7 @@ namespace Resgatos.Services;
 // ("uploads/animais/xxxx.jpg"), o mesmo formato das fotos que o site público já usa (~/ + caminho).
 public class UploadService
 {
-    public const int MaxFotosPorAnimal = 10;
+    public const int MaxFotosPorAnimal = 4;
     public const long TamanhoMaximoBytes = 5 * 1024 * 1024; // 5 MB por foto
 
     private const string PastaRelativa = "uploads/animais";

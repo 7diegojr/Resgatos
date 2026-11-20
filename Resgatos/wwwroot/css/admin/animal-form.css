@@ -5,11 +5,6 @@
 */
 
 /* ============ Saúde ============ */
-.saude-extra {
-    max-width: 320px;
-    margin-top: 18px;
-}
-
 .saude-gatos {
     margin-top: 26px;
     padding-top: 22px;
@@ -20,12 +15,6 @@
     margin-bottom: 14px;
     font-size: 18px;
     color: var(--blue-700);
-}
-
-.saude-gatos-titulo span {
-    font-family: var(--font);
-    font-size: 14px;
-    opacity: 0.65;
 }
 
 .saude-gatos-grid {
@@ -41,9 +30,16 @@
     gap: 14px;
 }
 
+/* ============ Data de chegada (mês + ano lado a lado) ============ */
+.campo-mes-ano {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 12px;
+}
+
 /* ============ Fotos ============ */
 .fotos-subtitulo {
-    margin: 4px 0 14px;
+    margin: 0 0 6px;
     font-size: 18px;
     color: var(--blue-700);
 }
@@ -56,7 +52,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 16px;
-    margin: 0 0 22px;
+    margin: 0 0 20px;
     padding: 0;
     list-style: none;
 }

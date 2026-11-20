@@ -966,7 +966,7 @@ html.modal-aberto {
 .admin-modal-text {
     margin-bottom: 10px;
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.4;
     opacity: 0.85;
 }
 
@@ -982,7 +982,7 @@ html.modal-aberto {
 
 @media (max-width: 575px) {
     .admin-modal-actions {
-        flex-direction: column-reverse;
+        flex-direction: column;
     }
 }
 
@@ -1003,13 +1003,13 @@ html.modal-aberto {
 }
 
 .form-card-title {
-    margin-bottom: 4px;
     font-size: 22px;
     color: var(--blue-700);
+    line-height: 1.25;
 }
 
 .form-card-hint {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     font-size: 14.5px;
     opacity: 0.75;
 }
@@ -1022,7 +1022,7 @@ html.modal-aberto {
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 20px 22px;
+    gap: 16px 22px;
 }
 
 .form-field {
@@ -1061,7 +1061,24 @@ html.modal-aberto {
 .form-field textarea {
     min-height: 150px;
     line-height: 1.6;
-    resize: vertical;
+    resize: none;               /* a caixa não cresce nem diminui puxando o canto */
+}
+
+/* Campo de texto curto (ex.: história de até 200 caracteres) */
+.form-field textarea.textarea-curta {
+    min-height: 110px;
+}
+
+/* Contador "45/200" no canto da caixa de texto */
+.contador-caracteres {
+    align-self: flex-end;
+    font-variant-numeric: tabular-nums;
+}
+
+.contador-caracteres.is-no-limite {
+    color: var(--admin-danger);
+    font-weight: 800;
+    opacity: 1;
 }
 
 .form-field input::placeholder,
@@ -1208,7 +1225,7 @@ html.modal-aberto {
 /* Barra de botões no fim do formulário */
 .form-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     flex-wrap: wrap;
     gap: 12px;
     padding-top: 4px;
@@ -1220,7 +1237,7 @@ html.modal-aberto {
     }
 
     .form-actions {
-        flex-direction: column-reverse;
+        flex-direction: column;
     }
 
     .form-actions .admin-btn {

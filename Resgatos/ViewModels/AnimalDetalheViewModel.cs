@@ -25,5 +25,4 @@ public class AnimalDetalheViewModel : AnimalCardViewModel
     public bool FelvTestado { get; set; }
     public ResultadoFelv? ResultadoFelv { get; set; }
     public bool CastradoOk { get; set; }
-    public DateTime? DataCastracao { get; set; }
 }

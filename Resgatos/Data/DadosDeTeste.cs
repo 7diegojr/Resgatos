@@ -32,7 +32,7 @@ public static class DadosDeTeste
         context.Animais.AddRange(
             // Mel: filhote, castração ainda agendada (pendente)
             Novo("Mel",      EspecieAnimal.Gato,     SexoAnimal.Femea, PorteAnimal.Pequeno, FaixaEtariaAnimal.Filhote, "2 meses",  "Caramelo", castrado: false,
-                 historia: "A Mel foi encontrada ainda bebê, miando embaixo de um carro num estacionamento do Centro.\n\nChegou magrinha, mas se recuperou rápido e hoje é pura bagunça: adora brincar, dormir no colo e esperar a hora da ração."),
+                 historia: "A Mel foi encontrada ainda bebê, miando embaixo de um carro no Centro. Chegou magrinha, mas se recuperou rápido e hoje adora brincar e dormir no colo."),
             // Tigrão: tudo feito, FIV positivo
             Novo("Tigrão",   EspecieAnimal.Gato,     SexoAnimal.Macho, PorteAnimal.Medio,   FaixaEtariaAnimal.Adulto,  "3 anos",   "Rajado",   fiv: ResultadoFiv.Positivo,
                  historia: "Tigrão vivia na rua do bairro Portão e foi resgatado depois de uma briga. Tratou as feridas, ganhou peso e descobriu o sofá. Calmo, carinhoso e ótimo para apartamento."),
@@ -138,7 +138,7 @@ public static class DadosDeTeste
             VermifugadoOk = vermifugado,
             VacinadoOk = vacinado,
             CastradoOk = castrado,
-            DataCastracao = castrado ? new DateTime(2026, 3, 10) : null,
+            DataChegada = new DateTime(2026, 3, 1),
 
             // FIV/FeLV só para gatos; resultado null = ainda não testado
             FivTestado = ehGato && fiv.HasValue,

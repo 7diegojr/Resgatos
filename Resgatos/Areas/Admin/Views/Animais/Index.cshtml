@@ -243,9 +243,9 @@ else
                                     @* Abre o modal de confirmação (data-confirmar); o POST só acontece se a pessoa confirmar *@
                                     <button type="button" class="row-action row-action-danger" data-confirmar
                                             data-url="@Url.Action("Excluir", "Animais", new { area = "Admin", id = animal.IdAnimal })"
-                                            data-titulo="Mandar @animal.Nome para a lixeira?"
-                                            data-texto="@animal.Nome deixa de aparecer no site e na lista de animais, e fica guardado na lixeira."
-                                            data-botao="Mandar para a lixeira"
+                                            data-titulo="@animal.Sexo.PerguntaExcluir(animal.Nome)"
+                                            data-texto="@animal.Sexo.AvisoExcluir(animal.Nome)"
+                                            data-botao="Excluir"
                                             title="Excluir" aria-label="Excluir @animal.Nome">
                                         <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                                     </button>

@@ -7,7 +7,17 @@
 @using Resgatos.Helpers
 @{
     var edicao = Model.EhEdicao;
-    var hoje = DateTime.Today.ToString("yyyy-MM-dd");
+
+    // Opções do mês e do ano de chegada (ano mais recente primeiro; começa em 2020, ano em que o projeto começou,
+    // ou antes disso se o animal já tiver uma data mais antiga)
+    var ptBr = new System.Globalization.CultureInfo("pt-BR");
+    var meses = Enumerable.Range(1, 12).Select(m =>
+    {
+        var nomeMes = ptBr.DateTimeFormat.GetMonthName(m);
+        return (Valor: m, Nome: char.ToUpper(nomeMes[0]) + nomeMes[1..]);
+    }).ToList();
+    var anoAtual = DateTime.Today.Year;
+    var anoInicial = Math.Min(2020, Model.AnoChegada ?? 2020);
 
     // Primeira mensagem de erro de um campo (vem do servidor depois de um envio inválido); null = sem erro
     string Erro(string campo)
@@ -50,6 +60,7 @@
 
     var ehGato = Model.Especie == EspecieAnimal.Gato;
     var enviouFotos = Model.NovasFotos.Any(f => f.Length > 0);
+    const int MaxCaracteresHistoria = 225; // mesmo limite do AnimaisController
 }
 
 <form method="post" enctype="multipart/form-data" class="animal-form" id="animal-form" novalidate
@@ -78,7 +89,7 @@
             <div class="@ClasseCampo("Nome")">
                 <label for="Nome">Nome<span class="form-required" aria-hidden="true">*</span></label>
                 <input type="text" id="Nome" name="Nome" value="@Model.Nome" maxlength="100" autocomplete="off"
-                       data-required data-msg="Informe o nome do animal." />
+                       placeholder="Digite o nome do animal" data-required data-msg="Informe o nome do animal." />
                 <span class="field-error" role="alert">@Erro("Nome")</span>
             </div>
 
@@ -104,10 +115,26 @@
 
             <partial name="_CampoSelect" model="campoStatus" />
 
-            <div class="@ClasseCampo("DataResgate")">
-                <label for="DataResgate">Data do resgate</label>
-                <input type="date" id="DataResgate" name="DataResgate" value="@(Model.DataResgate?.ToString("yyyy-MM-dd"))" max="@hoje" />
-                <span class="field-error" role="alert">@Erro("DataResgate")</span>
+            @* Só mês e ano: o sistema calcula sozinho há quanto tempo o animal está no Resgatos *@
+            <div class="@ClasseCampo("DataChegada")" id="campo-chegada">
+                <label for="MesChegada">Data de chegada ao Resgatos</label>
+                <div class="campo-mes-ano">
+                    <select id="MesChegada" name="MesChegada" aria-label="Mês de chegada">
+                        <option value="">Mês</option>
+                        @foreach (var mes in meses)
+                        {
+                            <option value="@mes.Valor" selected="@(Model.MesChegada == mes.Valor)">@mes.Nome</option>
+                        }
+                    </select>
+                    <select id="AnoChegada" name="AnoChegada" aria-label="Ano de chegada">
+                        <option value="">Ano</option>
+                        @for (var ano = anoAtual; ano >= anoInicial; ano--)
+                        {
+                            <option value="@ano" selected="@(Model.AnoChegada == ano)">@ano</option>
+                        }
+                    </select>
+                </div>
+                <span class="field-error" role="alert">@Erro("DataChegada")</span>
             </div>
         </div>
     </section>
@@ -115,18 +142,20 @@
     @* ===================== Textos que aparecem no site ===================== *@
     <section class="form-card" aria-labelledby="titulo-textos">
         <h2 class="form-card-title" id="titulo-textos">História do animal</h2>
-        <p class="form-card-hint">Esses textos aparecem na ficha do animal, no site de adoção.</p>
+        <p class="form-card-hint">Esses textos aparecem na ficha do animal, no site de adoção. A história é um resumo curto, de até @MaxCaracteresHistoria caracteres.</p>
 
         <div class="form-grid">
             <div class="@ClasseCampo("Historia", "form-field-full")">
                 <label for="Historia">História</label>
-                <textarea id="Historia" name="Historia" maxlength="4000"
-                          placeholder="Como o animal foi encontrado, como ele é, do que gosta...">@Model.Historia</textarea>
+                <textarea id="Historia" name="Historia" maxlength="@MaxCaracteresHistoria" rows="4" class="textarea-curta"
+                          data-msg-max="A história pode ter no máximo @MaxCaracteresHistoria caracteres."
+                          placeholder="Resuma como o animal foi encontrado e como ele é...">@Model.Historia</textarea>
+                <span class="form-hint contador-caracteres" data-contador-de="Historia">@((Model.Historia ?? "").Length)/@MaxCaracteresHistoria</span>
                 <span class="field-error" role="alert">@Erro("Historia")</span>
             </div>
 
             <div class="@ClasseCampo("Observacoes", "form-field-full")">
-                <label for="Observacoes">Bom saber</label>
+                <label for="Observacoes">Observações</label>
                 <textarea id="Observacoes" name="Observacoes" maxlength="4000"
                           placeholder="Algo importante para quem vai adotar (ex.: precisa de ração específica, não se dá bem com outros gatos)...">@Model.Observacoes</textarea>
                 <span class="field-error" role="alert">@Erro("Observacoes")</span>
@@ -162,15 +191,9 @@
             </label>
         </div>
 
-        <div class="@ClasseCampo("DataCastracao", "saude-extra")" id="campo-data-castracao" data-depende-de="CastradoOk" hidden="@(!Model.CastradoOk)">
-            <label for="DataCastracao">Data da castração</label>
-            <input type="date" id="DataCastracao" name="DataCastracao" value="@(Model.DataCastracao?.ToString("yyyy-MM-dd"))" max="@hoje" />
-            <span class="field-error" role="alert">@Erro("DataCastracao")</span>
-        </div>
-
         @* FIV e FeLV só existem para gatos: o bloco aparece quando a espécie é Gato *@
         <div class="saude-gatos" id="bloco-gatos" hidden="@(!ehGato)">
-            <h3 class="saude-gatos-titulo">Testes de FIV e FeLV <span>(só para gatos)</span></h3>
+            <h3 class="saude-gatos-titulo">Testes de FIV e FeLV</h3>
 
             <div class="saude-gatos-grid">
                 <div class="teste-grupo">
@@ -251,11 +274,10 @@
     </section>
 
     <div class="form-actions">
-        <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Animais"
-           asp-action="@(edicao ? "Detalhes" : "Index")" asp-route-id="@(edicao ? Model.IdAnimal : (int?)null)">Cancelar</a>
         <button type="submit" class="admin-btn admin-btn-primary" id="animal-form-salvar">
             <i class="fa-solid fa-check" aria-hidden="true"></i>
             <span>@(edicao ? "Salvar alterações" : "Cadastrar animal")</span>
         </button>
+        <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Animais" asp-action="Index">Cancelar</a>
     </div>
 </form>
