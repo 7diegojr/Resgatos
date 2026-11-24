@@ -1,0 +1,141 @@
+/*
+  Admin > Transparência (lista e detalhes).
+  Reaproveita o animais.css (abas, busca, filtros, tabela, paginação e modal de filtros) e, nos detalhes,
+  também o animal-detalhes.css. Aqui só o que é específico dos gastos: colunas, categoria e comprovante.
+*/
+
+/* ============ Tabela: larguras das colunas (a coluna "Gasto" fica com o que sobra) ============ */
+.animais-table.transparencia-table th:nth-child(2) { width: 17%; }    /* Categoria */
+.animais-table.transparencia-table th:nth-child(3) { width: 14%; }    /* Data */
+.animais-table.transparencia-table th:nth-child(4) { width: 14%; }    /* Valor */
+.animais-table.transparencia-table th:nth-child(5) { width: 15%; }    /* Comprovante */
+.animais-table.transparencia-table th:nth-child(6) { width: 150px; }  /* Ações (3 botões) */
+
+.cell-valor {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ============ Categoria ============ */
+.categoria-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+    background-color: color-mix(in srgb, var(--blue-700) 12%, transparent);
+    color: var(--blue-700);
+}
+
+.categoria-alimentacao {
+    background-color: color-mix(in srgb, var(--admin-amber) 16%, transparent);
+    color: var(--admin-amber);
+}
+
+.categoria-castracao {
+    background-color: color-mix(in srgb, var(--pink-500) 28%, transparent);
+    color: var(--admin-pink-dark);
+}
+
+.categoria-medicamentos {
+    background-color: color-mix(in srgb, var(--admin-green) 16%, transparent);
+    color: var(--admin-green);
+}
+
+.categoria-outros {
+    background-color: color-mix(in srgb, var(--blue-700) 8%, var(--white));
+}
+
+/* Nos detalhes, o selo fica ao lado do título (mesmo tamanho do selo de status dos animais) */
+.det-titulo .categoria-badge {
+    font-size: 14px;
+}
+
+/* ============ Comprovante ============ */
+/* O "Anexado" é um link para abrir o arquivo; o "Pendente" é só um aviso (usam o .health-pill do animais.css) */
+.comprovante-link {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.comprovante-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.comprovante-link:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+/* ============ Detalhes: comprovante ============ */
+.det-comprovante-previa {
+    display: block;
+    max-width: 360px;
+    margin-top: 14px;
+    overflow: hidden;
+    border: var(--border-soft);
+    border-radius: 12px;
+    background-color: var(--white);
+}
+
+.det-comprovante-previa img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.det-comprovante-previa:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 3px;
+}
+
+.det-comprovante-pdf {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: 360px;
+    margin-top: 14px;
+    padding: 14px 16px;
+    border: var(--border-soft);
+    border-radius: 12px;
+}
+
+.det-comprovante-pdf-icone {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background-color: color-mix(in srgb, var(--pink-500) 22%, transparent);
+    color: var(--admin-pink-dark);
+    font-size: 20px;
+}
+
+.det-comprovante-pdf-texto {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.det-comprovante-pdf-texto small {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.det-comprovante-acoes {
+    margin-top: 14px;
+}
+
+/* Detalhes: o dia da semana fica ao lado da data (e não embaixo) */
+.det-dado-sub.det-dado-sub-inline {
+    display: inline;
+    margin: 0 0 0 6px;
+}

@@ -30,9 +30,11 @@
         document.documentElement.classList.add("modal-aberto");
         modal.showModal();
 
-        // O foco começa no primeiro filtro (o "x" de fechar é só um atalho)
-        var primeiro = modal.querySelector(".form-select-trigger");
-        if (primeiro) primeiro.focus();
+        // Nenhum campo deve parecer selecionado ao abrir: o foco vai para o próprio modal (sem contorno),
+        // e não para o primeiro filtro, que ficaria com a borda rosa de foco
+        modal.setAttribute("tabindex", "-1");
+        modal.style.outline = "none";
+        modal.focus({ preventScroll: true });
     });
 
     modal.querySelectorAll("[data-fechar-filtros]").forEach(function (botao) {

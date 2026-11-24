@@ -1,0 +1,135 @@
+@model Transparencia
+@using Resgatos.Helpers
+@{
+    ViewData["Title"] = Model.Titulo;
+
+    var temFoto = !string.IsNullOrEmpty(Model.Imagem);
+    var temComprovante = !string.IsNullOrEmpty(Model.Comprovante);
+    var comprovanteEhPdf = TransparenciaExtensions.EhPdf(Model.Comprovante);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/animais.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/animal-detalhes.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/transparencia.css" asp-append-version="true" />
+}
+
+<a class="admin-back-link" asp-area="Admin" asp-controller="Transparencia" asp-action="Index">
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para a transparência
+</a>
+
+<header class="admin-page-header">
+    <div class="admin-page-header-text">
+        <h1 class="admin-page-title det-titulo">
+            @Model.Titulo
+            <span class="categoria-badge categoria-@Model.Categoria.ToString().ToLower()">
+                <i class="fa-solid @Model.Categoria.GetIcone()" aria-hidden="true"></i>
+                @Model.Categoria.GetDisplayName()
+            </span>
+        </h1>
+        <p class="admin-page-subtitle">Registrado em @Model.CriadoEm.ToDataBr()</p>
+    </div>
+
+    <div class="admin-page-actions">
+        <a class="admin-btn admin-btn-primary" asp-area="Admin" asp-controller="Transparencia" asp-action="Editar" asp-route-id="@Model.IdTransparencia">
+            <i class="fa-solid fa-pen" aria-hidden="true"></i><span>Editar</span>
+        </a>
+        <button type="button" class="admin-btn admin-btn-danger-outline" data-confirmar
+                data-url="@Url.Action("Excluir", "Transparencia", new { area = "Admin", id = Model.IdTransparencia })"
+                data-titulo="@TransparenciaTexto.PerguntaExcluir"
+                data-texto="@TransparenciaTexto.AvisoExcluir(Model.Titulo, Model.Valor)"
+                data-botao="Excluir">
+            <i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Excluir</span>
+        </button>
+    </div>
+</header>
+
+<div class="det-layout">
+
+    @* ===================== Foto do gasto ===================== *@
+    <section class="det-galeria" aria-label="Foto de @Model.Titulo">
+        <div class="det-foto-principal">
+            @if (temFoto)
+            {
+                <img src="@Url.Content("~/" + Model.Imagem)" alt="Foto de @Model.Titulo" />
+            }
+            else
+            {
+                <span class="det-sem-foto" aria-hidden="true"><i class="fa-solid @Model.Categoria.GetIcone()"></i></span>
+            }
+        </div>
+
+        @if (!temFoto)
+        {
+            <p class="det-vazio">Nenhuma foto cadastrada. <a asp-area="Admin" asp-controller="Transparencia" asp-action="Editar" asp-route-id="@Model.IdTransparencia">Adicionar foto</a></p>
+        }
+    </section>
+
+    <div class="det-coluna">
+
+        @* ===================== Aviso do site ===================== *@
+        <div class="det-site det-site-sim">
+            <i class="fa-solid fa-globe" aria-hidden="true"></i>
+            <p><strong>Aparece no site.</strong> Todo gasto registrado é exibido na página de Transparência.</p>
+        </div>
+
+        @* ===================== Dados ===================== *@
+        <section class="admin-card det-card" aria-labelledby="det-dados">
+            <h2 class="det-card-titulo" id="det-dados">Dados do gasto</h2>
+            <dl class="det-dados">
+                <div>
+                    <dt>Categoria</dt>
+                    <dd>@Model.Categoria.GetDisplayName()</dd>
+                </div>
+                <div>
+                    <dt>Valor</dt>
+                    <dd>@Model.Valor.ToReais()</dd>
+                </div>
+                <div>
+                    <dt>Data</dt>
+                    <dd>@Model.Data.ToDataBr() <span class="det-dado-sub det-dado-sub-inline">@Model.Data.ToDiaSemana()</span></dd>
+                </div>
+                <div>
+                    <dt>Registrado em</dt>
+                    <dd>@Model.CriadoEm.ToDataBr()</dd>
+                </div>
+            </dl>
+        </section>
+
+        @* ===================== Comprovante ===================== *@
+        <section class="admin-card det-card" aria-labelledby="det-comprovante">
+            <h2 class="det-card-titulo" id="det-comprovante">Comprovante</h2>
+
+            @if (!temComprovante)
+            {
+                <p class="det-vazio">Nenhum comprovante anexado. <a asp-area="Admin" asp-controller="Transparencia" asp-action="Editar" asp-route-id="@Model.IdTransparencia">Adicionar comprovante</a></p>
+            }
+            else
+            {
+                if (comprovanteEhPdf)
+                {
+                    <div class="det-comprovante-pdf">
+                        <span class="det-comprovante-pdf-icone" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></span>
+                        <span class="det-comprovante-pdf-texto">
+                            <strong>Comprovante em PDF</strong>
+                            <small>Abre em uma nova aba</small>
+                        </span>
+                    </div>
+                }
+                else
+                {
+                    <a class="det-comprovante-previa" href="@Url.Content("~/" + Model.Comprovante)" target="_blank" rel="noopener"
+                       aria-label="Abrir o comprovante em uma nova aba">
+                        <img src="@Url.Content("~/" + Model.Comprovante)" alt="Comprovante de @Model.Titulo" loading="lazy" />
+                    </a>
+                }
+
+                <div class="det-comprovante-acoes">
+                    <a class="admin-btn admin-btn-outline" href="@Url.Content("~/" + Model.Comprovante)" target="_blank" rel="noopener">
+                        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span>Abrir comprovante</span>
+                    </a>
+                </div>
+            }
+        </section>
+    </div>
+</div>

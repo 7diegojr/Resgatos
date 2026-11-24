@@ -59,5 +59,9 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Adotado>()
             .HasQueryFilter(ad => ad.Animal.ExcluidoEm == null);
+
+        // Gastos de transparência também usam a lixeira: some do site e do admin, mas continua no banco e no disco.
+        modelBuilder.Entity<Transparencia>()
+            .HasQueryFilter(t => t.ExcluidoEm == null);
     }
 }

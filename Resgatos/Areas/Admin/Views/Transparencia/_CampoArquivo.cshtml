@@ -1,0 +1,57 @@
+@*
+    Campo de um arquivo opcional (foto do gasto ou comprovante): mostra o que o gasto já tem (com "Remover"),
+    a área de escolher/arrastar o arquivo novo e a prévia. O transparencia-form.js cuida da prévia e da conferência.
+    Uso:  <partial name="_CampoArquivo" model="campo" />   (campo = CampoArquivoViewModel montado no _Formulario)
+*@
+@model CampoArquivoViewModel
+@using Resgatos.Helpers
+@{
+    var temAtual = !string.IsNullOrEmpty(Model.CaminhoAtual);
+    var atualEhPdf = TransparenciaExtensions.EhPdf(Model.CaminhoAtual);
+    var accept = Model.AceitaPdf ? "image/jpeg,image/png,image/webp,application/pdf" : "image/jpeg,image/png,image/webp";
+}
+
+<div class="form-field campo-arquivo@(Model.Erro != null ? " has-error" : "")" data-campo-arquivo
+     data-aceita-pdf="@(Model.AceitaPdf ? "true" : "false")" data-max-bytes="@Model.TamanhoMaximoBytes">
+
+    <h3 class="fotos-subtitulo">@Model.Titulo <span class="form-opcional">(opcional)</span></h3>
+    <p class="form-card-hint">@Model.Dica</p>
+
+    @if (temAtual)
+    {
+        <ul class="foto-grid foto-grid-unica" data-arquivo-atual>
+            <li class="foto-tile@(Model.Remover ? " is-removida" : "")">
+                <a class="arquivo-link" href="@Url.Content("~/" + Model.CaminhoAtual)" target="_blank" rel="noopener"
+                   aria-label="Abrir @Model.TextoAlternativo.ToLower() em uma nova aba">
+                    @if (atualEhPdf)
+                    {
+                        <span class="arquivo-pdf"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i><span>PDF</span></span>
+                    }
+                    else
+                    {
+                        <img src="@Url.Content("~/" + Model.CaminhoAtual)" alt="@Model.TextoAlternativo" loading="lazy" />
+                    }
+                </a>
+                <div class="foto-tile-footer">
+                    <label class="foto-opcao foto-opcao-remover">
+                        <input type="checkbox" name="@Model.NomeRemover" value="true" checked="@Model.Remover" />
+                        <span><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remover</span>
+                    </label>
+                </div>
+            </li>
+        </ul>
+    }
+
+    <h4 class="arquivo-subtitulo">@(temAtual ? "Trocar por outro arquivo" : "Escolher arquivo")</h4>
+
+    <input type="file" id="@Model.Nome" name="@Model.Nome" class="visually-hidden" accept="@accept" />
+    <label for="@Model.Nome" class="foto-dropzone">
+        <span class="foto-dropzone-icone" aria-hidden="true"><i class="fa-solid @(Model.AceitaPdf ? "fa-file-arrow-up" : "fa-camera")"></i></span>
+        <span class="foto-dropzone-titulo">@Model.TituloDropzone</span>
+        <span class="foto-dropzone-texto">ou arraste e solte aqui</span>
+    </label>
+
+    <span class="field-error erro-arquivo" role="alert">@Model.Erro</span>
+
+    <ul class="foto-grid foto-grid-unica" data-arquivo-previa aria-label="Arquivo que será adicionado"></ul>
+</div>

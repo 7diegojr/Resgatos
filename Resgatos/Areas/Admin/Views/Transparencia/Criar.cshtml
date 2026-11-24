@@ -1,0 +1,26 @@
+@model TransparenciaFormViewModel
+@{
+    ViewData["Title"] = "Novo gasto";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/animal-form.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/transparencia-form.css" asp-append-version="true" />
+}
+
+<a class="admin-back-link" asp-area="Admin" asp-controller="Transparencia" asp-action="Index">
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para a transparência
+</a>
+
+<header class="admin-page-header">
+    <div class="admin-page-header-text">
+        <h1 class="admin-page-title">Novo gasto</h1>
+        <p class="admin-page-subtitle">Registre um gasto do projeto. Ele aparece na página de Transparência do site. Os campos com <span class="form-required">*</span> são obrigatórios.</p>
+    </div>
+</header>
+
+<partial name="_Formulario" model="Model" />
+
+@section Scripts {
+    <script src="~/js/admin/transparencia-form.js" asp-append-version="true"></script>
+}

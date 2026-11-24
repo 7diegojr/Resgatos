@@ -27,7 +27,13 @@
             gatilho = botao;
 
             formulario.setAttribute("action", botao.getAttribute("data-url"));
-            titulo.textContent = botao.getAttribute("data-titulo") || "Confirmar";
+            // Um \n no data-titulo vira quebra de linha no título do modal
+            var linhas = (botao.getAttribute("data-titulo") || "Confirmar").split("\n");
+            titulo.textContent = "";
+            linhas.forEach(function (linha, indice) {
+                if (indice > 0) titulo.appendChild(document.createElement("br"));
+                titulo.appendChild(document.createTextNode(linha));
+            });
             texto.textContent = botao.getAttribute("data-texto") || "";
             botaoOk.textContent = botao.getAttribute("data-botao") || textoPadraoOk;
             botaoOk.disabled = false;

@@ -34,4 +34,9 @@ public class Transparencia
     [DataType(DataType.DateTime)]
     [Display(Name = "Criado em")]
     public DateTime CriadoEm { get; set; } = DateTime.Now;
+
+    // Lixeira (exclusão lógica): preenchido = o gasto está na lixeira e some do site e das listas do admin.
+    [DataType(DataType.DateTime)]
+    [Display(Name = "Excluído em")]
+    public DateTime? ExcluidoEm { get; set; }
 }

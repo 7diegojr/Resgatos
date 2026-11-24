@@ -1,5 +1,412 @@
+@model TransparenciaIndexViewModel
+@using Resgatos.Helpers
 @{
     ViewData["Title"] = "Transparência";
+
+    var filtro = Model.Filtro;
+
+    // Parâmetros da URL com todos os filtros atuais, trocando só o que muda (categoria da aba ou página)
+    Dictionary<string, string> Rota(CategoriaTransparencia? categoria, int pagina = 1)
+    {
+        var d = filtro.ParaRota("categoria");
+        if (categoria.HasValue) d["categoria"] = categoria.Value.ToString();
+        if (pagina > 1) d["pagina"] = pagina.ToString();
+        return d;
+    }
+
+    string TextoOrdem(OrdenacaoTransparenciaAdmin ordem) => ordem switch
+    {
+        OrdenacaoTransparenciaAdmin.MaisAntigos => "Mais antigos",
+        OrdenacaoTransparenciaAdmin.MaiorValor => "Maior valor",
+        OrdenacaoTransparenciaAdmin.MenorValor => "Menor valor",
+        OrdenacaoTransparenciaAdmin.TituloAZ => "Título (A–Z)",
+        OrdenacaoTransparenciaAdmin.TituloZA => "Título (Z–A)",
+        _ => "Mais recentes"
+    };
+
+    // Mesmos períodos da página pública de Transparência
+    string TextoPeriodo(PeriodoTransparenciaAdmin periodo) => periodo switch
+    {
+        PeriodoTransparenciaAdmin.Semana => "Última semana",
+        PeriodoTransparenciaAdmin.Mes => "Este mês",
+        _ => "Últimos 3 meses"
+    };
+
+    string TextoComprovante(FiltroAnexoAdmin v) => v == FiltroAnexoAdmin.Com ? "Com comprovante" : "Sem comprovante";
+    string TextoFoto(FiltroAnexoAdmin v) => v == FiltroAnexoAdmin.Com ? "Com foto" : "Sem foto";
+
+    // Resumo dos filtros que só existem no modal (aparece ao passar o mouse no botão "Filtrar")
+    var resumoAvancados = new List<string>();
+    if (filtro.Comprovante.HasValue) resumoAvancados.Add("Comprovante: " + (filtro.Comprovante == FiltroAnexoAdmin.Com ? "com" : "sem"));
+    if (filtro.Foto.HasValue) resumoAvancados.Add("Foto: " + (filtro.Foto == FiltroAnexoAdmin.Com ? "com" : "sem"));
+
+    // Link do "Limpar filtros": tira todos os filtros e mantém só a busca
+    var rotaLimpar = filtro.ParaRota("categoria", "periodo", "comprovante", "foto", "ordem");
+
+    // Caixa de seleção de um filtro do modal (a opção vazia é "Todos"/"Todas")
+    CampoSelectViewModel CampoFiltro<T>(string nome, string rotulo, string todos, T? atual, Func<T, string> texto = null) where T : struct, Enum => new()
+    {
+        Nome = nome,
+        Rotulo = rotulo,
+        Obrigatorio = false,
+        Placeholder = todos,
+        OpcaoVaziaEhResposta = true,
+        Opcoes = Enum.GetValues<T>()
+            .Select(v => new OpcaoSelectViewModel(v.ToString(), texto != null ? texto(v) : ((Enum)v).GetDisplayName(), atual.HasValue && EqualityComparer<T>.Default.Equals(atual.Value, v)))
+            .ToList()
+    };
+
+    var campoCategoria = CampoFiltro("categoria", "Categoria", "Todas", filtro.Categoria);
+    var campoPeriodo = CampoFiltro<PeriodoTransparenciaAdmin>("periodo", "Período", "Todo o período", filtro.Periodo, TextoPeriodo);
+    var campoComprovante = CampoFiltro<FiltroAnexoAdmin>("comprovante", "Comprovante", "Todos", filtro.Comprovante, TextoComprovante);
+    var campoFoto = CampoFiltro<FiltroAnexoAdmin>("foto", "Foto do gasto", "Todas", filtro.Foto, TextoFoto);
+    var campoOrdem = CampoFiltro<OrdenacaoTransparenciaAdmin>("ordem", "Ordenar por", null, filtro.Ordem, TextoOrdem);
+    campoOrdem.PermiteVazio = false;
+
+    // Filtros rápidos da barra: categoria, período e ordenação (os mesmos do modal, sempre com o mesmo valor)
+    var rapidoCategoria = CampoFiltro("categoria", "Categoria", "Todas", filtro.Categoria);
+    rapidoCategoria.Id = "rapido-categoria";
+    var rapidoPeriodo = CampoFiltro<PeriodoTransparenciaAdmin>("periodo", "Período", "Todo o período", filtro.Periodo, TextoPeriodo);
+    rapidoPeriodo.Id = "rapido-periodo";
+    var rapidoOrdem = CampoFiltro<OrdenacaoTransparenciaAdmin>("ordem", "Ordenar por", null, filtro.Ordem, TextoOrdem);
+    rapidoOrdem.Id = "rapido-ordem";
+    rapidoOrdem.PermiteVazio = false;
+
+    // Páginas a mostrar na paginação (0 = "…")
+    var paginas = new List<int>();
+    for (var p = 1; p <= Model.TotalPaginas; p++)
+    {
+        if (p == 1 || p == Model.TotalPaginas || Math.Abs(p - Model.Pagina) <= 1)
+            paginas.Add(p);
+        else if (paginas.Count > 0 && paginas[^1] != 0)
+            paginas.Add(0);
+    }
+
+    var semGastos = Model.TotalGeral == 0;
 }
 
-<h1 class="admin-page-title">Transparência</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/animais.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/transparencia.css" asp-append-version="true" />
+}
+
+<header class="admin-page-header">
+    <div class="admin-page-header-text">
+        <h1 class="admin-page-title">Transparência</h1>
+        <p class="admin-page-subtitle">
+            @if (semGastos)
+            {
+                <text>Registre os gastos do projeto, com foto e comprovante, para que apareçam na página de Transparência do site.</text>
+            }
+            else
+            {
+                <text>@Model.TotalGeral @(Model.TotalGeral == 1 ? "gasto registrado" : "gastos registrados") (<strong>@Model.ValorTotalGeral.ToReais()</strong> no total). Todos aparecem no site.</text>
+            }
+        </p>
+    </div>
+
+    <a class="admin-btn admin-btn-primary" asp-area="Admin" asp-controller="Transparencia" asp-action="Criar">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i><span>Novo gasto</span>
+    </a>
+</header>
+
+@if (semGastos)
+{
+    <section class="admin-empty" aria-label="Nenhum gasto registrado">
+        <span class="admin-empty-icon" aria-hidden="true"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+        <h2 class="admin-empty-title">Nenhum gasto registrado ainda</h2>
+        <p class="admin-empty-text">Quando você registrar o primeiro, ele aparece aqui e na página de Transparência do site.</p>
+        <a class="admin-btn admin-btn-primary" asp-area="Admin" asp-controller="Transparencia" asp-action="Criar">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i><span>Registrar o primeiro gasto</span>
+        </a>
+    </section>
+}
+else
+{
+    @* ============ Abas de categoria ============ *@
+    <nav class="status-tabs" aria-label="Filtrar por categoria">
+        <a class="status-tab@(filtro.Categoria == null ? " is-active" : "")"
+           aria-current="@(filtro.Categoria == null ? "true" : null)"
+           asp-area="Admin" asp-controller="Transparencia" asp-action="Index" asp-all-route-data="Rota(null)">
+            Todas <span class="status-tab-count">@Model.TotalGeral</span>
+        </a>
+
+        @foreach (var categoria in Enum.GetValues<CategoriaTransparencia>())
+        {
+            var quantidade = Model.ContagemPorCategoria.GetValueOrDefault(categoria);
+            var ativa = filtro.Categoria == categoria;
+            <a class="status-tab@(ativa ? " is-active" : "")"
+               aria-current="@(ativa ? "true" : null)"
+               asp-area="Admin" asp-controller="Transparencia" asp-action="Index" asp-all-route-data="Rota(categoria)">
+                <i class="fa-solid @categoria.GetIcone()" aria-hidden="true"></i> @categoria.GetDisplayName() <span class="status-tab-count">@quantidade</span>
+            </a>
+        }
+    </nav>
+
+    @* ============ Busca e botão Filtrar (abre o modal) ============ *@
+    <form class="animais-toolbar" method="get" asp-area="Admin" asp-controller="Transparencia" asp-action="Index" role="search" id="transparencia-busca">
+        @* Os filtros que só existem no modal (comprovante e foto) vão escondidos: buscar ou trocar um filtro rápido não os perde *@
+        @foreach (var parametro in filtro.ParaRota("busca", "categoria", "periodo", "ordem"))
+        {
+            <input type="hidden" name="@parametro.Key" value="@parametro.Value" />
+        }
+
+        <div class="toolbar-search">
+            <button type="submit" class="toolbar-search-btn" aria-label="Buscar">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            </button>
+            <input type="search" name="busca" value="@filtro.Busca" placeholder="Buscar pelo título"
+                   aria-label="Buscar pelo título do gasto" autocomplete="off" />
+        </div>
+
+        @* Filtros rápidos: trocar qualquer um já filtra. São os mesmos campos do modal, então os dois sempre mostram o mesmo valor *@
+        <div class="toolbar-rapido">
+            <partial name="_CampoSelect" model="rapidoCategoria" />
+        </div>
+        <div class="toolbar-rapido">
+            <partial name="_CampoSelect" model="rapidoPeriodo" />
+        </div>
+        <div class="toolbar-rapido">
+            <partial name="_CampoSelect" model="rapidoOrdem" />
+        </div>
+
+        @* "Limpar filtros" fica na linha dos títulos dos filtros rápidos, em cima do botão Filtrar.
+           O espaço é sempre reservado (com ou sem o link), para a página nunca mudar de lugar quando ele aparece. *@
+        <div class="toolbar-filtrar-grupo">
+            <div class="toolbar-limpar">
+                @if (filtro.QuantidadeFiltrosAtivos > 0)
+                {
+                    <a class="toolbar-clear" asp-area="Admin" asp-controller="Transparencia" asp-action="Index" asp-all-route-data="rotaLimpar">Limpar filtros</a>
+                }
+                else
+                {
+                    <span aria-hidden="true">&nbsp;</span>
+                }
+            </div>
+
+            <button type="button" class="admin-btn admin-btn-outline toolbar-filtrar" data-abrir-filtros aria-haspopup="dialog"
+                    title="@(resumoAvancados.Count > 0 ? string.Join(" · ", resumoAvancados) : "Mais filtros")">
+                <i class="fa-solid fa-filter" aria-hidden="true"></i>
+                <span>Filtrar</span>
+                @if (filtro.QuantidadeFiltrosAvancados > 0)
+                {
+                    <span class="toolbar-filtrar-badge" aria-label="@filtro.QuantidadeFiltrosAvancados @(filtro.QuantidadeFiltrosAvancados == 1 ? "filtro aplicado no modal" : "filtros aplicados no modal")">@filtro.QuantidadeFiltrosAvancados</span>
+                }
+            </button>
+        </div>
+    </form>
+
+    @if (Model.Lancamentos.Count == 0)
+    {
+        <section class="admin-empty" aria-label="Nenhum gasto encontrado">
+            <span class="admin-empty-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <h2 class="admin-empty-title">Nenhum gasto encontrado</h2>
+            <p class="admin-empty-text">Nenhum gasto bate com a busca e os filtros aplicados. Tente outra busca ou ajuste os filtros.</p>
+            <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Transparencia" asp-action="Index">
+                <span>Ver todos os gastos</span>
+            </a>
+        </section>
+    }
+    else
+    {
+        @* ============ Tabela ============ *@
+        <div class="admin-card animais-card">
+            <table class="animais-table transparencia-table">
+                <caption class="visually-hidden">Lista de gastos registrados</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Gasto</th>
+                        <th scope="col">Categoria</th>
+                        <th scope="col">Data</th>
+                        <th scope="col">Valor</th>
+                        <th scope="col">Comprovante</th>
+                        <th scope="col" class="col-acoes">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var gasto in Model.Lancamentos)
+                    {
+                        var temComprovante = !string.IsNullOrEmpty(gasto.Comprovante);
+                        var temFoto = !string.IsNullOrEmpty(gasto.Imagem);
+
+                        <tr>
+                            <td class="cell-animal">
+                                <a class="animal-ident" asp-area="Admin" asp-controller="Transparencia" asp-action="Detalhes" asp-route-id="@gasto.IdTransparencia">
+                                    <span class="animal-thumb">
+                                        @if (temFoto)
+                                        {
+                                            <img src="@Url.Content("~/" + gasto.Imagem)" alt="Foto de @gasto.Titulo" loading="lazy">
+                                        }
+                                        else
+                                        {
+                                            <i class="fa-solid @gasto.Categoria.GetIcone()" aria-hidden="true"></i>
+                                        }
+                                    </span>
+                                    <span class="animal-ident-text">
+                                        <strong class="animal-name" title="@gasto.Titulo">@gasto.Titulo</strong>
+                                        <span class="animal-meta">
+                                            <i class="fa-regular fa-image" aria-hidden="true"></i>
+                                            @(temFoto ? "Com foto" : "Sem foto")
+                                        </span>
+                                    </span>
+                                </a>
+                            </td>
+
+                            <td data-label="Categoria">
+                                <span class="categoria-badge categoria-@gasto.Categoria.ToString().ToLower()">
+                                    <i class="fa-solid @gasto.Categoria.GetIcone()" aria-hidden="true"></i>
+                                    @gasto.Categoria.GetDisplayName()
+                                </span>
+                            </td>
+
+                            <td data-label="Data">
+                                <span class="cell-main">@gasto.Data.ToDataBr()</span>
+                                <span class="cell-sub">@gasto.Data.ToDiaSemana()</span>
+                            </td>
+
+                            <td data-label="Valor">
+                                <span class="cell-main cell-valor">@gasto.Valor.ToReais()</span>
+                            </td>
+
+                            <td data-label="Comprovante">
+                                @if (temComprovante)
+                                {
+                                    <a class="health-pill health-ok comprovante-link" href="@Url.Content("~/" + gasto.Comprovante)" target="_blank" rel="noopener"
+                                       title="Abrir o comprovante em uma nova aba">
+                                        <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i> Anexado
+                                    </a>
+                                    <span class="cell-sub">@(TransparenciaExtensions.EhPdf(gasto.Comprovante) ? "PDF" : "Imagem")</span>
+                                }
+                                else
+                                {
+                                    <span class="health-pill health-pending">
+                                        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Pendente
+                                    </span>
+                                    <span class="cell-sub">Não anexado</span>
+                                }
+                            </td>
+
+                            <td class="cell-acoes">
+                                <div class="row-actions">
+                                    <a class="row-action" asp-area="Admin" asp-controller="Transparencia" asp-action="Detalhes" asp-route-id="@gasto.IdTransparencia"
+                                       title="Ver detalhes" aria-label="Ver detalhes de @gasto.Titulo">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    </a>
+                                    <a class="row-action" asp-area="Admin" asp-controller="Transparencia" asp-action="Editar" asp-route-id="@gasto.IdTransparencia"
+                                       title="Editar" aria-label="Editar @gasto.Titulo">
+                                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                    </a>
+                                    @* Abre o modal de confirmação (data-confirmar); o POST só acontece se a pessoa confirmar *@
+                                    <button type="button" class="row-action row-action-danger" data-confirmar
+                                            data-url="@Url.Action("Excluir", "Transparencia", new { area = "Admin", id = gasto.IdTransparencia })"
+                                            data-titulo="@TransparenciaTexto.PerguntaExcluir"
+                                            data-texto="@TransparenciaTexto.AvisoExcluir(gasto.Titulo, gasto.Valor)"
+                                            data-botao="Excluir"
+                                            title="Excluir" aria-label="Excluir @gasto.Titulo">
+                                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @* ============ Rodapé: contagem + total + paginação ============ *@
+            <div class="animais-footer">
+                <p class="animais-count">
+                    Mostrando <strong>@Model.PrimeiroItem–@Model.UltimoItem</strong> de <strong>@Model.TotalFiltrado</strong>
+                    @(Model.TotalFiltrado == 1 ? "gasto" : "gastos")
+                    <span aria-hidden="true">·</span>
+                    Total: <strong>@Model.ValorTotalFiltrado.ToReais()</strong>
+                </p>
+
+                @if (Model.TotalPaginas > 1)
+                {
+                    <nav class="pagination" aria-label="Paginação">
+                        @if (Model.Pagina > 1)
+                        {
+                            <a class="page-link" asp-area="Admin" asp-controller="Transparencia" asp-action="Index"
+                               asp-all-route-data="Rota(filtro.Categoria, Model.Pagina - 1)" aria-label="Página anterior">
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        }
+
+                        @foreach (var p in paginas)
+                        {
+                            if (p == 0)
+                            {
+                                <span class="page-gap" aria-hidden="true">…</span>
+                            }
+                            else if (p == Model.Pagina)
+                            {
+                                <span class="page-link is-current" aria-current="page">@p</span>
+                            }
+                            else
+                            {
+                                <a class="page-link" asp-area="Admin" asp-controller="Transparencia" asp-action="Index"
+                                   asp-all-route-data="Rota(filtro.Categoria, p)" aria-label="Página @p">@p</a>
+                            }
+                        }
+
+                        @if (Model.Pagina < Model.TotalPaginas)
+                        {
+                            <a class="page-link" asp-area="Admin" asp-controller="Transparencia" asp-action="Index"
+                               asp-all-route-data="Rota(filtro.Categoria, Model.Pagina + 1)" aria-label="Próxima página">
+                                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                            </a>
+                        }
+                    </nav>
+                }
+            </div>
+        </div>
+    }
+}
+
+@if (!semGastos)
+{
+    @* ============ Modal de filtros: abre pelo botão "Filtrar" ============ *@
+    <dialog class="admin-modal filtros-modal" id="modal-filtros" aria-labelledby="titulo-filtros">
+        @* Mesmo botão de fechar do modal de animais do site (fora do formulário, para ficar parado quando o modal rola) *@
+        <button type="button" class="filtros-fechar" data-fechar-filtros aria-label="Fechar filtros">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+
+        <form method="get" class="filtros-form" id="form-filtros" asp-area="Admin" asp-controller="Transparencia" asp-action="Index">
+            @* A busca continua valendo quando os filtros são aplicados *@
+            @if (!string.IsNullOrWhiteSpace(filtro.Busca))
+            {
+                <input type="hidden" name="busca" value="@filtro.Busca" />
+            }
+
+            <header class="filtros-topo">
+                <div>
+                    <h2 class="filtros-titulo" id="titulo-filtros">Filtrar gastos</h2>
+                    <p class="filtros-sub">Escolha o que você quer ver na lista.</p>
+                </div>
+            </header>
+
+            <div class="filtros-grid">
+                <partial name="_CampoSelect" model="campoCategoria" />
+                <partial name="_CampoSelect" model="campoPeriodo" />
+                <partial name="_CampoSelect" model="campoComprovante" />
+                <partial name="_CampoSelect" model="campoFoto" />
+
+                <div class="filtros-campo-largo">
+                    <partial name="_CampoSelect" model="campoOrdem" />
+                </div>
+            </div>
+
+            <div class="filtros-acoes">
+                <button type="submit" class="admin-btn admin-btn-primary">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i><span>Aplicar filtros</span>
+                </button>
+                <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Transparencia" asp-action="Index" asp-all-route-data="rotaLimpar">Limpar filtros</a>
+            </div>
+        </form>
+    </dialog>
+}
+
+@section Scripts {
+    <script src="~/js/admin/transparencia.js" asp-append-version="true"></script>
+}

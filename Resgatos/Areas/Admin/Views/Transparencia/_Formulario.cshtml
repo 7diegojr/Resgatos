@@ -1,0 +1,137 @@
+@*
+    Formulário compartilhado por Criar e Editar.
+    Os campos são escritos à mão (e não com asp-for) para o visual ficar igual ao resto do painel;
+    o servidor continua sendo quem manda: as mesmas regras são conferidas no TransparenciaController.
+*@
+@model TransparenciaFormViewModel
+@using Resgatos.Helpers
+@using Resgatos.Services
+@{
+    var edicao = Model.EhEdicao;
+
+    // Primeira mensagem de erro de um campo (vem do servidor depois de um envio inválido); null = sem erro
+    string Erro(string campo)
+    {
+        if (!ViewData.ModelState.TryGetValue(campo, out var entrada) || entrada.Errors.Count == 0) return null;
+        var mensagem = entrada.Errors[0].ErrorMessage;
+        return string.IsNullOrEmpty(mensagem) ? "Valor inválido." : mensagem;
+    }
+
+    string ClasseCampo(string campo, string extra = null) =>
+        "form-field" + (extra != null ? " " + extra : "") + (Erro(campo) != null ? " has-error" : "");
+
+    var campoCategoria = new CampoSelectViewModel
+    {
+        Nome = "Categoria",
+        Rotulo = "Categoria",
+        MensagemObrigatorio = "Selecione a categoria.",
+        Erro = Erro("Categoria"),
+        Opcoes = Enum.GetValues<CategoriaTransparencia>()
+            .Select(v => new OpcaoSelectViewModel(v.ToString(), v.GetDisplayName(), Model.Categoria == v))
+            .ToList()
+    };
+
+    var campoImagem = new CampoArquivoViewModel
+    {
+        Nome = "NovaImagem",
+        NomeRemover = "RemoverImagem",
+        Titulo = "Foto do gasto",
+        Dica = "Aparece no card do gasto, na página de Transparência do site. JPG, PNG ou WebP, até 5 MB.",
+        TituloDropzone = "Clique para escolher a foto",
+        Erro = Erro("NovaImagem"),
+        AceitaPdf = false,
+        TamanhoMaximoBytes = UploadService.TamanhoMaximoBytes,
+        CaminhoAtual = Model.ImagemAtual,
+        Remover = Model.RemoverImagem,
+        TextoAlternativo = "Foto atual do gasto"
+    };
+
+    var campoComprovante = new CampoArquivoViewModel
+    {
+        Nome = "NovoComprovante",
+        NomeRemover = "RemoverComprovante",
+        Titulo = "Comprovante",
+        Dica = "Fica no botão “Ver comprovante” do card. JPG, PNG, WebP ou PDF, até 5 MB.",
+        TituloDropzone = "Clique para escolher o comprovante",
+        Erro = Erro("NovoComprovante"),
+        AceitaPdf = true,
+        TamanhoMaximoBytes = UploadService.TamanhoMaximoBytes,
+        CaminhoAtual = Model.ComprovanteAtual,
+        Remover = Model.RemoverComprovante,
+        TextoAlternativo = "Comprovante atual do gasto"
+    };
+
+    var enviouArquivos = (Model.NovaImagem?.Length ?? 0) > 0 || (Model.NovoComprovante?.Length ?? 0) > 0;
+    var hoje = DateTime.Today.ToString("yyyy-MM-dd");
+}
+
+<form method="post" enctype="multipart/form-data" class="animal-form" id="transparencia-form" novalidate
+      asp-area="Admin" asp-controller="Transparencia" asp-action="@(edicao ? "Editar" : "Criar")"
+      asp-route-id="@(edicao ? Model.IdTransparencia : (int?)null)">
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="form-alert" role="alert">
+            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            <div>
+                <strong>Confira os campos destacados antes de salvar.</strong>
+                @if (enviouArquivos)
+                {
+                    <p>Os arquivos novos não são guardados quando o formulário volta com erro: escolha-os de novo.</p>
+                }
+            </div>
+        </div>
+    }
+
+    @* ===================== Dados do gasto ===================== *@
+    <section class="form-card" aria-labelledby="titulo-dados">
+        <h2 class="form-card-title" id="titulo-dados">Dados do gasto</h2>
+
+        <div class="form-grid">
+            <div class="@ClasseCampo("Titulo", "form-field-full")">
+                <label for="Titulo">Título<span class="form-required" aria-hidden="true">*</span></label>
+                <input type="text" id="Titulo" name="Titulo" value="@Model.Titulo" maxlength="255" autocomplete="off"
+                       placeholder="Ex.: Ração premium para gatos filhotes (10 kg)" data-required data-msg="Informe o título do gasto." />
+                <span class="field-error" role="alert">@Erro("Titulo")</span>
+            </div>
+
+            <partial name="_CampoSelect" model="campoCategoria" />
+
+            <div class="@ClasseCampo("Valor")">
+                <label for="Valor">Valor<span class="form-required" aria-hidden="true">*</span></label>
+                <div class="campo-valor">
+                    <span class="campo-valor-prefixo" aria-hidden="true">R$</span>
+                    <input type="text" id="Valor" name="Valor" value="@Model.Valor" inputmode="decimal" maxlength="14" autocomplete="off"
+                           placeholder="0,00" data-required data-msg="Informe o valor do gasto." />
+                </div>
+                <span class="field-error" role="alert">@Erro("Valor")</span>
+            </div>
+
+            <div class="@ClasseCampo("Data")">
+                <label for="Data">Data do gasto<span class="form-required" aria-hidden="true">*</span></label>
+                <input type="date" id="Data" name="Data" value="@(Model.Data?.ToString("yyyy-MM-dd"))" max="@hoje"
+                       data-required data-msg="Informe a data do gasto." />
+                <span class="field-error" role="alert">@Erro("Data")</span>
+            </div>
+        </div>
+    </section>
+
+    @* ===================== Foto e comprovante ===================== *@
+    <section class="form-card" aria-labelledby="titulo-arquivos">
+        <h2 class="form-card-title" id="titulo-arquivos">Foto e comprovante</h2>
+        <p class="form-card-hint">Os dois são opcionais, mas um gasto sem comprovante aparece como “Pendente” aqui no painel.</p>
+
+        <div class="arquivos-grid">
+            <partial name="_CampoArquivo" model="campoImagem" />
+            <partial name="_CampoArquivo" model="campoComprovante" />
+        </div>
+    </section>
+
+    <div class="form-actions">
+        <button type="submit" class="admin-btn admin-btn-primary" id="transparencia-form-salvar">
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            <span>@(edicao ? "Salvar alterações" : "Registrar gasto")</span>
+        </button>
+        <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Transparencia" asp-action="Index">Cancelar</a>
+    </div>
+</form>

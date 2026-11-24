@@ -13,6 +13,9 @@ public static class SchemaAjustes
         // Sprint 13: lixeira de animais (exclusão lógica)
         await GarantirColunaAsync(context, "Animais", "ExcluidoEm", "datetime(6) NULL");
 
+        // Lixeira de gastos de transparência (exclusão lógica)
+        await GarantirColunaAsync(context, "Transparencias", "ExcluidoEm", "datetime(6) NULL");
+
         // Sprint 13: "Data de chegada ao Resgatos" (só mês e ano) substitui "Data do resgate".
         // Se a coluna acabou de ser criada, aproveita a data do resgate que já existia (vira o dia 1 daquele mês).
         // As colunas antigas (DataResgate e DataCastracao) continuam no banco, sem uso; não são apagadas para não perder dados.
