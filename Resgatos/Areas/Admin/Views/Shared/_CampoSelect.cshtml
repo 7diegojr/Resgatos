@@ -3,13 +3,20 @@
     Uso:  <partial name="_CampoSelect" model="campo" />   (campo = CampoSelectViewModel montado na view)
 *@
 @model CampoSelectViewModel
+@{
+    var idCampo = Model.Id ?? Model.Nome;
+}
 
 <div class="form-field@(Model.Erro != null ? " has-error" : "")">
-    <label for="@Model.Nome">@Model.Rotulo@if (Model.Obrigatorio){<span class="form-required" aria-hidden="true">*</span>}</label>
+    <label for="@idCampo">@Model.Rotulo@if (Model.Obrigatorio){<span class="form-required" aria-hidden="true">*</span>}</label>
 
-    <select id="@Model.Nome" name="@Model.Nome"
-            data-required="@(Model.Obrigatorio ? "" : null)" data-msg="@Model.MensagemObrigatorio">
-        <option value="">@Model.Placeholder</option>
+    <select id="@idCampo" name="@Model.Nome"
+            data-required="@(Model.Obrigatorio ? "" : null)" data-msg="@Model.MensagemObrigatorio"
+            data-sem-placeholder="@(Model.OpcaoVaziaEhResposta ? "" : null)">
+        @if (Model.PermiteVazio)
+        {
+            <option value="">@Model.Placeholder</option>
+        }
         @foreach (var opcao in Model.Opcoes)
         {
             <option value="@opcao.Valor" selected="@opcao.Selecionada">@opcao.Texto</option>

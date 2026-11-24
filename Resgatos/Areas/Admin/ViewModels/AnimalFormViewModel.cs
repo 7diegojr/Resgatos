@@ -87,12 +87,19 @@ public class FotoExistenteViewModel
 // Dados de uma caixa de seleção (usado pelo partial _CampoSelect)
 public class CampoSelectViewModel
 {
-    public string Nome { get; set; }              // id e name do <select> (= nome da propriedade do formulário)
+    public string Nome { get; set; }              // name do <select> (= nome da propriedade do formulário) e, se Id não for informado, também o id
+    public string Id { get; set; }                // id do <select>, quando precisa ser diferente do name (ex.: a mesma caixa aparece duas vezes na página)
     public string Rotulo { get; set; }
     public bool Obrigatorio { get; set; } = true;
     public string MensagemObrigatorio { get; set; }
     public string Erro { get; set; }             // mensagem de erro vinda do servidor (null = sem erro)
     public string Placeholder { get; set; } = "Selecione";
+
+    // false = sem a opção vazia (o campo sempre tem uma opção escolhida, ex.: "Ordenar por")
+    public bool PermiteVazio { get; set; } = true;
+
+    // true = a opção vazia é uma resposta de verdade ("Todos") e não um "Selecione": não usa a cor de placeholder
+    public bool OpcaoVaziaEhResposta { get; set; }
     public List<OpcaoSelectViewModel> Opcoes { get; set; } = new();
 }
 

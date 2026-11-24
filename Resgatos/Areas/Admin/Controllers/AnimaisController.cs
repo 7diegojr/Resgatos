@@ -54,13 +54,38 @@ public class AnimaisController : AdminBaseController
         if (filtro.Status.HasValue)
             consulta = consulta.Where(a => a.Status == filtro.Status.Value);
 
-        // Em empate, o cadastrado por último vem primeiro
+        if (filtro.Sexo.HasValue)
+            consulta = consulta.Where(a => a.Sexo == filtro.Sexo.Value);
+
+        if (filtro.Porte.HasValue)
+            consulta = consulta.Where(a => a.Porte == filtro.Porte.Value);
+
+        if (filtro.FaixaEtaria.HasValue)
+            consulta = consulta.Where(a => a.FaixaEtaria == filtro.FaixaEtaria.Value);
+
+        // Saúde: a mesma regra da coluna "Saúde" da tabela (AnimalAdminItemViewModel.Pendencias).
+        // FIV e FeLV só contam para gatos.
+        if (filtro.Saude == FiltroSaudeAdmin.ComPendencias)
+        {
+            consulta = consulta.Where(a =>
+                !a.AntipulgasOk || !a.VermifugadoOk || !a.VacinadoOk || !a.CastradoOk ||
+                (a.Especie == EspecieAnimal.Gato && (!a.FivTestado || !a.FelvTestado)));
+        }
+        else if (filtro.Saude == FiltroSaudeAdmin.Completa)
+        {
+            consulta = consulta.Where(a =>
+                a.AntipulgasOk && a.VermifugadoOk && a.VacinadoOk && a.CastradoOk &&
+                (a.Especie != EspecieAnimal.Gato || (a.FivTestado && a.FelvTestado)));
+        }
+
+        // "Menos tempo" / "Mais tempo" olham a data de chegada ao Resgatos (o tempo que o animal está aqui).
+        // Quem não tem data de chegada vai para o fim (o CASE coloca os preenchidos primeiro).
         IQueryable<Animal> ordenada = filtro.Ordem switch
         {
-            OrdenacaoAnimaisAdmin.MaisAntigos => consulta.OrderBy(a => a.CriadoEm).ThenBy(a => a.IdAnimal),
+            OrdenacaoAnimaisAdmin.MaisTempo  => consulta.OrderBy(a => a.DataChegada == null ? 1 : 0).ThenBy(a => a.DataChegada).ThenBy(a => a.IdAnimal),
             OrdenacaoAnimaisAdmin.NomeAZ      => consulta.OrderBy(a => a.Nome).ThenBy(a => a.IdAnimal),
             OrdenacaoAnimaisAdmin.NomeZA      => consulta.OrderByDescending(a => a.Nome).ThenBy(a => a.IdAnimal),
-            _                                 => consulta.OrderByDescending(a => a.CriadoEm).ThenByDescending(a => a.IdAnimal)
+            _                                 => consulta.OrderBy(a => a.DataChegada == null ? 1 : 0).ThenByDescending(a => a.DataChegada).ThenByDescending(a => a.IdAnimal)
         };
 
         var totalFiltrado = await ordenada.CountAsync();
@@ -83,7 +108,7 @@ public class AnimaisController : AdminBaseController
                 FaixaEtaria = a.FaixaEtaria,
                 IdadeEstimada = a.IdadeEstimada,
                 Status = a.Status,
-                CriadoEm = a.CriadoEm,
+                DataChegada = a.DataChegada,
                 QtdFotos = a.Fotos.Count(),
                 // Foto de capa; se nenhuma foi marcada como capa, usa a primeira (mesma regra do site público)
                 FotoCapa = a.Fotos

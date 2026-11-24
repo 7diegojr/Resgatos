@@ -63,24 +63,47 @@
 .animais-toolbar {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: flex-end;      /* os campos têm rótulo em cima: tudo alinha pela base */
     gap: 14px;
     margin-bottom: 20px;
 }
 
 .toolbar-search {
     position: relative;
-    flex: 1 1 260px;
+    flex: 2 1 0;                /* busca = 2 partes (dos 5 pedaços: busca + 3 filtros rápidos) */
+    min-width: 240px;           /* tela estreita: não deixa a busca ficar minúscula (a linha quebra antes) */
 }
 
-.toolbar-search i {
+/* A lupa é um botão: clicar nela busca (Enter no campo também) */
+.toolbar-search-btn {
     position: absolute;
     top: 50%;
-    left: 16px;
+    left: 5px;
     transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 9px;
+    background: none;
+    color: var(--blue-700);
     font-size: 15px;
-    opacity: 0.5;
-    pointer-events: none;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.toolbar-search-btn:hover {
+    opacity: 1;
+    color: var(--pink-500);
+}
+
+.toolbar-search-btn:focus-visible {
+    opacity: 1;
+    outline: 2px solid var(--pink-500);
+    outline-offset: 1px;
 }
 
 .toolbar-search input {
@@ -110,33 +133,69 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--pink-500) 25%, transparent);
 }
 
-.toolbar-field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 0 1 190px;
+/* Filtros rápidos da barra (status, espécie e ordenação): os mesmos campos do modal */
+.toolbar-rapido {
+    flex: 1 1 0;                /* cada filtro rápido = 1 parte: os três têm sempre o mesmo tamanho */
+    min-width: 120px;
 }
 
-.toolbar-field label {
-    font-size: 13px;
-    font-weight: 800;
-    transition: color 0.2s ease;
+/* Caixas mais compactas: com a largura de 1 parte, "Menos tempo" precisa caber inteiro */
+.toolbar-rapido .form-select-trigger {
+    gap: 8px;
+    padding-left: 14px;
+    padding-right: 12px;
 }
 
-.toolbar-field:focus-within label {
-    color: var(--pink-500);
+/* Texto escolhido longo não quebra a altura da caixa */
+.toolbar-rapido .form-select-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.toolbar-submit {
+/* Botão "Filtrar" (abre o modal) com a quantidade de filtros aplicados */
+.toolbar-filtrar {
+    position: relative;
+    width: 100%;
     height: 46px;
     padding-top: 0;
     padding-bottom: 0;
 }
 
-.toolbar-clear {
-    align-self: center;
+.toolbar-filtrar-badge {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background-color: var(--pink-500);
+    color: var(--blue-700);
+    font-size: 12.5px;
+    font-weight: 800;
+}
+
+.toolbar-filtrar:hover .toolbar-filtrar-badge {
+    background-color: var(--white);
+}
+
+/* Botão Filtrar com o "Limpar filtros" em cima, na linha dos títulos dos filtros rápidos.
+   O espaço do link é sempre reservado: ele aparecer ou sumir não mexe em mais nada da página. */
+.toolbar-filtrar-grupo {
+    display: flex;
+    flex: 0 0 140px;            /* largura fixa: a bolinha de quantidade aparecer não muda o tamanho dos outros campos */
+    flex-direction: column;
+    gap: 6px;                   /* mesma distância entre título e caixa dos filtros rápidos */
+}
+
+.toolbar-limpar {
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;           /* mesmo tamanho e peso dos títulos dos filtros rápidos: as linhas ficam iguais */
+    white-space: nowrap;
+}
+
+.toolbar-clear {
     color: var(--blue-700);
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -154,12 +213,12 @@
 }
 
 /* Larguras das colunas (a coluna "Animal" fica com o que sobra) */
-.animais-table th:nth-child(2) { width: 14%; }   /* Espécie e sexo */
+.animais-table th:nth-child(2) { width: 12%; }   /* Espécie e sexo */
 .animais-table th:nth-child(3) { width: 11%; }   /* Idade */
-.animais-table th:nth-child(4) { width: 16%; }   /* Status */
-.animais-table th:nth-child(5) { width: 17%; }   /* Saúde */
-.animais-table th:nth-child(6) { width: 9%; }    /* Cadastro */
-.animais-table th:nth-child(7) { width: 140px; } /* Ações (3 botões) */
+.animais-table th:nth-child(4) { width: 14%; }   /* Status */
+.animais-table th:nth-child(5) { width: 14%; }   /* Saúde */
+.animais-table th:nth-child(6) { width: 14%; }   /* No Resgatos (tempo desde a chegada) */
+.animais-table th:nth-child(7) { width: 150px; } /* Ações (3 botões) */
 
 .animais-table caption {
     text-align: left;
@@ -173,7 +232,7 @@
     letter-spacing: 0.5px;
     text-align: left;
     text-transform: uppercase;
-    white-space: nowrap;
+    line-height: 1.35;          /* em tela estreita o título quebra de linha em vez de invadir a coluna do lado */
 }
 
 .animais-table td {
@@ -194,6 +253,10 @@
 .cell-main {
     display: block;
     font-weight: 700;
+}
+
+.cell-vazio {
+    opacity: 0.45;
 }
 
 .cell-sub {
@@ -330,13 +393,9 @@
 }
 
 /* ============ Ações da linha ============ */
-.col-acoes {
-    width: 1%;
-}
-
 .row-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;   /* na mesma linha do título "Ações" */
     gap: 6px;
 }
 
@@ -429,14 +488,6 @@ a.page-link:focus-visible {
     opacity: 0.6;
 }
 
-/* ============ Telas médias: some a coluna "Cadastro" para a tabela caber ============ */
-@media (min-width: 1280px) and (max-width: 1449px) {
-    .animais-table th:nth-child(6),
-    .animais-table td:nth-child(6) {
-        display: none;
-    }
-}
-
 /* ============ Celular e tablet: cada linha vira um cartão ============ */
 @media (max-width: 1279px) {
     .animais-table,
@@ -503,19 +554,121 @@ a.page-link:focus-visible {
     }
 
     .toolbar-search,
-    .toolbar-field {
+    .toolbar-rapido,
+    .toolbar-rapido-largo {
         flex: none;          /* em coluna, o flex-basis viraria altura */
     }
 
-    .toolbar-submit {
+    .toolbar-filtrar {
         width: 100%;
-    }
-
-    .toolbar-clear {
-        align-self: flex-start;
     }
 
     .animais-footer {
         justify-content: center;
+    }
+}
+
+/* ============ Modal de filtros ============ */
+.filtros-modal {
+    width: min(640px, calc(100% - 32px));
+    overflow: visible;          /* a lista das caixas de seleção pode passar da borda do modal */
+}
+
+.filtros-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 28px 30px 30px;
+}
+
+.filtros-topo {
+    padding-right: 48px;        /* espaço para o botão de fechar */
+}
+
+.filtros-titulo {
+    font-size: 26px;
+    line-height: 1.3;
+    color: var(--blue-700);
+}
+
+.filtros-sub {
+    margin-top: 2px;
+    font-size: 15px;
+    opacity: 0.75;
+}
+
+/* Botão de fechar: o mesmo do modal de animais do site (círculo branco que gira ao passar o mouse) */
+.filtros-fechar {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: var(--border-soft);
+    border-radius: 50%;
+    background-color: var(--white);
+    color: var(--blue-700);
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.filtros-fechar:hover {
+    transform: rotate(90deg);
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+.filtros-fechar:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+.filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 20px;
+}
+
+.filtros-campo-largo {
+    grid-column: 1 / -1;
+}
+
+.filtros-acoes {
+    display: flex;
+    gap: 12px;
+}
+
+@media (max-width: 575px) {
+    .filtros-form {
+        max-height: calc(100vh - 32px);
+        padding: 22px 18px 24px;
+        overflow-y: auto;      /* no celular o modal rola por dentro */
+    }
+
+    .filtros-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .filtros-acoes {
+        flex-direction: column;
+    }
+
+    .filtros-acoes .admin-btn {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .filtros-fechar {
+        transition: none;
+    }
+
+    .filtros-fechar:hover {
+        transform: none;
     }
 }
