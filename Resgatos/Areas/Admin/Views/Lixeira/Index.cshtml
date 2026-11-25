@@ -1,5 +1,438 @@
+@model LixeiraIndexViewModel
+@using Resgatos.Helpers
 @{
     ViewData["Title"] = "Lixeira";
+
+    var filtro = Model.Filtro;
+    var ehAnimais = filtro.Tipo == TipoLixeira.Animais;
+    var quantidadeAba = ehAnimais ? Model.QuantidadeAnimais : Model.QuantidadeGastos;
+
+    // Parâmetros da URL da página (só muda a página; a aba e a busca atuais continuam valendo)
+    Dictionary<string, string> Rota(int pagina)
+    {
+        var d = filtro.ParaRota();
+        if (pagina > 1) d["pagina"] = pagina.ToString();
+        return d;
+    }
+
+    // Parâmetros da URL de uma aba (trocar de aba começa sem busca)
+    Dictionary<string, string> RotaAba(TipoLixeira tipo) => new() { ["tipo"] = tipo.ToString() };
+
+    // Páginas a mostrar na paginação (0 = "…")
+    var paginas = new List<int>();
+    for (var p = 1; p <= Model.TotalPaginas; p++)
+    {
+        if (p == 1 || p == Model.TotalPaginas || Math.Abs(p - Model.Pagina) <= 1)
+            paginas.Add(p);
+        else if (paginas.Count > 0 && paginas[^1] != 0)
+            paginas.Add(0);
+    }
+
+    var lixeiraVazia = Model.TotalGeral == 0;
 }
 
-<h1 class="admin-page-title">Lixeira</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/animais.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/transparencia.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/lixeira.css" asp-append-version="true" />
+}
+
+<header class="admin-page-header">
+    <div class="admin-page-header-text">
+        <h1 class="admin-page-title">Lixeira</h1>
+        <p class="admin-page-subtitle">
+            @if (lixeiraVazia)
+            {
+                <text>Os animais e os gastos que você excluir ficam guardados aqui.</text>
+            }
+            else
+            {
+                <text>Estes itens <strong>não aparecem no site</strong>. Restaure para trazê-los de volta ou exclua definitivamente.</text>
+            }
+        </p>
+    </div>
+</header>
+
+    @* ============ Abas: animais e transparência ============ *@
+    <nav class="status-tabs" aria-label="Tipo de item na lixeira">
+        <a class="status-tab@(ehAnimais ? " is-active" : "")"
+           aria-current="@(ehAnimais ? "true" : null)"
+           asp-area="Admin" asp-controller="Lixeira" asp-action="Index" asp-all-route-data="RotaAba(TipoLixeira.Animais)">
+            <i class="fa-solid fa-paw" aria-hidden="true"></i> Animais <span class="status-tab-count">@Model.QuantidadeAnimais</span>
+        </a>
+        <a class="status-tab@(!ehAnimais ? " is-active" : "")"
+           aria-current="@(!ehAnimais ? "true" : null)"
+           asp-area="Admin" asp-controller="Lixeira" asp-action="Index" asp-all-route-data="RotaAba(TipoLixeira.Transparencia)">
+            <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i> Transparência <span class="status-tab-count">@Model.QuantidadeGastos</span>
+        </a>
+    </nav>
+
+    @if (quantidadeAba == 0)
+    {
+        if (lixeiraVazia)
+        {
+            <section class="admin-empty" aria-label="A lixeira está vazia">
+                <span class="admin-empty-icon" aria-hidden="true"><i class="fa-solid fa-trash-can"></i></span>
+                <h2 class="admin-empty-title">A lixeira está vazia</h2>
+                <p class="admin-empty-text">Quando você excluir um animal ou um gasto, ele aparece aqui e pode ser restaurado.</p>
+            </section>
+        }
+        else
+        {
+            <section class="admin-empty" aria-label="@(ehAnimais ? "Nenhum animal na lixeira" : "Nenhum gasto na lixeira")">
+                <span class="admin-empty-icon" aria-hidden="true"><i class="fa-solid @(ehAnimais ? "fa-paw" : "fa-file-invoice-dollar")"></i></span>
+                <h2 class="admin-empty-title">@(ehAnimais ? "Nenhum animal na lixeira" : "Nenhum gasto na lixeira")</h2>
+                <p class="admin-empty-text">
+                    @(ehAnimais ? "Os animais que você excluir da lista de animais aparecem aqui." : "Os gastos que você excluir da lista de transparência aparecem aqui.")
+                </p>
+            </section>
+        }
+    }
+    else
+    {
+        @* ============ Busca (à esquerda) e ações em lote (à direita, na mesma linha) ============ *@
+        <div class="animais-toolbar lixeira-toolbar">
+            <form class="lixeira-busca" method="get" asp-area="Admin" asp-controller="Lixeira" asp-action="Index" role="search">
+                <input type="hidden" name="tipo" value="@filtro.Tipo" />
+
+                <div class="toolbar-search">
+                    <button type="submit" class="toolbar-search-btn" aria-label="Buscar">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    </button>
+                    <input type="search" name="busca" value="@filtro.Busca"
+                           placeholder="@(ehAnimais ? "Buscar pelo nome" : "Buscar pelo título")"
+                           aria-label="@(ehAnimais ? "Buscar pelo nome do animal" : "Buscar pelo título do gasto")" autocomplete="off" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(filtro.Busca))
+                {
+                    <a class="toolbar-clear lixeira-limpar" asp-area="Admin" asp-controller="Lixeira" asp-action="Index" asp-all-route-data="RotaAba(filtro.Tipo)">Limpar busca</a>
+                }
+            </form>
+
+            @*
+                Ações em lote. É um formulário POST: o botão "Restaurar" envia os ids marcados (as caixas das linhas apontam para ele com form="form-selecao").
+                Os botões com data-confirmar abrem o modal de confirmação; no "Excluir" dos selecionados o lixeira.js monta a URL com os ids na hora do clique.
+            *@
+            <form class="lixeira-acoes" id="form-selecao" method="post" asp-area="Admin" asp-controller="Lixeira"
+                  asp-action="@(ehAnimais ? "RestaurarAnimais" : "RestaurarGastos")">
+
+                @* Estado normal *@
+                <div class="lixeira-acoes-grupo" data-selecao-normal>
+                    @if (Model.TotalFiltrado > 0)
+                    {
+                        <button type="button" class="admin-btn admin-btn-outline" data-selecao-entrar aria-pressed="false">
+                            <i class="fa-solid fa-list-check" aria-hidden="true"></i><span>Selecionar vários</span>
+                        </button>
+                    }
+
+                    @* Apaga a aba inteira (todas as páginas, com ou sem busca): o texto do modal diz quantos são *@
+                    <button type="button" class="admin-btn admin-btn-danger-outline" data-confirmar
+                            data-url="@Url.Action(ehAnimais ? "ExcluirTodosAnimais" : "ExcluirTodosGastos", "Lixeira", new { area = "Admin" })"
+                            data-titulo="@(ehAnimais ? LixeiraLoteTexto.PerguntaExcluirTodosAnimais : LixeiraLoteTexto.PerguntaExcluirTodosGastos)"
+                            data-texto="@(ehAnimais ? LixeiraLoteTexto.AvisoExcluirTodosAnimais(quantidadeAba) : LixeiraLoteTexto.AvisoExcluirTodosGastos(quantidadeAba))"
+                            data-botao="Excluir todos">
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Excluir todos</span>
+                    </button>
+                </div>
+
+                @* Estado "selecionar vários" (o lixeira.js alterna os dois) *@
+                <div class="lixeira-acoes-grupo" data-selecao-ativa hidden>
+                    <span class="lixeira-contagem" data-selecao-contagem aria-live="polite">Nenhum selecionado</span>
+
+                    <button type="button" class="admin-btn admin-btn-outline" data-selecao-todos>
+                        <i class="fa-solid fa-square-check" aria-hidden="true"></i><span data-selecao-todos-texto>Marcar todos</span>
+                    </button>
+
+                    <button type="submit" class="admin-btn admin-btn-primary" data-selecao-restaurar disabled>
+                        <i class="fa-solid fa-rotate-left" aria-hidden="true"></i><span>Restaurar</span>
+                    </button>
+
+                    <button type="button" class="admin-btn admin-btn-danger" data-confirmar data-selecao-excluir disabled
+                            data-url="@Url.Action(ehAnimais ? "ExcluirAnimaisDefinitivamente" : "ExcluirGastosDefinitivamente", "Lixeira", new { area = "Admin" })"
+                            data-titulo="@(ehAnimais ? LixeiraLoteTexto.PerguntaExcluirSelecionadosAnimais : LixeiraLoteTexto.PerguntaExcluirSelecionadosGastos)"
+                            data-texto="@(ehAnimais ? LixeiraLoteTexto.AvisoExcluirSelecionadosAnimais : LixeiraLoteTexto.AvisoExcluirSelecionadosGastos)"
+                            data-titulo-um="@(ehAnimais ? LixeiraLoteTexto.PerguntaExcluirSelecionadoAnimal : LixeiraLoteTexto.PerguntaExcluirSelecionadoGasto)"
+                            data-texto-um="@(ehAnimais ? LixeiraLoteTexto.AvisoExcluirSelecionadoAnimal : LixeiraLoteTexto.AvisoExcluirSelecionadoGasto)"
+                            data-titulo-varios="@(ehAnimais ? LixeiraLoteTexto.PerguntaExcluirSelecionadosAnimais : LixeiraLoteTexto.PerguntaExcluirSelecionadosGastos)"
+                            data-texto-varios="@(ehAnimais ? LixeiraLoteTexto.AvisoExcluirSelecionadosAnimais : LixeiraLoteTexto.AvisoExcluirSelecionadosGastos)"
+                            data-botao="Excluir definitivamente">
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Excluir</span>
+                    </button>
+
+                    <button type="button" class="admin-btn admin-btn-outline" data-selecao-sair>
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i><span>Cancelar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        @if (Model.TotalFiltrado == 0)
+        {
+            <section class="admin-empty" aria-label="Nenhum item encontrado">
+                <span class="admin-empty-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <h2 class="admin-empty-title">@(ehAnimais ? "Nenhum animal encontrado" : "Nenhum gasto encontrado")</h2>
+                <p class="admin-empty-text">Nada na lixeira bate com a busca. Tente outro nome.</p>
+                <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Lixeira" asp-action="Index" asp-all-route-data="RotaAba(filtro.Tipo)">
+                    <span>@(ehAnimais ? "Ver todos os animais da lixeira" : "Ver todos os gastos da lixeira")</span>
+                </a>
+            </section>
+        }
+        else
+        {
+            @* ============ Tabela ============ *@
+            <div class="admin-card animais-card">
+                @if (ehAnimais)
+                {
+                    <table class="animais-table lixeira-table lixeira-animais" data-lixeira-tabela>
+                        <caption class="visually-hidden">Animais na lixeira</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Animal</th>
+                                <th scope="col">Espécie e sexo</th>
+                                <th scope="col">Idade</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Excluído</th>
+                                <th scope="col" class="col-acoes">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var animal in Model.Animais)
+                            {
+                                var ehGato = animal.Especie == EspecieAnimal.Gato;
+
+                                <tr>
+                                    <td class="cell-animal">
+                                        <div class="lixeira-ident">
+                                        @* A caixa só aparece no modo "Selecionar vários" e pertence ao formulário das ações em lote (form="form-selecao") *@
+                                        <label class="lixeira-check">
+                                            <input type="checkbox" name="ids" value="@animal.IdAnimal" form="form-selecao" data-lixeira-item
+                                                   aria-label="Selecionar @animal.Nome" />
+                                            <span class="check-box" aria-hidden="true"></span>
+                                        </label>
+                                        @* Sem link: o animal na lixeira não tem página de detalhes (restaure para voltar a vê-lo) *@
+                                        <div class="animal-ident">
+                                            <span class="animal-thumb">
+                                                @if (!string.IsNullOrEmpty(animal.FotoCapa))
+                                                {
+                                                    <img src="@Url.Content("~/" + animal.FotoCapa)" alt="Foto de @animal.Nome" loading="lazy">
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa-solid fa-paw" aria-hidden="true"></i>
+                                                }
+                                            </span>
+                                            <span class="animal-ident-text">
+                                                <strong class="animal-name" title="@animal.Nome">@animal.Nome</strong>
+                                                <span class="animal-meta">
+                                                    @animal.Cor
+                                                    <span aria-hidden="true">·</span>
+                                                    <i class="fa-regular fa-image" aria-hidden="true"></i>
+                                                    @animal.QtdFotos <span class="visually-hidden">@(animal.QtdFotos == 1 ? "foto" : "fotos")</span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        </div>
+                                    </td>
+
+                                    <td data-label="Espécie e sexo">
+                                        <span class="cell-species">
+                                            <i class="fa-solid @(ehGato ? "fa-cat" : "fa-dog")" aria-hidden="true"></i>
+                                            @animal.Especie.GetDisplayName()
+                                        </span>
+                                        <span class="cell-sub">@animal.Sexo.GetDisplayName()</span>
+                                    </td>
+
+                                    <td data-label="Idade">
+                                        <span class="cell-main">@animal.IdadeEstimada</span>
+                                        <span class="cell-sub">@animal.FaixaEtaria.GetDisplayName()</span>
+                                    </td>
+
+                                    <td data-label="Status">
+                                        <span class="status-badge status-@animal.Status.ToString().ToLower()">@animal.Status.GetDisplayName()</span>
+                                    </td>
+
+                                    <td data-label="Excluído">
+                                        <span class="cell-main">@animal.ExcluidoEm.ToDataBr()</span>
+                                        <span class="cell-sub">@animal.ExcluidoEm.ToHaQuantoTempo()</span>
+                                    </td>
+
+                                    <td class="cell-acoes">
+                                        <div class="row-actions">
+                                            @* Restaurar é seguro (dá para excluir de novo), então vai direto, sem modal *@
+                                            <form method="post" asp-area="Admin" asp-controller="Lixeira" asp-action="RestaurarAnimal" asp-route-id="@animal.IdAnimal">
+                                                <button type="submit" class="row-action row-action-restaurar"
+                                                        title="Restaurar" aria-label="Restaurar @animal.Nome">
+                                                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                                                </button>
+                                            </form>
+                                            @* Abre o modal de confirmação (data-confirmar); o POST só acontece se a pessoa confirmar *@
+                                            <button type="button" class="row-action row-action-danger" data-confirmar
+                                                    data-url="@Url.Action("ExcluirAnimalDefinitivamente", "Lixeira", new { area = "Admin", id = animal.IdAnimal })"
+                                                    data-titulo="@animal.Sexo.PerguntaExcluirDefinitivo(animal.Nome)"
+                                                    data-texto="@animal.Sexo.AvisoExcluirDefinitivo(animal.Nome)"
+                                                    data-botao="Excluir definitivamente"
+                                                    title="Excluir definitivamente" aria-label="Excluir @animal.Nome definitivamente">
+                                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <table class="animais-table transparencia-table lixeira-table" data-lixeira-tabela>
+                        <caption class="visually-hidden">Gastos na lixeira</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Gasto</th>
+                                <th scope="col">Categoria</th>
+                                <th scope="col">Data</th>
+                                <th scope="col">Valor</th>
+                                <th scope="col">Excluído</th>
+                                <th scope="col" class="col-acoes">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var gasto in Model.Gastos)
+                            {
+                                var temFoto = !string.IsNullOrEmpty(gasto.Imagem);
+
+                                <tr>
+                                    <td class="cell-animal">
+                                        <div class="lixeira-ident">
+                                        <label class="lixeira-check">
+                                            <input type="checkbox" name="ids" value="@gasto.IdTransparencia" form="form-selecao" data-lixeira-item
+                                                   aria-label="Selecionar @gasto.Titulo" />
+                                            <span class="check-box" aria-hidden="true"></span>
+                                        </label>
+                                        @* Sem link: o gasto na lixeira não tem página de detalhes (restaure para voltar a vê-lo) *@
+                                        <div class="animal-ident">
+                                            <span class="animal-thumb">
+                                                @if (temFoto)
+                                                {
+                                                    <img src="@Url.Content("~/" + gasto.Imagem)" alt="Foto de @gasto.Titulo" loading="lazy">
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa-solid @gasto.Categoria.GetIcone()" aria-hidden="true"></i>
+                                                }
+                                            </span>
+                                            <span class="animal-ident-text">
+                                                <strong class="animal-name" title="@gasto.Titulo">@gasto.Titulo</strong>
+                                                <span class="animal-meta">
+                                                    <i class="fa-solid fa-file-invoice" aria-hidden="true"></i>
+                                                    @(string.IsNullOrEmpty(gasto.Comprovante) ? "Sem comprovante" : "Com comprovante")
+                                                </span>
+                                            </span>
+                                        </div>
+                                        </div>
+                                    </td>
+
+                                    <td data-label="Categoria">
+                                        <span class="categoria-badge categoria-@gasto.Categoria.ToString().ToLower()">
+                                            <i class="fa-solid @gasto.Categoria.GetIcone()" aria-hidden="true"></i>
+                                            @gasto.Categoria.GetDisplayName()
+                                        </span>
+                                    </td>
+
+                                    <td data-label="Data">
+                                        <span class="cell-main">@gasto.Data.ToDataBr()</span>
+                                        <span class="cell-sub">@gasto.Data.ToDiaSemana()</span>
+                                    </td>
+
+                                    <td data-label="Valor">
+                                        <span class="cell-main cell-valor">@gasto.Valor.ToReais()</span>
+                                    </td>
+
+                                    <td data-label="Excluído">
+                                        <span class="cell-main">@gasto.ExcluidoEm.ToDataBr()</span>
+                                        <span class="cell-sub">@gasto.ExcluidoEm.ToHaQuantoTempo()</span>
+                                    </td>
+
+                                    <td class="cell-acoes">
+                                        <div class="row-actions">
+                                            <form method="post" asp-area="Admin" asp-controller="Lixeira" asp-action="RestaurarGasto" asp-route-id="@gasto.IdTransparencia">
+                                                <button type="submit" class="row-action row-action-restaurar"
+                                                        title="Restaurar" aria-label="Restaurar @gasto.Titulo">
+                                                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                                                </button>
+                                            </form>
+                                            <button type="button" class="row-action row-action-danger" data-confirmar
+                                                    data-url="@Url.Action("ExcluirGastoDefinitivamente", "Lixeira", new { area = "Admin", id = gasto.IdTransparencia })"
+                                                    data-titulo="@LixeiraTransparenciaTexto.PerguntaExcluirDefinitivo"
+                                                    data-texto="@LixeiraTransparenciaTexto.AvisoExcluirDefinitivo(gasto.Titulo, gasto.Valor)"
+                                                    data-botao="Excluir definitivamente"
+                                                    title="Excluir definitivamente" aria-label="Excluir @gasto.Titulo definitivamente">
+                                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+                @* ============ Rodapé: contagem + paginação ============ *@
+                <div class="animais-footer">
+                    <p class="animais-count">
+                        Mostrando <strong>@Model.PrimeiroItem–@Model.UltimoItem</strong> de <strong>@Model.TotalFiltrado</strong>
+                        @if (ehAnimais)
+                        {
+                            <text>@(Model.TotalFiltrado == 1 ? "animal" : "animais")</text>
+                        }
+                        else
+                        {
+                            <text>@(Model.TotalFiltrado == 1 ? "gasto" : "gastos")</text>
+                        }
+                    </p>
+
+                    @if (Model.TotalPaginas > 1)
+                    {
+                        <nav class="pagination" aria-label="Paginação">
+                            @if (Model.Pagina > 1)
+                            {
+                                <a class="page-link" asp-area="Admin" asp-controller="Lixeira" asp-action="Index"
+                                   asp-all-route-data="Rota(Model.Pagina - 1)" aria-label="Página anterior">
+                                    <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                                </a>
+                            }
+
+                            @foreach (var p in paginas)
+                            {
+                                if (p == 0)
+                                {
+                                    <span class="page-gap" aria-hidden="true">…</span>
+                                }
+                                else if (p == Model.Pagina)
+                                {
+                                    <span class="page-link is-current" aria-current="page">@p</span>
+                                }
+                                else
+                                {
+                                    <a class="page-link" asp-area="Admin" asp-controller="Lixeira" asp-action="Index"
+                                       asp-all-route-data="Rota(p)" aria-label="Página @p">@p</a>
+                                }
+                            }
+
+                            @if (Model.Pagina < Model.TotalPaginas)
+                            {
+                                <a class="page-link" asp-area="Admin" asp-controller="Lixeira" asp-action="Index"
+                                   asp-all-route-data="Rota(Model.Pagina + 1)" aria-label="Próxima página">
+                                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                                </a>
+                            }
+                        </nav>
+                    }
+                </div>
+            </div>
+        }
+    }
+
+@section Scripts {
+    <script src="~/js/admin/lixeira.js" asp-append-version="true"></script>
+}

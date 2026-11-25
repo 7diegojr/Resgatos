@@ -1,0 +1,178 @@
+/*
+  Admin > Lixeira.
+  Reaproveita o animais.css (abas, busca, tabela, ações da linha, paginação) e o transparencia.css (categoria e valor).
+  Aqui só o que é específico da lixeira: larguras das colunas, a barra de ações em lote, a caixa de seleção, o item sem link e o botão de restaurar.
+*/
+
+/* ============ Tabela de animais: larguras das colunas (a coluna "Animal" fica com o que sobra) ============ */
+.animais-table.lixeira-animais th:nth-child(2) { width: 14%; }    /* Espécie e sexo */
+.animais-table.lixeira-animais th:nth-child(3) { width: 12%; }    /* Idade */
+.animais-table.lixeira-animais th:nth-child(4) { width: 14%; }    /* Status */
+.animais-table.lixeira-animais th:nth-child(5) { width: 15%; }    /* Excluído */
+.animais-table.lixeira-animais th:nth-child(6) { width: 120px; }  /* Ações (2 botões) */
+
+/* Tabela de gastos: o transparencia.css já define as colunas; só a de ações cabe em menos (2 botões) */
+.animais-table.transparencia-table.lixeira-table th:nth-child(5) { width: 15%; }    /* Excluído */
+.animais-table.transparencia-table.lixeira-table th:nth-child(6) { width: 120px; }  /* Ações (2 botões) */
+
+/* ============ Busca (esquerda) e ações em lote (direita), na mesma linha ============ */
+.lixeira-toolbar {
+    align-items: center;
+    justify-content: space-between;
+}
+
+.lixeira-busca {
+    flex: 1 1 360px;
+    max-width: 560px;           /* só a caixa de busca: ela não precisa ocupar a linha inteira */
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.lixeira-busca .toolbar-search {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.lixeira-limpar {
+    flex: 0 0 auto;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* Botões à direita da linha. Têm a mesma altura da caixa de busca (46px) */
+.lixeira-acoes {
+    margin-left: auto;          /* empurra para o canto direito */
+}
+
+.lixeira-acoes,
+.lixeira-acoes-grupo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.lixeira-acoes .admin-btn {
+    height: 46px;
+    padding: 0 18px;
+    font-size: 14.5px;
+    white-space: nowrap;
+}
+
+.lixeira-contagem {
+    padding: 0 6px;
+    font-size: 14px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* ============ Seleção de vários ============ */
+/* A caixa fica ao lado da foto, dentro da primeira célula (assim as colunas da tabela não mudam de lugar) */
+.lixeira-ident {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.lixeira-ident .animal-ident {
+    min-width: 0;
+}
+
+.lixeira-check {
+    position: relative;
+    display: none;              /* só aparece no modo "Selecionar vários" */
+    flex: 0 0 auto;
+    cursor: pointer;
+}
+
+.lixeira-table.is-selecionando .lixeira-check {
+    display: flex;
+}
+
+.lixeira-check input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* O .check-box (quadrado marcável) é o mesmo dos formulários; aqui só o estado marcado, que no admin.css depende do .check-card */
+.lixeira-check input:checked + .check-box {
+    background-color: var(--blue-700);
+    border-color: var(--blue-700);
+}
+
+.lixeira-check input:checked + .check-box::after {
+    transform: rotate(-45deg) scale(1);
+}
+
+.lixeira-check:hover .check-box {
+    border-color: var(--pink-500);
+}
+
+.lixeira-check input:focus-visible + .check-box {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+/* No modo de seleção a linha inteira é clicável e as ações de uma linha só (restaurar/excluir) ficam escondidas, para não haver clique errado */
+.lixeira-table.is-selecionando tbody tr {
+    cursor: pointer;
+}
+
+.lixeira-table.is-selecionando .row-actions {
+    visibility: hidden;
+}
+
+.lixeira-table tbody tr.is-selecionada,
+.lixeira-table tbody tr.is-selecionada:hover {
+    background-color: color-mix(in srgb, var(--pink-500) 14%, var(--white));
+}
+
+/* ============ Item sem link ============ */
+/* Na lixeira o nome não é clicável (não há página de detalhes), então não ganha o sublinhado do hover */
+.lixeira-table .animal-ident:hover .animal-name {
+    text-decoration: none;
+}
+
+/* O nome e o resto da linha ficam levemente apagados: são itens que não estão mais valendo */
+.lixeira-table .animal-thumb img {
+    opacity: 0.8;
+}
+
+/* ============ Restaurar ============ */
+/* O botão fica dentro de um <form> (POST com o token antifalsificação): o form não pode mudar o layout das ações */
+.row-actions form {
+    display: flex;
+}
+
+.row-action-restaurar:hover {
+    background-color: var(--admin-green);
+}
+
+@media (max-width: 575px) {
+    .lixeira-busca {
+        flex: none;
+        max-width: none;
+        width: 100%;
+    }
+
+    .lixeira-acoes {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .lixeira-acoes-grupo {
+        width: 100%;
+    }
+
+    .lixeira-acoes .admin-btn {
+        flex: 1 1 auto;
+    }
+
+    .lixeira-contagem {
+        width: 100%;
+        text-align: center;
+    }
+}
