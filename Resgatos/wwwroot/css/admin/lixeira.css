@@ -61,6 +61,26 @@
     white-space: nowrap;
 }
 
+/* Bloqueado (nada marcado): só não dá para clicar. Sem o cursor de "carregando" que o .admin-btn:disabled usa nos envios de formulário */
+.lixeira-acoes .admin-btn:disabled {
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Botão "Marcar todos" / "Desmarcar todos": os dois textos no mesmo lugar, então a largura é sempre a do maior */
+.lixeira-troca {
+    display: inline-grid;
+    text-align: center;
+}
+
+.lixeira-troca > span {
+    grid-area: 1 / 1;
+}
+
+.lixeira-troca > .is-oculto {
+    visibility: hidden;
+}
+
 .lixeira-contagem {
     padding: 0 6px;
     font-size: 14px;

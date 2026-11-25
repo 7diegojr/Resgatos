@@ -16,7 +16,8 @@
     var botaoEntrar = barra.querySelector("[data-selecao-entrar]");
     var botaoSair = barra.querySelector("[data-selecao-sair]");
     var botaoTodos = barra.querySelector("[data-selecao-todos]");
-    var textoTodos = barra.querySelector("[data-selecao-todos-texto]");
+    var textoMarcar = barra.querySelector("[data-todos-marcar]");
+    var textoDesmarcar = barra.querySelector("[data-todos-desmarcar]");
     var botaoRestaurar = barra.querySelector("[data-selecao-restaurar]");
     var botaoExcluir = barra.querySelector("[data-selecao-excluir]");
     var contagem = barra.querySelector("[data-selecao-contagem]");
@@ -41,8 +42,10 @@
         botaoRestaurar.disabled = qtd === 0;
         botaoExcluir.disabled = qtd === 0;
 
+        // Os dois textos ocupam o mesmo espaço (o botão não muda de largura); só um deles fica visível
         var todos = qtd === itens.length;
-        textoTodos.textContent = todos ? "Desmarcar todos" : "Marcar todos";
+        textoMarcar.classList.toggle("is-oculto", todos);
+        textoDesmarcar.classList.toggle("is-oculto", !todos);
 
         itens.forEach(function (item) {
             item.closest("tr").classList.toggle("is-selecionada", item.checked);

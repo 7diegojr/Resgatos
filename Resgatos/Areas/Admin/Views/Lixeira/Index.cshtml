@@ -141,7 +141,12 @@
                     <span class="lixeira-contagem" data-selecao-contagem aria-live="polite">Nenhum selecionado</span>
 
                     <button type="button" class="admin-btn admin-btn-outline" data-selecao-todos>
-                        <i class="fa-solid fa-square-check" aria-hidden="true"></i><span data-selecao-todos-texto>Marcar todos</span>
+                        <i class="fa-solid fa-square-check" aria-hidden="true"></i>
+                        @* Os dois textos ficam um sobre o outro: o botão tem sempre a largura do maior ("Desmarcar todos") e não muda ao trocar *@
+                        <span class="lixeira-troca">
+                            <span data-todos-marcar>Marcar todos</span>
+                            <span data-todos-desmarcar class="is-oculto">Desmarcar todos</span>
+                        </span>
                     </button>
 
                     <button type="submit" class="admin-btn admin-btn-primary" data-selecao-restaurar disabled>
