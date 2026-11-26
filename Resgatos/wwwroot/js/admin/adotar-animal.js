@@ -58,9 +58,11 @@
             vazia.hidden = false;
         }
 
-        // Saúde: "Completa" ou o que ainda falta (em âmbar; não bloqueia a adoção)
+        // Saúde: "Completa" ou "2 pendências" (em âmbar; não bloqueia a adoção). Só a quantidade, para o layout não quebrar.
         var pendencias = dado("pendencias");
-        $("adotar-saude").textContent = pendencias ? "Falta: " + pendencias : "Completa";
+        var qtdPendencias = pendencias ? pendencias.split(", ").length : 0;
+        $("adotar-saude").textContent = qtdPendencias === 0 ? "Completa"
+            : qtdPendencias === 1 ? "1 pendência" : qtdPendencias + " pendências";
         $("adotar-saude-item").classList.toggle("tem-pendencia", pendencias !== "");
     }
 

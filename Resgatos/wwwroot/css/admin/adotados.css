@@ -1,5 +1,5 @@
 /*
-  Admin > Adotados (Sprint 14): cards horizontais das adoções.
+  Admin > Adotados (Sprint 14): cards das adoções, 3 por linha.
   Reaproveita do animais.css: busca (.toolbar-search), filtros rápidos (.toolbar-rapido), paginação e contagem.
 */
 
@@ -16,74 +16,89 @@
     min-width: 120px;
 }
 
-/* ============ Grade: cards horizontais, 2 por linha ============ */
+/* ============ Grade: 3 cards por linha ============ */
 .adotados-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
     margin: 0 0 22px;
     padding: 0;
     list-style: none;
 }
 
+/* Foto colada na esquerda (sem bordas ao redor), como no card da página pública de adoção:
+   o card arredonda os cantos e o overflow corta a foto, então só os cantos da esquerda ficam arredondados.
+   A altura do card é a do conteúdo (sem min-height): assim o termo e a taxa terminam colados no padding de baixo. */
 .adotado-card {
     display: flex;
-    align-items: center;
-    gap: 18px;
+    align-items: stretch;
     min-width: 0;
-    padding: 14px;
+    overflow: hidden;
     border: var(--border-soft);
-    border-radius: 20px;
+    border-radius: 24px;
     background-color: var(--white);
 }
 
-/* ---------- Foto quadrada ---------- */
+/* ---------- Foto: lateral esquerda inteira ---------- */
 .adotado-foto {
-    flex: 0 0 128px;
-    width: 128px;
-    height: 128px;
+    position: relative;
+    /* Quadrada: o adotados.js grava em --foto-lado a altura do card (a largura da foto passa a ser igual a ela).
+       Sem JS, ou antes dele rodar, vale a largura proporcional. O teto evita foto enorme em card estreito. */
+    flex: 0 0 var(--foto-lado, clamp(120px, 38%, 190px));
+    max-width: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    border-radius: 14px;
     background-color: color-mix(in srgb, var(--pink-500) 22%, transparent);
     color: var(--pink-500);
-    font-size: 36px;
+    font-size: 40px;
 }
 
+/* A foto preenche a altura toda do card sem esticar (e sem aumentar o card) */
 .adotado-foto img {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;          /* quadrada, sem esticar */
+    object-fit: cover;
 }
 
-/* ---------- Corpo ---------- */
+/* ---------- Corpo: tudo empilhado, do título ao endereço ---------- */
 .adotado-corpo {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
+    padding: 16px 18px;
 }
 
 .adotado-animal {
     max-width: 100%;
-    font-size: 21px;
+    font-size: 22px;
     line-height: 1.2;
     color: var(--blue-700);
     overflow-wrap: anywhere;
 }
 
-.adotado-adotante {
+.adotado-adotante,
+.adotado-endereco {
     display: flex;
     flex-direction: column;
     gap: 1px;
     margin: 0;
+    max-width: 100%;
     font-size: 14px;
     overflow-wrap: anywhere;
+}
+
+.adotado-adotante small,
+.adotado-endereco small {
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.65;
 }
 
 .adotado-adotante strong {
@@ -101,17 +116,19 @@
     color: var(--pink-500);
 }
 
-.adotado-dados {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 22px;
-    margin: 0;
+.adotado-endereco span {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
 }
 
-.adotado-dados > div {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
+/* Data e taxa lado a lado (título em cima, valor embaixo) */
+.adotado-dados {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);   /* sempre duas colunas: a data tem a largura dela e a taxa pega o resto */
+    column-gap: 24px;
+    margin: 0;
 }
 
 .adotado-dados dt {
@@ -129,7 +146,7 @@
 
 /* "em 3x" / "à vista" ao lado do valor */
 .adotado-sub {
-    margin-left: 4px;
+    white-space: nowrap;
     font-size: 12px;
     font-weight: 700;
     opacity: 0.65;
@@ -156,16 +173,12 @@
 .adotado-selo-ok {
     background-color: color-mix(in srgb, var(--admin-green) 16%, transparent);
     color: var(--admin-green);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a.adotado-selo-ok:hover {
     background-color: var(--admin-green);
     color: var(--white);
-}
-
-a.adotado-selo-ok:focus-visible {
-    outline: 2px solid var(--pink-500);
-    outline-offset: 2px;
 }
 
 /* ---------- Rodapé ---------- */
@@ -177,7 +190,14 @@ a.adotado-selo-ok:focus-visible {
     gap: 14px;
 }
 
+/* ============ Telas menores: 2 e depois 1 card por linha ============ */
 @media (max-width: 1199px) {
+    .adotados-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
     .adotados-grid {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -187,16 +207,6 @@ a.adotado-selo-ok:focus-visible {
     .adotados-toolbar .toolbar-search,
     .adotados-toolbar .toolbar-rapido {
         flex: none;          /* em coluna, o flex-basis viraria altura */
-    }
-
-    .adotado-card {
-        gap: 14px;
-    }
-
-    .adotado-foto {
-        flex-basis: 104px;
-        width: 104px;
-        height: 104px;
     }
 
     .adotados-footer {

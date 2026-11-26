@@ -13,7 +13,7 @@ namespace Resgatos.Areas.Admin.Controllers;
 // Detalhamento (pagamentos, trocar o termo) e desfazer adoção ficam para o próximo passo.
 public class AdotadosController : AdminBaseController
 {
-    private const int TamanhoPagina = 10;
+    private const int TamanhoPagina = 12;
     private const int MaxParcelas = 24;
     private const int MaxObservacoes = 500;
 
@@ -76,6 +76,7 @@ public class AdotadosController : AdminBaseController
                     .FirstOrDefault(),
                 NomeAdotante = a.NomeAdotante,
                 TelefoneAdotante = a.TelefoneAdotante,
+                EnderecoAdotante = a.EnderecoAdotante,
                 DataAdocao = a.DataAdocao,
                 ValorTaxa = a.ValorTaxa,
                 TaxaParcelada = a.TaxaParcelada,

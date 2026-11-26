@@ -115,13 +115,14 @@ else
     }
     else
     {
-        @* ============ Cards (horizontais) ============ *@
+        @* ============ Cards (3 por linha) ============ *@
         <ul class="adotados-grid" aria-label="Adoções registradas">
             @foreach (var a in Model.Adotados)
             {
                 @* Próximo passo: o card abre o modal de detalhamento (pagamentos, trocar o termo, desfazer adoção).
                    Por isso o data-id já está aqui. *@
                 <li class="adotado-card" data-id="@a.IdAdotado">
+                    @* Foto ocupa toda a lateral esquerda, colada nas bordas (como no card da página pública de adoção) *@
                     <div class="adotado-foto">
                         @if (!string.IsNullOrEmpty(a.FotoCapa))
                         {
@@ -137,10 +138,24 @@ else
                         <h2 class="adotado-animal">@a.NomeAnimal</h2>
 
                         <p class="adotado-adotante">
-                            Adotad@(a.Sexo.ArtigoDefinido()) por <strong>@a.NomeAdotante</strong>
+                            <small>Adotad@(a.Sexo.ArtigoDefinido()) por</small>
+                            <strong>@a.NomeAdotante</strong>
                             <span><i class="fa-solid fa-phone" aria-hidden="true"></i> @a.TelefoneAdotante</span>
                         </p>
 
+                        @if (a.TermoAnexado)
+                        {
+                            <a class="adotado-selo adotado-selo-ok" asp-area="Admin" asp-controller="Adotados" asp-action="Termo" asp-route-id="@a.IdAdotado"
+                               target="_blank" rel="noopener" title="Abrir o termo anexado">
+                                <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i> Termo anexado
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="adotado-selo adotado-selo-pendente"><i class="fa-solid fa-file-circle-exclamation" aria-hidden="true"></i> Termo pendente</span>
+                        }
+
+                        @* Data e taxa lado a lado, com o título em cima e o valor embaixo *@
                         <dl class="adotado-dados">
                             <div>
                                 <dt>Data</dt>
@@ -155,17 +170,10 @@ else
                             </div>
                         </dl>
 
-                        @if (a.TermoAnexado)
-                        {
-                            <a class="adotado-selo adotado-selo-ok" asp-area="Admin" asp-controller="Adotados" asp-action="Termo" asp-route-id="@a.IdAdotado"
-                               target="_blank" rel="noopener" title="Abrir o termo anexado">
-                                <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i> Termo anexado
-                            </a>
-                        }
-                        else
-                        {
-                            <span class="adotado-selo adotado-selo-pendente"><i class="fa-solid fa-file-circle-exclamation" aria-hidden="true"></i> Termo pendente</span>
-                        }
+                        <p class="adotado-endereco">
+                            <small>Endereço</small>
+                            <span>@a.EnderecoAdotante</span>
+                        </p>
                     </div>
                 </li>
             }

@@ -15,9 +15,11 @@
     width: min(860px, calc(100% - 32px));
     max-height: calc(100vh - 32px);
     overflow: hidden;           /* quem rola é o formulário; o botão de fechar fica parado */
+    overflow: clip;             /* e o modal em si nunca rola (nem quando o navegador tenta, ao focar um campo) */
 }
 
 .adotar-form {
+    position: relative;         /* o input de arquivo escondido fica DENTRO da área que rola */
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -80,7 +82,10 @@
 
 .adotar-fatos {
     display: grid;
-    grid-template-columns: 1fr 1fr 1.7fr 1fr;   /* 8 informações = 2 linhas de 4 (Idade mais larga, com a faixa ao lado) */
+    /* 8 informações = 2 linhas de 4. Cada coluna tem a largura do maior conteúdo dela
+       e a sobra do espaço é dividida igualmente entre as colunas. */
+    grid-template-columns: repeat(4, minmax(0, max-content));
+    justify-content: space-between;
     gap: 14px 16px;
     margin: 0;
     padding: 0;
@@ -117,7 +122,7 @@
 
 /* ---------- Blocos do formulário ---------- */
 .adotar-bloco-titulo {
-    margin-bottom: 6px;
+    margin-bottom: 14px;
     font-size: 19px;
     color: var(--blue-700);
 }
@@ -179,9 +184,8 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* "A taxa foi parcelada": alinhada com a base do campo ao lado (que tem rótulo em cima) */
+/* "A taxa foi parcelada?": rótulo em cima, como os outros campos; a caixa tem a mesma altura deles */
 .adotar-parcelada {
-    margin-top: 27px;
     min-height: 46px;
     padding-block: 0;
 }
@@ -192,6 +196,12 @@
 }
 
 /* ---------- Termo (arquivo opcional) ---------- */
+/* O input de arquivo é escondido com position:absolute. Sem este position:relative ele ficava ancorado no modal e,
+   ao clicar para escolher o arquivo, o navegador "rolava" o modal inteiro até ele (título sumia e sobrava espaço embaixo). */
+#campo-termo {
+    position: relative;
+}
+
 .form-field label.adotar-arquivo-zona,
 .adotar-arquivo-escolhido {
     display: flex;
@@ -344,11 +354,7 @@
         grid-template-columns: minmax(0, 1fr);
     }
 
-    /* Em uma coluna só, a caixa não precisa do espaço do rótulo e o campo escondido não pode deixar um vazio */
-    .adotar-parcelada {
-        margin-top: 0;
-    }
-
+    /* Em uma coluna só, o campo escondido não pode deixar um vazio */
     .adotar-parcelas[data-oculto] {
         display: none;
     }

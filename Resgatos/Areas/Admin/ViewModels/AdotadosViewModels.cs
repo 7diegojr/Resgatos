@@ -74,6 +74,7 @@ public class AdotadoCardViewModel
 
     public string NomeAdotante { get; set; }
     public string TelefoneAdotante { get; set; }
+    public string EnderecoAdotante { get; set; }
     public DateTime DataAdocao { get; set; }
 
     public decimal ValorTaxa { get; set; }
@@ -91,7 +92,7 @@ public class AdotadosIndexViewModel
     public int TotalGeral { get; set; }
     public int TotalFiltrado { get; set; }
     public int Pagina { get; set; } = 1;
-    public int TamanhoPagina { get; set; } = 10;
+    public int TamanhoPagina { get; set; } = 12;
     public int TotalPaginas => Math.Max(1, (int)Math.Ceiling(TotalFiltrado / (double)TamanhoPagina));
     public int PrimeiroItem => TotalFiltrado == 0 ? 0 : (Pagina - 1) * TamanhoPagina + 1;
     public int UltimoItem => Math.Min(Pagina * TamanhoPagina, TotalFiltrado);
