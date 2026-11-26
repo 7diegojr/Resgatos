@@ -33,7 +33,7 @@
     var rotaLimpar = filtro.ParaRota("status", "especie", "sexo", "porte", "faixaEtaria", "saude", "ordem");
 
     // Caixa de seleção de um filtro do modal (a opção vazia é "Todos"/"Todas")
-    CampoSelectViewModel CampoFiltro<T>(string nome, string rotulo, string todos, T? atual, Func<T, string> texto = null) where T : struct, Enum => new()
+    CampoSelectViewModel CampoFiltro<T>(string nome, string rotulo, string todos, T? atual, Func<T, string> texto = null, Func<T, bool> incluir = null) where T : struct, Enum => new()
     {
         Nome = nome,
         Rotulo = rotulo,
@@ -41,11 +41,13 @@
         Placeholder = todos,
         OpcaoVaziaEhResposta = true,
         Opcoes = Enum.GetValues<T>()
+            .Where(v => incluir == null || incluir(v))
             .Select(v => new OpcaoSelectViewModel(v.ToString(), texto != null ? texto(v) : ((Enum)v).GetDisplayName(), atual.HasValue && EqualityComparer<T>.Default.Equals(atual.Value, v)))
             .ToList()
     };
 
-    var campoStatus = CampoFiltro("status", "Status", "Todos", filtro.Status);
+    // "Adotado" não existe nesta lista: animal adotado fica só na página Adotados
+    var campoStatus = CampoFiltro("status", "Status", "Todos", filtro.Status, incluir: st => st != StatusAnimal.Adotado);
     var campoEspecie = CampoFiltro("especie", "Espécie", "Todas", filtro.Especie, e => e == EspecieAnimal.Gato ? "Gatos" : "Cachorros");
     var campoSexo = CampoFiltro("sexo", "Sexo", "Todos", filtro.Sexo);
     var campoPorte = CampoFiltro("porte", "Porte", "Todos", filtro.Porte);
@@ -55,7 +57,7 @@
     campoOrdem.PermiteVazio = false;
 
     // Filtros rápidos da barra: status, espécie e ordenação (os mesmos do modal, sempre com o mesmo valor)
-    var rapidoStatus = CampoFiltro("status", "Status", "Todos", filtro.Status);
+    var rapidoStatus = CampoFiltro("status", "Status", "Todos", filtro.Status, incluir: st => st != StatusAnimal.Adotado);
     rapidoStatus.Id = "rapido-status";
     var rapidoEspecie = CampoFiltro("especie", "Espécie", "Todas", filtro.Especie, e => e == EspecieAnimal.Gato ? "Gatos" : "Cachorros");
     rapidoEspecie.Id = "rapido-especie";
@@ -78,6 +80,7 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/admin/animais.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/adotar-modal.css" asp-append-version="true" />
 }
 
 <header class="admin-page-header">
@@ -121,7 +124,7 @@ else
             Todos <span class="status-tab-count">@Model.TotalGeral</span>
         </a>
 
-        @foreach (var status in Enum.GetValues<StatusAnimal>())
+        @foreach (var status in Enum.GetValues<StatusAnimal>().Where(st => st != StatusAnimal.Adotado))
         {
             var quantidade = Model.ContagemPorStatus.GetValueOrDefault(status);
             var ativa = filtro.Status == status;
@@ -201,7 +204,7 @@ else
     {
         @* ============ Tabela ============ *@
         <div class="admin-card animais-card">
-            <table class="animais-table">
+            <table class="animais-table tabela-animais">
                 <caption class="visually-hidden">Lista de animais cadastrados</caption>
                 <thead>
                     <tr>
@@ -293,6 +296,23 @@ else
 
                             <td class="cell-acoes">
                                 <div class="row-actions">
+                                    @* Adoção (Sprint 14): abre o modal "Marcar como adotado". Depois de adotado, o animal sai desta lista e fica só em Adotados. *@
+                                    <button type="button" class="row-action row-action-adotar" data-adotar
+                                            data-id="@animal.IdAnimal"
+                                            data-nome="@animal.Nome"
+                                            data-foto="@(string.IsNullOrEmpty(animal.FotoCapa) ? "" : Url.Content("~/" + animal.FotoCapa))"
+                                            data-especie="@animal.Especie.GetDisplayName()"
+                                            data-sexo="@animal.Sexo.GetDisplayName()"
+                                            data-idade="@animal.IdadeEstimada"
+                                            data-faixa="@animal.FaixaEtaria.GetDisplayName()"
+                                            data-porte="@animal.Porte.GetDisplayName()"
+                                            data-cor="@animal.Cor"
+                                            data-tempo="@animal.TempoNoResgatos"
+                                            data-castrado="@(animal.CastradoOk ? "Sim" : "Não")"
+                                            data-pendencias="@(string.Join(", ", pendencias))"
+                                            title="Marcar como adotado" aria-label="Marcar @animal.Nome como adotad@(animal.Sexo.ArtigoDefinido())">
+                                        <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                                    </button>
                                     <a class="row-action" asp-area="Admin" asp-controller="Animais" asp-action="Detalhes" asp-route-id="@animal.IdAnimal"
                                        title="Ver detalhes" aria-label="Ver detalhes de @animal.Nome">
                                         <i class="fa-solid fa-eye" aria-hidden="true"></i>
@@ -368,6 +388,9 @@ else
 
 @if (!semAnimais)
 {
+    @* ============ Modal "Marcar como adotado" (Sprint 14) ============ *@
+    <partial name="_ModalAdotar" />
+
     @* ============ Modal de filtros: abre pelo botão "Filtrar" ============ *@
     <dialog class="admin-modal filtros-modal" id="modal-filtros" aria-labelledby="titulo-filtros">
         @* Mesmo botão de fechar do modal de animais do site (fora do formulário, para ficar parado quando o modal rola) *@
@@ -414,4 +437,5 @@ else
 
 @section Scripts {
     <script src="~/js/admin/animais.js" asp-append-version="true"></script>
+    <script src="~/js/admin/adotar-animal.js" asp-append-version="true"></script>
 }

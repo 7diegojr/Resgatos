@@ -1,5 +1,220 @@
+@model AdotadosIndexViewModel
+@using Resgatos.Helpers
 @{
     ViewData["Title"] = "Adotados";
+
+    var filtro = Model.Filtro;
+    var semAdotados = Model.TotalGeral == 0;
+
+    Dictionary<string, string> Rota(int pagina)
+    {
+        var d = filtro.ParaRota();
+        if (pagina > 1) d["pagina"] = pagina.ToString();
+        return d;
+    }
+
+    // Caixas de filtro rápido (mesmo componente e mesma largura dos filtros de Animais e Transparência)
+    var campoEspecie = new CampoSelectViewModel
+    {
+        Nome = "especie",
+        Rotulo = "Espécie",
+        Obrigatorio = false,
+        Placeholder = "Todas",
+        OpcaoVaziaEhResposta = true,
+        Opcoes = Enum.GetValues<EspecieAnimal>()
+            .Select(v => new OpcaoSelectViewModel(v.ToString(), v.GetDisplayName(), filtro.Especie == v))
+            .ToList()
+    };
+
+    var campoTermo = new CampoSelectViewModel
+    {
+        Nome = "termo",
+        Rotulo = "Termo",
+        Obrigatorio = false,
+        Placeholder = "Todos",
+        OpcaoVaziaEhResposta = true,
+        Opcoes = new List<OpcaoSelectViewModel>
+        {
+            new(FiltroTermoAdotado.Pendente.ToString(), "Pendente", filtro.Termo == FiltroTermoAdotado.Pendente),
+            new(FiltroTermoAdotado.Anexado.ToString(), "Anexado", filtro.Termo == FiltroTermoAdotado.Anexado)
+        }
+    };
+
+    var paginas = new List<int>();
+    for (var p = 1; p <= Model.TotalPaginas; p++)
+    {
+        if (p == 1 || p == Model.TotalPaginas || Math.Abs(p - Model.Pagina) <= 1)
+            paginas.Add(p);
+        else if (paginas.Count > 0 && paginas[^1] != 0)
+            paginas.Add(0);
+    }
 }
 
-<h1 class="admin-page-title">Adotados</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin/animais.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/adotados.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/admin/adotados.js" asp-append-version="true"></script>
+}
+
+<header class="admin-page-header">
+    <div class="admin-page-header-text">
+        <h1 class="admin-page-title">Adotados</h1>
+        <p class="admin-page-subtitle">Os animais que já encontraram um lar ficam aqui, com os dados de quem adotou e da taxa de adoção.</p>
+    </div>
+
+    <a class="admin-btn admin-btn-primary" asp-area="Admin" asp-controller="Animais" asp-action="Index">
+        <i class="fa-solid fa-paw" aria-hidden="true"></i><span>Ir para os animais</span>
+    </a>
+</header>
+
+@if (semAdotados)
+{
+    <section class="admin-empty" aria-label="Nenhuma adoção registrada">
+        <span class="admin-empty-icon" aria-hidden="true"><i class="fa-solid fa-heart"></i></span>
+        <h2 class="admin-empty-title">Nenhuma adoção registrada ainda</h2>
+        <p class="admin-empty-text">Na lista de animais, use o botão de coração da coluna Ações para marcar um animal como adotado.</p>
+        <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Animais" asp-action="Index">
+            <span>Ver os animais</span>
+        </a>
+    </section>
+}
+else
+{
+    @* ============ Busca + filtros (à direita) ============ *@
+    <form class="animais-toolbar adotados-toolbar" method="get" asp-area="Admin" asp-controller="Adotados" asp-action="Index" role="search" id="adotados-busca">
+        <div class="toolbar-search">
+            <button type="submit" class="toolbar-search-btn" aria-label="Buscar">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            </button>
+            <input type="search" name="busca" value="@filtro.Busca" placeholder="Buscar pelo animal ou por quem adotou"
+                   aria-label="Buscar pelo nome do animal ou do adotante" autocomplete="off" />
+        </div>
+
+        <div class="toolbar-rapido">
+            <partial name="_CampoSelect" model="campoEspecie" />
+        </div>
+
+        <div class="toolbar-rapido">
+            <partial name="_CampoSelect" model="campoTermo" />
+        </div>
+    </form>
+
+    @if (Model.Adotados.Count == 0)
+    {
+        <section class="admin-empty" aria-label="Nenhuma adoção encontrada">
+            <span class="admin-empty-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <h2 class="admin-empty-title">Nenhuma adoção encontrada</h2>
+            <p class="admin-empty-text">Nenhuma adoção bate com a busca e os filtros escolhidos.</p>
+            <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Adotados" asp-action="Index">
+                <span>Ver todas as adoções</span>
+            </a>
+        </section>
+    }
+    else
+    {
+        @* ============ Cards (horizontais) ============ *@
+        <ul class="adotados-grid" aria-label="Adoções registradas">
+            @foreach (var a in Model.Adotados)
+            {
+                @* Próximo passo: o card abre o modal de detalhamento (pagamentos, trocar o termo, desfazer adoção).
+                   Por isso o data-id já está aqui. *@
+                <li class="adotado-card" data-id="@a.IdAdotado">
+                    <div class="adotado-foto">
+                        @if (!string.IsNullOrEmpty(a.FotoCapa))
+                        {
+                            <img src="@Url.Content("~/" + a.FotoCapa)" alt="Foto de @a.NomeAnimal" loading="lazy" />
+                        }
+                        else
+                        {
+                            <span class="adotado-foto-vazia" aria-hidden="true"><i class="fa-solid fa-paw"></i></span>
+                        }
+                    </div>
+
+                    <div class="adotado-corpo">
+                        <h2 class="adotado-animal">@a.NomeAnimal</h2>
+
+                        <p class="adotado-adotante">
+                            Adotad@(a.Sexo.ArtigoDefinido()) por <strong>@a.NomeAdotante</strong>
+                            <span><i class="fa-solid fa-phone" aria-hidden="true"></i> @a.TelefoneAdotante</span>
+                        </p>
+
+                        <dl class="adotado-dados">
+                            <div>
+                                <dt>Data</dt>
+                                <dd>@a.DataAdocao.ToDataBr()</dd>
+                            </div>
+                            <div>
+                                <dt>Taxa</dt>
+                                <dd>
+                                    @a.ValorTaxa.ToReais()
+                                    <span class="adotado-sub">@(a.TaxaParcelada && a.QtdParcelas.HasValue ? $"em {a.QtdParcelas}x" : "à vista")</span>
+                                </dd>
+                            </div>
+                        </dl>
+
+                        @if (a.TermoAnexado)
+                        {
+                            <a class="adotado-selo adotado-selo-ok" asp-area="Admin" asp-controller="Adotados" asp-action="Termo" asp-route-id="@a.IdAdotado"
+                               target="_blank" rel="noopener" title="Abrir o termo anexado">
+                                <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i> Termo anexado
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="adotado-selo adotado-selo-pendente"><i class="fa-solid fa-file-circle-exclamation" aria-hidden="true"></i> Termo pendente</span>
+                        }
+                    </div>
+                </li>
+            }
+        </ul>
+
+        @* ============ Rodapé: contagem + paginação ============ *@
+        <div class="adotados-footer">
+            <p class="animais-count">
+                Mostrando <strong>@Model.PrimeiroItem–@Model.UltimoItem</strong> de <strong>@Model.TotalFiltrado</strong>
+                @(Model.TotalFiltrado == 1 ? "adoção" : "adoções")
+            </p>
+
+            @if (Model.TotalPaginas > 1)
+            {
+                <nav class="pagination" aria-label="Paginação">
+                    @if (Model.Pagina > 1)
+                    {
+                        <a class="page-link" asp-area="Admin" asp-controller="Adotados" asp-action="Index"
+                           asp-all-route-data="Rota(Model.Pagina - 1)" aria-label="Página anterior">
+                            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                        </a>
+                    }
+
+                    @foreach (var p in paginas)
+                    {
+                        if (p == 0)
+                        {
+                            <span class="page-gap" aria-hidden="true">…</span>
+                        }
+                        else if (p == Model.Pagina)
+                        {
+                            <span class="page-link is-current" aria-current="page">@p</span>
+                        }
+                        else
+                        {
+                            <a class="page-link" asp-area="Admin" asp-controller="Adotados" asp-action="Index"
+                               asp-all-route-data="Rota(p)" aria-label="Página @p">@p</a>
+                        }
+                    }
+
+                    @if (Model.Pagina < Model.TotalPaginas)
+                    {
+                        <a class="page-link" asp-area="Admin" asp-controller="Adotados" asp-action="Index"
+                           asp-all-route-data="Rota(Model.Pagina + 1)" aria-label="Próxima página">
+                            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                        </a>
+                    }
+                </nav>
+            }
+        </div>
+    }
+}

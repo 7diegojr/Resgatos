@@ -47,6 +47,8 @@
     var campoPorte = Campo("Porte", "Porte", Model.Porte, "Selecione o porte.");
     var campoFaixa = Campo("FaixaEtaria", "Faixa etária", Model.FaixaEtaria, "Selecione a faixa etária.");
     var campoStatus = Campo("Status", "Status", Model.Status, "Selecione o status.");
+    // "Adotado" não é escolhido aqui: vem do botão de adoção da lista (que registra quem adotou)
+    campoStatus.Opcoes.RemoveAll(o => o.Valor == nameof(StatusAnimal.Adotado));
     var campoFiv = Campo("ResultadoFiv", "Resultado da FIV", Model.ResultadoFiv, "Informe o resultado do teste de FIV.");
     var campoFelv = Campo("ResultadoFelv", "Resultado da FeLV", Model.ResultadoFelv, "Informe o resultado do teste de FeLV.");
 

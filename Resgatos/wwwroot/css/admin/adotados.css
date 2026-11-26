@@ -1,0 +1,205 @@
+/*
+  Admin > Adotados (Sprint 14): cards horizontais das adoções.
+  Reaproveita do animais.css: busca (.toolbar-search), filtros rápidos (.toolbar-rapido), paginação e contagem.
+*/
+
+/* ============ Busca à esquerda, dois filtros à direita ============ */
+.adotados-toolbar .toolbar-search {
+    flex: 1 1 0;                /* ocupa o que sobra */
+    min-width: 200px;
+}
+
+/* Mesma largura dos filtros rápidos de Animais e Transparência: lá a linha tem busca (2 partes), 3 filtros (1 parte cada),
+   o botão Filtrar (140px) e 4 espaços de 14px. Uma parte = (largura − 196px) ÷ 5. */
+.adotados-toolbar .toolbar-rapido {
+    flex: 0 0 calc((100% - 196px) / 5);
+    min-width: 120px;
+}
+
+/* ============ Grade: cards horizontais, 2 por linha ============ */
+.adotados-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0 0 22px;
+    padding: 0;
+    list-style: none;
+}
+
+.adotado-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+    padding: 14px;
+    border: var(--border-soft);
+    border-radius: 20px;
+    background-color: var(--white);
+}
+
+/* ---------- Foto quadrada ---------- */
+.adotado-foto {
+    flex: 0 0 128px;
+    width: 128px;
+    height: 128px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 14px;
+    background-color: color-mix(in srgb, var(--pink-500) 22%, transparent);
+    color: var(--pink-500);
+    font-size: 36px;
+}
+
+.adotado-foto img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;          /* quadrada, sem esticar */
+}
+
+/* ---------- Corpo ---------- */
+.adotado-corpo {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.adotado-animal {
+    max-width: 100%;
+    font-size: 21px;
+    line-height: 1.2;
+    color: var(--blue-700);
+    overflow-wrap: anywhere;
+}
+
+.adotado-adotante {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 0;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.adotado-adotante strong {
+    font-weight: 800;
+}
+
+.adotado-adotante span {
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.adotado-adotante span i {
+    margin-right: 4px;
+    font-size: 11px;
+    color: var(--pink-500);
+}
+
+.adotado-dados {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    margin: 0;
+}
+
+.adotado-dados > div {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.adotado-dados dt {
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.65;
+}
+
+.adotado-dados dd {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+/* "em 3x" / "à vista" ao lado do valor */
+.adotado-sub {
+    margin-left: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.65;
+}
+
+/* ---------- Selo do termo ---------- */
+.adotado-selo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.adotado-selo-pendente {
+    background-color: color-mix(in srgb, var(--admin-amber) 16%, transparent);
+    color: var(--admin-amber);
+}
+
+.adotado-selo-ok {
+    background-color: color-mix(in srgb, var(--admin-green) 16%, transparent);
+    color: var(--admin-green);
+}
+
+a.adotado-selo-ok:hover {
+    background-color: var(--admin-green);
+    color: var(--white);
+}
+
+a.adotado-selo-ok:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+/* ---------- Rodapé ---------- */
+.adotados-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+@media (max-width: 1199px) {
+    .adotados-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 575px) {
+    .adotados-toolbar .toolbar-search,
+    .adotados-toolbar .toolbar-rapido {
+        flex: none;          /* em coluna, o flex-basis viraria altura */
+    }
+
+    .adotado-card {
+        gap: 14px;
+    }
+
+    .adotado-foto {
+        flex-basis: 104px;
+        width: 104px;
+        height: 104px;
+    }
+
+    .adotados-footer {
+        justify-content: center;
+    }
+}

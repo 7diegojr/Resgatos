@@ -1,0 +1,359 @@
+/*
+  Admin > Animais > modal "Marcar como adotado" (Sprint 14).
+  Reaproveita .admin-modal, .filtros-fechar/.filtros-titulo/.filtros-sub (animais.css), campos, check-card e botões (admin.css).
+  Tudo branco: sem fundo colorido e sem linhas divisórias entre o animal e o formulário.
+*/
+
+/* ============ Botão da lista ============ */
+.row-action-adotar:hover {
+    background-color: var(--pink-500);
+    color: var(--white);
+}
+
+/* ============ Modal ============ */
+.adotar-modal {
+    width: min(860px, calc(100% - 32px));
+    max-height: calc(100vh - 32px);
+    overflow: hidden;           /* quem rola é o formulário; o botão de fechar fica parado */
+}
+
+.adotar-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-height: calc(100vh - 32px);
+    padding: 28px 32px 30px;
+    overflow-y: auto;
+}
+
+.adotar-topo {
+    padding-right: 48px;        /* espaço para o botão de fechar */
+}
+
+/* ---------- Animal (em cima): só a foto à esquerda; à direita, nome e informações (em duas linhas) numa caixa com borda ---------- */
+.adotar-animal {
+    display: flex;
+    align-items: stretch;
+    gap: 22px;
+}
+
+.adotar-foto {
+    flex: 0 0 160px;
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 18px;
+    background-color: color-mix(in srgb, var(--pink-500) 22%, transparent);
+    color: var(--pink-500);
+    font-size: 48px;
+}
+
+.adotar-foto img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;          /* quadrada, sem esticar */
+}
+
+.adotar-animal-info {
+    flex: 1;
+    min-width: 0;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+    padding: 16px 22px;
+    border: var(--border-soft);
+    border-radius: 18px;
+}
+
+.adotar-animal-nome {
+    font-size: 24px;
+    line-height: 1.2;
+    color: var(--blue-700);
+    overflow-wrap: anywhere;
+}
+
+.adotar-fatos {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.7fr 1fr;   /* 8 informações = 2 linhas de 4 (Idade mais larga, com a faixa ao lado) */
+    gap: 14px 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.adotar-fatos li {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.adotar-fatos small {
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.65;
+}
+
+.adotar-fatos strong {
+    font-size: 15px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+/* "2 anos (Adulto)" fica numa linha só */
+.adotar-fatos .fato-idade strong {
+    white-space: nowrap;
+}
+
+/* Saúde com pendência: em âmbar (não bloqueia a adoção) */
+.adotar-fatos .tem-pendencia strong {
+    color: var(--admin-amber);
+}
+
+/* ---------- Blocos do formulário ---------- */
+.adotar-bloco-titulo {
+    margin-bottom: 6px;
+    font-size: 19px;
+    color: var(--blue-700);
+}
+
+.adotar-form .form-alert {
+    margin-bottom: 0;
+}
+
+.adotar-form .form-alert[hidden] {
+    display: none;
+}
+
+.adotar-bloco .form-hint {
+    margin: -2px 0 4px;
+}
+
+.form-opcional {
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0.6;
+}
+
+/* ---------- Campos em linhas (largura definida, sem depender da largura do modal) ---------- */
+.adotar-campos {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.adotar-linha {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));   /* dois campos dividindo a largura */
+    gap: 16px 22px;
+}
+
+.adotar-linha-contato {
+    grid-template-columns: 230px minmax(0, 1fr);        /* telefone fixo, e-mail com todo o resto */
+}
+
+/* Valor com o "R$" dentro da caixa */
+.campo-valor {
+    position: relative;
+}
+
+.campo-valor-prefixo {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    font-size: 15px;
+    font-weight: 800;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.form-field .campo-valor input[type="text"] {
+    padding-left: 46px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* "A taxa foi parcelada": alinhada com a base do campo ao lado (que tem rótulo em cima) */
+.adotar-parcelada {
+    margin-top: 27px;
+    min-height: 46px;
+    padding-block: 0;
+}
+
+/* O campo de parcelas sempre ocupa o espaço; sem a caixa marcada, só fica invisível (nada empurra nada) */
+.adotar-parcelas[data-oculto] {
+    visibility: hidden;
+}
+
+/* ---------- Termo (arquivo opcional) ---------- */
+.form-field label.adotar-arquivo-zona,
+.adotar-arquivo-escolhido {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    color: var(--blue-700);
+}
+
+.form-field label.adotar-arquivo-zona {
+    border: 2px dashed color-mix(in srgb, var(--blue-700) 35%, transparent);
+    background-color: var(--white);
+    font-weight: 400;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.form-field label.adotar-arquivo-zona:hover,
+.form-field label.adotar-arquivo-zona.is-arrastando {
+    border-color: var(--pink-500);
+    background-color: color-mix(in srgb, var(--pink-500) 10%, var(--white));
+}
+
+#Termo:focus-visible + .adotar-arquivo-zona {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+.adotar-arquivo-escolhido {
+    border: var(--border-soft);
+    background-color: color-mix(in srgb, var(--pink-500) 10%, var(--white));
+}
+
+.adotar-arquivo-escolhido[hidden] {
+    display: none;
+}
+
+.adotar-arquivo-icone {
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background-color: color-mix(in srgb, var(--pink-500) 22%, transparent);
+    color: var(--admin-pink-dark);
+    font-size: 19px;
+}
+
+.adotar-arquivo-textos {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.adotar-arquivo-textos strong {
+    overflow: hidden;
+    font-size: 15px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.adotar-arquivo-textos small {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.adotar-arquivo-remover {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--admin-danger) 12%, transparent);
+    color: var(--admin-danger);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.adotar-arquivo-remover:hover {
+    background-color: var(--admin-danger);
+    color: var(--white);
+}
+
+.adotar-arquivo-remover:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+.form-field.has-error .adotar-arquivo-zona {
+    border-color: var(--admin-danger);
+}
+
+.adotar-acoes {
+    padding-top: 0;
+}
+
+/* ============ Tabela de Animais (coluna Ações com 4 botões) ============ */
+/* Só nesta página. A coluna "Animal" fica com o que sobra, então ceder espaço para Ações a deixa mais estreita:
+   assim os botões têm lugar para ficar quadrados (38 x 38) e não são espremidos. */
+.animais-table.tabela-animais th:nth-child(7) {
+    width: 200px;
+}
+
+.animais-table.tabela-animais .row-action {
+    flex-shrink: 0;
+}
+
+/* ============ Telas menores ============ */
+@media (max-width: 767px) {
+    .adotar-animal {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .adotar-foto {
+        flex: none;
+        margin-inline: auto;
+    }
+
+    .adotar-animal-info {
+        min-height: 0;
+    }
+
+    .adotar-fatos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .adotar-fatos .fato-idade strong {
+        white-space: normal;
+    }
+}
+
+@media (max-width: 575px) {
+    .adotar-form {
+        padding: 22px 18px 24px;
+    }
+
+    .adotar-linha,
+    .adotar-linha-contato {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* Em uma coluna só, a caixa não precisa do espaço do rótulo e o campo escondido não pode deixar um vazio */
+    .adotar-parcelada {
+        margin-top: 0;
+    }
+
+    .adotar-parcelas[data-oculto] {
+        display: none;
+    }
+
+    .adotar-arquivo-escolhido {
+        flex-wrap: wrap;
+    }
+}

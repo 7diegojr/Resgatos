@@ -17,6 +17,10 @@ public class UploadService
 
     private readonly IWebHostEnvironment _env;
 
+    // Termos de adoção ficam FORA da wwwroot (App_Data/termos): têm dados pessoais e não podem abrir por URL pública.
+    // Quem entrega o arquivo é a action Adotados/Termo, que exige login.
+    private string PastaTermos => Path.Combine(_env.ContentRootPath, "App_Data", "termos");
+
     public UploadService(IWebHostEnvironment env)
     {
         _env = env;
@@ -56,6 +60,48 @@ public class UploadService
     // Comprovante do gasto (imagem ou PDF)
     public Task<string> SalvarComprovanteTransparenciaAsync(IFormFile arquivo) =>
         SalvarAsync(arquivo, PastaTransparencia, permitirPdf: true);
+
+    // Termo de adoção assinado (imagem ou PDF). Devolve só o NOME do arquivo para gravar no banco.
+    public async Task<string> SalvarTermoAdotadoAsync(IFormFile arquivo)
+    {
+        var extensao = await DetectarExtensaoAsync(arquivo, permitirPdf: true)
+            ?? throw new InvalidOperationException("Arquivo inválido.");
+
+        Directory.CreateDirectory(PastaTermos);
+
+        var nomeArquivo = Guid.NewGuid().ToString("N") + extensao;
+        await using (var destino = File.Create(Path.Combine(PastaTermos, nomeArquivo)))
+        {
+            await arquivo.CopyToAsync(destino);
+        }
+
+        return nomeArquivo;
+    }
+
+    // Caminho completo do termo no disco; null se o nome é inválido ou o arquivo não existe
+    public string CaminhoFisicoTermo(string nomeArquivo)
+    {
+        // Só nome de arquivo puro: nada de "..", pastas ou barras
+        if (string.IsNullOrWhiteSpace(nomeArquivo) || nomeArquivo != Path.GetFileName(nomeArquivo)) return null;
+
+        var completo = Path.Combine(PastaTermos, nomeArquivo);
+        return File.Exists(completo) ? completo : null;
+    }
+
+    public void ExcluirTermo(string nomeArquivo)
+    {
+        var completo = CaminhoFisicoTermo(nomeArquivo);
+        if (completo == null) return;
+
+        try
+        {
+            File.Delete(completo);
+        }
+        catch (IOException)
+        {
+            // Arquivo em uso ou sem permissão: não vale derrubar a página por isso.
+        }
+    }
 
     private async Task<string> SalvarAsync(IFormFile arquivo, string pastaRelativa, bool permitirPdf)
     {

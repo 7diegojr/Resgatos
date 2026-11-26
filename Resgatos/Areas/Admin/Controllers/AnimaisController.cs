@@ -34,7 +34,8 @@ public class AnimaisController : AdminBaseController
     {
         filtro.Busca = filtro.Busca?.Trim();
 
-        var todos = _context.Animais.AsNoTracking();
+        // Animal adotado sai desta lista e passa a aparecer só na página Adotados (Sprint 14)
+        var todos = _context.Animais.AsNoTracking().Where(a => a.Status != StatusAnimal.Adotado);
 
         // ---------- Abas de status: contagem de cada um (não depende da busca) ----------
         var contagens = await todos
@@ -105,6 +106,7 @@ public class AnimaisController : AdminBaseController
                 Cor = a.Cor,
                 Especie = a.Especie,
                 Sexo = a.Sexo,
+                Porte = a.Porte,
                 FaixaEtaria = a.FaixaEtaria,
                 IdadeEstimada = a.IdadeEstimada,
                 Status = a.Status,
@@ -150,6 +152,9 @@ public class AnimaisController : AdminBaseController
             .FirstOrDefaultAsync(a => a.IdAnimal == id);
 
         if (animal == null) return NotFound();
+
+        // Animal adotado só aparece na página Adotados (Sprint 14)
+        if (animal.Status == StatusAnimal.Adotado) return RedirectToAction("Index", "Adotados", new { area = "Admin", busca = animal.Nome });
 
         return View(animal);
     }
@@ -211,6 +216,9 @@ public class AnimaisController : AdminBaseController
 
         if (animal == null) return NotFound();
 
+        // Animal adotado só aparece na página Adotados (Sprint 14)
+        if (animal.Status == StatusAnimal.Adotado) return RedirectToAction("Index", "Adotados", new { area = "Admin", busca = animal.Nome });
+
         var form = new AnimalFormViewModel
         {
             IdAnimal = animal.IdAnimal,
@@ -251,6 +259,9 @@ public class AnimaisController : AdminBaseController
             .FirstOrDefaultAsync(a => a.IdAnimal == id);
 
         if (animal == null) return NotFound();
+
+        // Animal adotado só aparece na página Adotados (Sprint 14)
+        if (animal.Status == StatusAnimal.Adotado) return RedirectToAction("Index", "Adotados", new { area = "Admin", busca = animal.Nome });
 
         form.IdAnimal = id; // vale o id da URL, não o que veio no formulário
 
@@ -305,6 +316,9 @@ public class AnimaisController : AdminBaseController
         var animal = await _context.Animais.FirstOrDefaultAsync(a => a.IdAnimal == id);
         if (animal == null) return NotFound();
 
+        // Animal adotado só aparece na página Adotados (Sprint 14)
+        if (animal.Status == StatusAnimal.Adotado) return RedirectToAction("Index", "Adotados", new { area = "Admin", busca = animal.Nome });
+
         animal.ExcluidoEm = DateTime.Now;
         await _context.SaveChangesAsync();
 
@@ -320,6 +334,10 @@ public class AnimaisController : AdminBaseController
     // então aparecem logo abaixo dele na tela.
     private async Task ValidarRegrasAsync(AnimalFormViewModel form, List<IFormFile> novasFotos, int fotosMantidas)
     {
+        // "Adotado" só é definido pelo botão de adoção da lista (que também registra quem adotou)
+        if (form.Status == StatusAnimal.Adotado)
+            ModelState.AddModelError(nameof(form.Status), "Para marcar como adotado, use o botão de adoção na lista de animais.");
+
         form.Nome = form.Nome?.Trim();
         form.Cor = form.Cor?.Trim();
         form.IdadeEstimada = form.IdadeEstimada?.Trim();

@@ -86,6 +86,7 @@ public class AnimalAdminItemViewModel
     public string Cor { get; set; }
     public EspecieAnimal Especie { get; set; }
     public SexoAnimal Sexo { get; set; }
+    public PorteAnimal Porte { get; set; }
     public FaixaEtariaAnimal FaixaEtaria { get; set; }
     public string IdadeEstimada { get; set; }
     public StatusAnimal Status { get; set; }
