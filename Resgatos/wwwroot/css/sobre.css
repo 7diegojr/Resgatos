@@ -85,7 +85,7 @@
 
 .member-info span {
     display: inline-block;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--white);
     background-color: var(--pink-500);
@@ -96,8 +96,16 @@
 }
 
 .member-info p {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.4;
+}
+
+.text-body-member{
+    margin: 0;
+}
+
+.text-body-purpose{
+    font-size: 17px;
 }
 
 /* ============ RESULTADOS ============ */
@@ -164,7 +172,11 @@
     border: var(--border-soft);
     border-left: 6px solid var(--pink-500);
     border-radius: 16px;
-    padding: 32px 48px;
+    padding: 75px 48px;
+    height: 138px !important;
+    min-height: 138px;
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
 .purpose-card-number {
