@@ -53,10 +53,13 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/admin/animais.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin/adotados.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/adotar-modal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin/adotado-modal.css" asp-append-version="true" />
 }
 
 @section Scripts {
     <script src="~/js/admin/adotados.js" asp-append-version="true"></script>
+    <script src="~/js/admin/adotado-modal.js" asp-append-version="true"></script>
 }
 
 <header class="admin-page-header">
@@ -116,12 +119,11 @@ else
     else
     {
         @* ============ Cards (3 por linha) ============ *@
-        <ul class="adotados-grid" aria-label="Adoções registradas">
+        <ul class="adotados-grid" aria-label="Adoções registradas" data-abrir="@Model.AbrirId">
             @foreach (var a in Model.Adotados)
             {
-                @* Próximo passo: o card abre o modal de detalhamento (pagamentos, trocar o termo, desfazer adoção).
-                   Por isso o data-id já está aqui. *@
-                <li class="adotado-card" data-id="@a.IdAdotado">
+                @* O card todo abre o modal de detalhes (adotado-modal.js). Tudo o que o modal mostra vai no data-detalhes (JSON). *@
+                <li class="adotado-card" data-id="@a.IdAdotado" data-detalhes="@a.DetalhesJson">
                     @* Foto ocupa toda a lateral esquerda, colada nas bordas (como no card da página pública de adoção) *@
                     <div class="adotado-foto">
                         @if (!string.IsNullOrEmpty(a.FotoCapa))
@@ -135,7 +137,12 @@ else
                     </div>
 
                     <div class="adotado-corpo">
-                        <h2 class="adotado-animal">@a.NomeAnimal</h2>
+                        @* O nome é um botão que estica um ::after por cima do card (mesmo truque do card da página pública de adoção):
+                           clicar em qualquer lugar do card abre o modal e o teclado também alcança. *@
+                        <h2 class="adotado-animal">
+                            <button type="button" class="adotado-abrir" aria-haspopup="dialog"
+                                    aria-label="Ver detalhes da adoção d@(a.Sexo.ArtigoDefinido()) @a.NomeAnimal">@a.NomeAnimal</button>
+                        </h2>
 
                         <p class="adotado-adotante">
                             <small>Adotad@(a.Sexo.ArtigoDefinido()) por</small>
@@ -170,10 +177,6 @@ else
                             </div>
                         </dl>
 
-                        <p class="adotado-endereco">
-                            <small>Endereço</small>
-                            <span>@a.EnderecoAdotante</span>
-                        </p>
                     </div>
                 </li>
             }
@@ -225,4 +228,10 @@ else
             }
         </div>
     }
+}
+
+@* Modal de detalhes da adoção (aberto ao clicar em um card) *@
+@if (!semAdotados)
+{
+    <partial name="_ModalAdotado" />
 }

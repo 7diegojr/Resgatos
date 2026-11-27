@@ -14,6 +14,27 @@ public static class AdotadoExtensions
         return $"{artigo.ToUpper()} {nomeAnimal} foi marcad{artigo} como adotad{artigo} por {nomeAdotante}.";
     }
 
+    // "Os dados da adoção da Mel foram atualizados."
+    public static string MensagemAdocaoEditada(this SexoAnimal sexo, string nomeAnimal) =>
+        $"Os dados da adoção d{sexo.ArtigoDefinido()} {nomeAnimal} foram atualizados.";
+
+    // Texto do modal de confirmação ao excluir a adoção (sem lixeira: some de vez, junto com o termo anexado).
+    // "A adoção da Mel por Maria Silva será excluída de vez, junto com o termo anexado. Não vai para a lixeira e não dá para desfazer. A Mel volta para a lista de animais como Disponível."
+    public static string AvisoExcluirAdocao(this SexoAnimal sexo, string nomeAnimal, string nomeAdotante, bool temTermo)
+    {
+        var artigo = sexo.ArtigoDefinido();
+        var termo = temTermo ? ", junto com o termo anexado" : "";
+        return $"A adoção d{artigo} {nomeAnimal} por {nomeAdotante} será excluída de vez{termo}. " +
+               $"Não vai para a lixeira e não dá para desfazer. {artigo.ToUpper()} {nomeAnimal} volta para a lista de animais como Disponível.";
+    }
+
+    // "A adoção da Mel foi excluída. A Mel voltou para a lista de animais."
+    public static string MensagemAdocaoExcluida(this SexoAnimal sexo, string nomeAnimal)
+    {
+        var artigo = sexo.ArtigoDefinido();
+        return $"A adoção d{artigo} {nomeAnimal} foi excluída. {artigo.ToUpper()} {nomeAnimal} voltou para a lista de animais.";
+    }
+
     // Aceita "189,90", "1.234,50", "R$ 150"... Mesma regra do campo de valor da Transparência.
     public static bool TentarLerValor(string texto, out decimal valor)
     {

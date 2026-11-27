@@ -153,8 +153,10 @@ public class AnimaisController : AdminBaseController
 
         if (animal == null) return NotFound();
 
-        // Animal adotado só aparece na página Adotados (Sprint 14)
-        if (animal.Status == StatusAnimal.Adotado) return RedirectToAction("Index", "Adotados", new { area = "Admin", busca = animal.Nome });
+        // Animal adotado: abre normalmente (vem do modal da adoção), com o caminho de volta para ele
+        var idAdotado = await IdAdocaoAsync(animal);
+        if (animal.Status == StatusAnimal.Adotado && idAdotado == null) return RedirectToAction("Index", "Adotados", new { area = "Admin", busca = animal.Nome });
+        ViewData["IdAdotado"] = idAdotado;
 
         return View(animal);
     }
@@ -216,12 +218,14 @@ public class AnimaisController : AdminBaseController
 
         if (animal == null) return NotFound();
 
-        // Animal adotado só aparece na página Adotados (Sprint 14)
-        if (animal.Status == StatusAnimal.Adotado) return RedirectToAction("Index", "Adotados", new { area = "Admin", busca = animal.Nome });
+        // Animal adotado: pode ser editado (vem do modal da adoção); o status fica fixo em "Adotado"
+        var idAdotado = await IdAdocaoAsync(animal);
+        if (animal.Status == StatusAnimal.Adotado && idAdotado == null) return RedirectToAction("Index", "Adotados", new { area = "Admin", busca = animal.Nome });
 
         var form = new AnimalFormViewModel
         {
             IdAnimal = animal.IdAnimal,
+            IdAdotado = idAdotado,
             Especie = animal.Especie,
             Nome = animal.Nome,
             Sexo = animal.Sexo,
@@ -260,16 +264,21 @@ public class AnimaisController : AdminBaseController
 
         if (animal == null) return NotFound();
 
-        // Animal adotado só aparece na página Adotados (Sprint 14)
-        if (animal.Status == StatusAnimal.Adotado) return RedirectToAction("Index", "Adotados", new { area = "Admin", busca = animal.Nome });
+        var idAdotado = await IdAdocaoAsync(animal);
+        if (animal.Status == StatusAnimal.Adotado && idAdotado == null) return RedirectToAction("Index", "Adotados", new { area = "Admin", busca = animal.Nome });
 
         form.IdAnimal = id; // vale o id da URL, não o que veio no formulário
+        form.IdAdotado = idAdotado;
+
+        // Animal adotado continua adotado: o status não muda por aqui (vale o do banco, e não o que veio no formulário)
+        var jaAdotado = animal.Status == StatusAnimal.Adotado;
+        if (jaAdotado) form.Status = StatusAnimal.Adotado;
 
         var idsRemover = form.FotosRemover.ToHashSet();
         var fotosMantidas = animal.Fotos.Where(f => !idsRemover.Contains(f.IdAnimalFoto)).ToList();
         var novasFotos = form.NovasFotos.Where(f => f.Length > 0).ToList();
 
-        await ValidarRegrasAsync(form, novasFotos, fotosMantidas.Count);
+        await ValidarRegrasAsync(form, novasFotos, fotosMantidas.Count, jaAdotado);
         if (!ModelState.IsValid)
         {
             CarregarFotosExistentes(form, animal);
@@ -301,6 +310,9 @@ public class AnimaisController : AdminBaseController
         fotosRemovidas.ForEach(f => _upload.ExcluirArquivo(f.Foto));
 
         TempData["Sucesso"] = $"As alterações de {animal.Nome} foram salvas.";
+
+        // Animal adotado: volta para o modal da adoção (a página Adotados abre com ele aberto)
+        if (jaAdotado) return RedirectToAction("Index", "Adotados", new { area = "Admin", abrir = idAdotado });
         return RedirectToAction(nameof(Index));
     }
 
@@ -330,12 +342,25 @@ public class AnimaisController : AdminBaseController
     // AUXILIARES
     // =====================================================================
 
+    // Id da adoção do animal (null = não está adotado). Usado para o "voltar para a adoção" das telas de ver e editar.
+    private async Task<int?> IdAdocaoAsync(Animal animal)
+    {
+        if (animal.Status != StatusAnimal.Adotado) return null;
+
+        return await _context.Adotados
+            .AsNoTracking()
+            .Where(a => a.IdAnimal == animal.IdAnimal)
+            .Select(a => (int?)a.IdAdotado)
+            .FirstOrDefaultAsync();
+    }
+
     // Regras que as anotações do formulário não cobrem. Os erros usam o nome do campo,
     // então aparecem logo abaixo dele na tela.
-    private async Task ValidarRegrasAsync(AnimalFormViewModel form, List<IFormFile> novasFotos, int fotosMantidas)
+    private async Task ValidarRegrasAsync(AnimalFormViewModel form, List<IFormFile> novasFotos, int fotosMantidas, bool jaAdotado = false)
     {
-        // "Adotado" só é definido pelo botão de adoção da lista (que também registra quem adotou)
-        if (form.Status == StatusAnimal.Adotado)
+        // "Adotado" só é definido pelo botão de adoção da lista (que também registra quem adotou).
+        // Quem já está adotado mantém o status.
+        if (form.Status == StatusAnimal.Adotado && !jaAdotado)
             ModelState.AddModelError(nameof(form.Status), "Para marcar como adotado, use o botão de adoção na lista de animais.");
 
         form.Nome = form.Nome?.Trim();

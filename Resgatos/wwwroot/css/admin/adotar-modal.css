@@ -32,45 +32,54 @@
     padding-right: 48px;        /* espaço para o botão de fechar */
 }
 
-/* ---------- Animal (em cima): só a foto à esquerda; à direita, nome e informações (em duas linhas) numa caixa com borda ---------- */
+/* ---------- Animal (em cima): um quadro só, com a foto colada na lateral esquerda e o nome e as informações ao lado ----------
+   Mesmo esquema do card da página Adotados: o quadro arredonda os cantos e corta a foto (overflow), então só os cantos da esquerda
+   ficam arredondados; os da direita (em cima e embaixo) ficam retos. A foto é quadrada: o JS mede a altura das informações e grava
+   em --foto-lado, e o CSS usa esse valor como largura (largura = altura). Sem JS vale 160px. */
 .adotar-animal {
     display: flex;
     align-items: stretch;
-    gap: 22px;
+    flex-shrink: 0;             /* o formulário é uma coluna flex com altura máxima: sem isto, o overflow abaixo deixava o quadro encolher até sumir */
+    overflow: hidden;
+    border: var(--border-soft);
+    border-radius: 18px;
 }
 
 .adotar-foto {
-    flex: 0 0 160px;
-    width: 160px;
-    height: 160px;
+    position: relative;
+    flex: 0 0 var(--foto-lado, 160px);
+    max-width: 45%;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    border-radius: 18px;
     background-color: color-mix(in srgb, var(--pink-500) 22%, transparent);
     color: var(--pink-500);
     font-size: 48px;
 }
 
+/* A foto preenche a altura toda do quadro sem esticar (e sem aumentar o quadro) */
 .adotar-foto img {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;          /* quadrada, sem esticar */
+    object-fit: cover;
+}
+
+.adotar-foto img[hidden] {
+    display: none;
 }
 
 .adotar-animal-info {
     flex: 1;
     min-width: 0;
-    min-height: 160px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 14px;
-    padding: 16px 22px;
-    border: var(--border-soft);
-    border-radius: 18px;
+    gap: 16px;
+    min-height: 176px;          /* foto quadrada de no mínimo 176px e informações com folga */
+    padding: 22px 26px;
 }
 
 .adotar-animal-nome {
@@ -122,7 +131,7 @@
 
 /* ---------- Blocos do formulário ---------- */
 .adotar-bloco-titulo {
-    margin-bottom: 14px;
+    margin-bottom: 6px;
     font-size: 19px;
     color: var(--blue-700);
 }
@@ -321,14 +330,16 @@
 
 /* ============ Telas menores ============ */
 @media (max-width: 767px) {
+    /* Em tela estreita a foto vai para cima, ocupando a largura do quadro */
     .adotar-animal {
         flex-direction: column;
-        align-items: stretch;
     }
 
     .adotar-foto {
         flex: none;
-        margin-inline: auto;
+        width: 100%;
+        max-width: none;
+        height: 200px;
     }
 
     .adotar-animal-info {

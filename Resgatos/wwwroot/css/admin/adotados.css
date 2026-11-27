@@ -30,6 +30,8 @@
    o card arredonda os cantos e o overflow corta a foto, então só os cantos da esquerda ficam arredondados.
    A altura do card é a do conteúdo (sem min-height): assim o termo e a taxa terminam colados no padding de baixo. */
 .adotado-card {
+    position: relative;          /* o botão com o nome estica um ::after por cima do card (ver .adotado-abrir) */
+    cursor: pointer;
     display: flex;
     align-items: stretch;
     min-width: 0;
@@ -37,6 +39,42 @@
     border: var(--border-soft);
     border-radius: 24px;
     background-color: var(--white);
+    transition: transform 0.3s;  /* a mesma subidinha dos cards de animais do site público */
+}
+
+.adotado-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Botão com o nome do animal: parece só o título, mas o ::after cobre o card inteiro e o clique em qualquer lugar abre o modal */
+.adotado-abrir {
+    display: block;
+    max-width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+}
+
+.adotado-abrir::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+/* O foco aparece no card todo, e não só em volta do nome */
+.adotado-abrir:focus-visible {
+    outline: none;
+}
+
+.adotado-card:has(.adotado-abrir:focus-visible) {
+    outline: 3px solid var(--pink-500);
+    outline-offset: 3px;
 }
 
 /* ---------- Foto: lateral esquerda inteira ---------- */
@@ -83,8 +121,7 @@
     overflow-wrap: anywhere;
 }
 
-.adotado-adotante,
-.adotado-endereco {
+.adotado-adotante {
     display: flex;
     flex-direction: column;
     gap: 1px;
@@ -94,8 +131,7 @@
     overflow-wrap: anywhere;
 }
 
-.adotado-adotante small,
-.adotado-endereco small {
+.adotado-adotante small {
     font-size: 12px;
     font-weight: 700;
     opacity: 0.65;
@@ -114,12 +150,6 @@
     margin-right: 4px;
     font-size: 11px;
     color: var(--pink-500);
-}
-
-.adotado-endereco span {
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.35;
 }
 
 /* Data e taxa lado a lado (título em cima, valor embaixo) */
@@ -181,6 +211,12 @@ a.adotado-selo-ok:hover {
     color: var(--white);
 }
 
+/* O link do termo fica acima da camada clicável do card: clicar nele abre o termo, e não o modal */
+a.adotado-selo-ok {
+    position: relative;
+    z-index: 2;
+}
+
 /* ---------- Rodapé ---------- */
 .adotados-footer {
     display: flex;
@@ -211,5 +247,15 @@ a.adotado-selo-ok:hover {
 
     .adotados-footer {
         justify-content: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .adotado-card {
+        transition: none;
+    }
+
+    .adotado-card:hover {
+        transform: none;
     }
 }

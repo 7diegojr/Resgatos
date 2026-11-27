@@ -11,6 +11,11 @@ public class AnimalFormViewModel
     public int IdAnimal { get; set; }
     public bool EhEdicao => IdAnimal > 0;
 
+    // Preenchido pelo controller (nunca vem do formulário) quando o animal está adotado: é o id da adoção dele.
+    // Com isso a edição fixa o status em "Adotado" e o "Cancelar" volta para o modal da adoção.
+    public int? IdAdotado { get; set; }
+    public bool EstaAdotado => IdAdotado.HasValue;
+
     // ---------- Dados ----------
     [Required(ErrorMessage = "Selecione a espécie.")]
     public EspecieAnimal? Especie { get; set; }

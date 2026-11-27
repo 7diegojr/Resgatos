@@ -115,7 +115,19 @@
                 <span class="field-error" role="alert">@Erro("IdadeEstimada")</span>
             </div>
 
-            <partial name="_CampoSelect" model="campoStatus" />
+            @if (Model.EstaAdotado)
+            {
+                @* Animal adotado: o status não se escolhe aqui (muda sozinho ao excluir a adoção). O campo escondido mantém o valor no envio. *@
+                <div class="form-field">
+                    <span class="form-field-rotulo">Status</span>
+                    <div class="campo-fixo">Adotado</div>
+                    <input type="hidden" id="Status" name="Status" value="Adotado" />
+                </div>
+            }
+            else
+            {
+                <partial name="_CampoSelect" model="campoStatus" />
+            }
 
             @* Só mês e ano: o sistema calcula sozinho há quanto tempo o animal está no Resgatos *@
             <div class="@ClasseCampo("DataChegada")" id="campo-chegada">
@@ -280,6 +292,13 @@
             <i class="fa-solid fa-check" aria-hidden="true"></i>
             <span>@(edicao ? "Salvar alterações" : "Cadastrar animal")</span>
         </button>
-        <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Animais" asp-action="Index">Cancelar</a>
+        @if (Model.EstaAdotado)
+        {
+            <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Adotados" asp-action="Index" asp-route-abrir="@Model.IdAdotado">Cancelar</a>
+        }
+        else
+        {
+            <a class="admin-btn admin-btn-outline" asp-area="Admin" asp-controller="Animais" asp-action="Index">Cancelar</a>
+        }
     </div>
 </form>

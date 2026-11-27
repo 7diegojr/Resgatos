@@ -1,0 +1,297 @@
+@*
+    Modal de detalhes da adoção (Sprint 14). Fica na página Adotados e abre ao clicar em um card.
+    O adotado-modal.js preenche tudo com o JSON do card (data-detalhes).
+
+    Tem dois modos, guardados em data-modo no <dialog>:
+      "ver"    mostra as informações (só leitura) e as ações Editar / Excluir adoção.
+      "editar" troca os textos por campos (dados de quem adotou, taxa, observações e termo) e mostra Salvar / Cancelar.
+    O que é só de um modo leva a classe .so-ver ou .so-editar (o CSS esconde o outro, veja adotado-modal.css).
+
+    Os dados do animal são só leitura aqui; as ações ao lado do nome levam às telas de ver e editar o animal (e voltam para este modal).
+    Excluir usa o modal de confirmação do painel (data-confirmar), que o JS preenche com o texto certo.
+    Os ids começam com "ado-" para não bater com os do modal "Marcar como adotado" (que fica na página de Animais).
+*@
+@{
+    var hoje = DateTime.Today.ToString("yyyy-MM-dd");
+}
+
+<dialog class="admin-modal adotar-modal adotado-modal" id="modal-adotado" data-modo="ver" aria-labelledby="ado-titulo"
+        data-raiz="@Url.Content("~/")"
+        data-url-termo="@Url.Action("Termo", "Adotados", new { area = "Admin", id = "__ID__" })"
+        data-url-excluir="@Url.Action("Excluir", "Adotados", new { area = "Admin", id = "__ID__" })"
+        data-url-animal-ver="@Url.Action("Detalhes", "Animais", new { area = "Admin", id = "__ID__" })"
+        data-url-animal-editar="@Url.Action("Editar", "Animais", new { area = "Admin", id = "__ID__" })">
+    <button type="button" class="filtros-fechar" data-fechar-adotado aria-label="Fechar">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+
+    <form method="post" id="form-adotado" class="adotar-form" enctype="multipart/form-data" novalidate
+          asp-area="Admin" asp-controller="Adotados" asp-action="Editar">
+        <input type="hidden" name="IdAdotado" id="ado-id" />
+        <input type="hidden" name="RemoverTermo" id="ado-remover-termo" value="false" />
+
+        <header class="adotar-topo">
+            <h2 class="filtros-titulo" id="ado-titulo"></h2>
+            <p class="filtros-sub so-ver" id="ado-sub-ver"></p>
+            <p class="filtros-sub so-editar">Altere o que precisar e salve. Os campos com <span class="form-required">*</span> são obrigatórios.</p>
+        </header>
+
+        @* ===================== Animal (só leitura) ===================== *@
+        <section class="adotar-animal" aria-label="Animal">
+            <div class="adotar-foto">
+                <img id="ado-foto-img" alt="" hidden />
+                <span class="adotar-foto-vazia" id="ado-foto-vazia" aria-hidden="true"><i class="fa-solid fa-paw"></i></span>
+            </div>
+
+            <div class="adotar-animal-info">
+                <div class="adotado-animal-topo">
+                    <h3 class="adotar-animal-nome" id="ado-animal-nome"></h3>
+
+                    @* Mesmas telas da lista de Animais (ver e editar). Nas duas, o caminho de volta é este modal. Só no modo ver:
+                       na edição da adoção, sair para outra página perderia o que foi digitado. *@
+                    <div class="row-actions adotado-animal-acoes so-ver">
+                        <a class="row-action" id="ado-animal-ver" title="Ver detalhes do animal">
+                            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                        </a>
+                        <a class="row-action" id="ado-animal-editar" title="Editar o animal">
+                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <ul class="adotar-fatos">
+                    <li><small>Espécie</small><strong id="ado-especie"></strong></li>
+                    <li><small>Sexo</small><strong id="ado-sexo"></strong></li>
+                    <li class="fato-idade"><small>Idade</small><strong id="ado-idade"></strong></li>
+                    <li><small>Porte</small><strong id="ado-porte"></strong></li>
+                    <li><small>Cor</small><strong id="ado-cor"></strong></li>
+                    <li><small>No Resgatos</small><strong id="ado-tempo"></strong></li>
+                    <li><small>Castrado</small><strong id="ado-castrado"></strong></li>
+                    <li id="ado-saude-item"><small>Saúde</small><strong id="ado-saude"></strong></li>
+                </ul>
+            </div>
+        </section>
+
+        <p class="form-alert" id="ado-alerta" role="alert" hidden>
+            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            <span></span>
+        </p>
+
+        @* ===================== Quem adotou ===================== *@
+        <section class="adotar-bloco" aria-labelledby="ado-t-adotante">
+            <h3 class="adotar-bloco-titulo" id="ado-t-adotante">Quem adotou</h3>
+
+            <dl class="adotado-info so-ver">
+                <div><dt>Nome</dt><dd id="v-nome"></dd></div>
+                <div><dt>Telefone / WhatsApp</dt><dd id="v-telefone"></dd></div>
+                <div><dt>E-mail</dt><dd id="v-email"></dd></div>
+                <div><dt>Endereço</dt><dd id="v-endereco"></dd></div>
+            </dl>
+
+            <div class="adotar-campos so-editar">
+                <div class="form-field">
+                    <label for="ado-NomeAdotante">Nome completo<span class="form-required" aria-hidden="true">*</span></label>
+                    <input type="text" id="ado-NomeAdotante" name="NomeAdotante" maxlength="150" autocomplete="off"
+                           placeholder="Ex.: Maria da Silva" data-required data-msg="Informe o nome de quem adotou." />
+                    <span class="field-error" role="alert"></span>
+                </div>
+
+                <div class="adotar-linha adotar-linha-contato">
+                    <div class="form-field">
+                        <label for="ado-Telefone">Telefone / WhatsApp<span class="form-required" aria-hidden="true">*</span></label>
+                        <input type="text" id="ado-Telefone" name="Telefone" maxlength="15" inputmode="tel" autocomplete="off"
+                               placeholder="(41) 99999-9999" data-required data-msg="Informe o telefone." />
+                        <span class="field-error" role="alert"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="ado-Email">E-mail<span class="form-required" aria-hidden="true">*</span></label>
+                        <input type="text" id="ado-Email" name="Email" maxlength="150" inputmode="email" autocomplete="off"
+                               placeholder="nome@email.com" data-required data-msg="Informe o e-mail." />
+                        <span class="field-error" role="alert"></span>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="ado-Endereco">Endereço completo<span class="form-required" aria-hidden="true">*</span></label>
+                    <input type="text" id="ado-Endereco" name="Endereco" maxlength="255" autocomplete="off"
+                           placeholder="Rua, número, bairro, Curitiba" data-required data-msg="Informe o endereço completo." />
+                    <span class="field-error" role="alert"></span>
+                </div>
+            </div>
+        </section>
+
+        @* ===================== A adoção ===================== *@
+        <section class="adotar-bloco" aria-labelledby="ado-t-adocao">
+            <h3 class="adotar-bloco-titulo" id="ado-t-adocao">A adoção</h3>
+
+            <dl class="adotado-info adotado-info-3 so-ver">
+                <div><dt>Data da adoção</dt><dd id="v-data"></dd></div>
+                <div><dt>Valor da taxa</dt><dd id="v-valor"></dd></div>
+                <div><dt>Pagamento</dt><dd id="v-pagamento"></dd></div>
+            </dl>
+
+            <div class="adotar-campos so-editar">
+                <div class="adotar-linha">
+                    <div class="form-field">
+                        <label for="ado-DataAdocao">Data da adoção<span class="form-required" aria-hidden="true">*</span></label>
+                        <input type="date" id="ado-DataAdocao" name="DataAdocao" max="@hoje" data-required data-msg="Informe a data da adoção." />
+                        <span class="field-error" role="alert"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="ado-Valor">Valor da taxa<span class="form-required" aria-hidden="true">*</span></label>
+                        <div class="campo-valor">
+                            <span class="campo-valor-prefixo" aria-hidden="true">R$</span>
+                            <input type="text" id="ado-Valor" name="Valor" inputmode="decimal" maxlength="14" autocomplete="off"
+                                   placeholder="0,00" data-required data-msg="Informe o valor da taxa." />
+                        </div>
+                        <span class="field-error" role="alert"></span>
+                    </div>
+                </div>
+
+                <div class="adotar-linha">
+                    <div class="form-field">
+                        <label for="ado-TaxaParcelada">A taxa foi parcelada?</label>
+                        <label class="check-card adotar-parcelada">
+                            <input type="checkbox" id="ado-TaxaParcelada" name="TaxaParcelada" value="true" />
+                            <span class="check-box" aria-hidden="true"></span>
+                            <span>Sim, foi parcelada</span>
+                        </label>
+                    </div>
+
+                    @* Sempre ocupa o lugar (só fica invisível) para o modal não mudar de tamanho ao marcar a caixa *@
+                    <div class="form-field adotar-parcelas" id="ado-campo-parcelas" data-oculto>
+                        <label for="ado-QtdParcelas">Em quantas parcelas?<span class="form-required" aria-hidden="true">*</span></label>
+                        <input type="text" id="ado-QtdParcelas" name="QtdParcelas" inputmode="numeric" maxlength="2" autocomplete="off"
+                               placeholder="Ex.: 3" disabled />
+                        <span class="field-error" role="alert"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @* ===================== Observações (opcional) ===================== *@
+        <section class="adotar-bloco" aria-labelledby="ado-t-obs">
+            <h3 class="adotar-bloco-titulo" id="ado-t-obs">Observações</h3>
+
+            <div class="so-ver">
+                <p class="adotado-obs" id="v-obs" hidden></p>
+
+                <div class="adotado-vazio" id="v-obs-vazio" hidden>
+                    <span>Nenhuma observação registrada.</span>
+                    <button type="button" class="adotado-add" data-editar-foco="obs">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i> Adicionar observações
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-field so-editar">
+                <textarea id="ado-Observacoes" name="Observacoes" class="textarea-curta" maxlength="500" rows="3"
+                          aria-label="Observações (opcional)"
+                          placeholder="Conte o que ajudar: outros animais em casa, tipo de moradia, cuidados combinados..."></textarea>
+                <span class="field-error" role="alert"></span>
+            </div>
+        </section>
+
+        @* ===================== Termo assinado (opcional) ===================== *@
+        <section class="adotar-bloco" aria-labelledby="ado-t-termo">
+            <h3 class="adotar-bloco-titulo" id="ado-t-termo">Termo de adoção assinado</h3>
+
+            @* --- Modo ver --- *@
+            <div class="so-ver">
+                <div class="adotar-arquivo-escolhido" id="v-termo-ok" hidden>
+                    <span class="adotar-arquivo-icone" aria-hidden="true"><i class="fa-solid fa-file-circle-check"></i></span>
+                    <span class="adotar-arquivo-textos">
+                        <strong>Termo anexado</strong>
+                        <small>Abre em uma nova aba</small>
+                    </span>
+                    <a class="adotado-link-btn" id="v-termo-abrir" target="_blank" rel="noopener">
+                        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Abrir termo
+                    </a>
+                </div>
+
+                <div class="adotado-vazio" id="v-termo-vazio" hidden>
+                    <span>Nenhum termo anexado ainda.</span>
+                    <button type="button" class="adotado-add" data-editar-foco="termo">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i> Adicionar termo
+                    </button>
+                </div>
+            </div>
+
+            @* --- Modo editar --- *@
+            <div class="form-field so-editar" id="ado-campo-termo">
+                <p class="form-hint">Foto ou PDF, até 5 MB.</p>
+
+                <input type="file" id="ado-Termo" name="Termo" class="visually-hidden" accept="image/jpeg,image/png,image/webp,application/pdf" />
+
+                @* Termo que já está salvo *@
+                <div class="adotar-arquivo-escolhido" id="ado-termo-atual" hidden>
+                    <span class="adotar-arquivo-icone" aria-hidden="true"><i class="fa-solid fa-file-circle-check"></i></span>
+                    <span class="adotar-arquivo-textos">
+                        <strong>Termo anexado</strong>
+                        <small>É o que está salvo agora</small>
+                    </span>
+                    <span class="adotado-termo-acoes">
+                        <a class="adotado-link-btn" id="ado-termo-abrir" target="_blank" rel="noopener">
+                            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Abrir
+                        </a>
+                        <button type="button" class="adotado-link-btn" id="ado-termo-trocar">
+                            <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Trocar
+                        </button>
+                        <button type="button" class="adotar-arquivo-remover" id="ado-termo-tirar" aria-label="Remover o termo anexado">
+                            <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remover
+                        </button>
+                    </span>
+                </div>
+
+                @* Arquivo novo escolhido (substitui o atual ao salvar) *@
+                <div class="adotar-arquivo-escolhido" id="ado-termo-novo" hidden>
+                    <span class="adotar-arquivo-icone" aria-hidden="true"><i class="fa-solid fa-file-circle-plus"></i></span>
+                    <span class="adotar-arquivo-textos">
+                        <strong id="ado-termo-nome"></strong>
+                        <small id="ado-termo-tamanho"></small>
+                    </span>
+                    <button type="button" class="adotar-arquivo-remover" id="ado-termo-descartar" aria-label="Descartar o arquivo escolhido">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i> Descartar
+                    </button>
+                </div>
+
+                @* Termo atual marcado para sair *@
+                <p class="adotado-aviso-termo" id="ado-termo-aviso" hidden>
+                    <span><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> O termo atual será removido ao salvar.</span>
+                    <button type="button" class="adotado-link-btn" id="ado-termo-manter">Manter o termo</button>
+                </p>
+
+                @* Área de escolher / arrastar *@
+                <label for="ado-Termo" class="adotar-arquivo-zona" id="ado-termo-zona">
+                    <span class="adotar-arquivo-icone" aria-hidden="true"><i class="fa-solid fa-file-arrow-up"></i></span>
+                    <span class="adotar-arquivo-textos">
+                        <strong>Clique para escolher o termo</strong>
+                        <small>ou arraste e solte aqui</small>
+                    </span>
+                </label>
+
+                <span class="field-error" role="alert"></span>
+            </div>
+        </section>
+
+        @* ===================== Ações ===================== *@
+        <div class="form-actions adotar-acoes so-ver">
+            <button type="button" class="admin-btn admin-btn-primary" id="ado-editar">
+                <i class="fa-solid fa-pen" aria-hidden="true"></i><span>Editar</span>
+            </button>
+            @* O JS preenche data-url, data-titulo e data-texto de acordo com a adoção aberta *@
+            <button type="button" class="admin-btn admin-btn-danger-outline" id="ado-excluir" data-confirmar data-botao="Excluir adoção">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Excluir adoção</span>
+            </button>
+        </div>
+
+        <div class="form-actions adotar-acoes so-editar">
+            <button type="submit" class="admin-btn admin-btn-primary" id="ado-salvar">
+                <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>Salvar alterações</span>
+            </button>
+            <button type="button" class="admin-btn admin-btn-outline" id="ado-cancelar">Cancelar</button>
+        </div>
+    </form>
+</dialog>

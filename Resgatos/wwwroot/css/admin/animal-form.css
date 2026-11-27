@@ -237,3 +237,23 @@ button.foto-opcao:focus-visible > span {
         gap: 12px;
     }
 }
+
+/* ============ Status fixo (animal adotado) ============ */
+/* Mostra o status como texto, no mesmo tamanho dos campos ao lado (o rótulo imita o <label> dos outros campos) */
+.form-field-rotulo {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.campo-fixo {
+    display: flex;
+    align-items: center;
+    min-height: 46px;
+    padding: 10px 16px;
+    border: var(--border-soft);
+    border-radius: 12px;
+    background-color: color-mix(in srgb, var(--blue-700) 6%, transparent);
+    color: var(--blue-700);
+    font-size: 15px;
+    font-weight: 800;
+}

@@ -1,0 +1,230 @@
+/*
+  Admin > Adotados > modal de detalhes da adoção (Sprint 14).
+  Usa junto o adotar-modal.css (animal em cima, campos, área do termo, botões) e o admin.css.
+  Aqui só ficam as peças que são só deste modal: os dois modos (ver / editar) e as informações em texto.
+*/
+
+/* ============ Dois modos no mesmo modal ============ */
+/* data-modo="ver" esconde o que é só da edição; data-modo="editar" esconde o que é só da visualização.
+   O !important vence o display das classes de cada bloco (form-field, adotar-campos...). */
+.adotado-modal[data-modo="ver"] .so-editar,
+.adotado-modal[data-modo="editar"] .so-ver {
+    display: none !important;
+}
+
+.adotado-modal [hidden] {
+    display: none !important;
+}
+
+/* Mesmas duas regras do modal "Marcar como adotado", só que para os ids deste modal */
+#ado-campo-termo {
+    position: relative;     /* o input escondido fica DENTRO da área que rola (senão o modal "pula" ao escolher o arquivo) */
+}
+
+#ado-Termo:focus-visible ~ .adotar-arquivo-zona {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+/* ============ Nome do animal + ações (ver / editar o animal) ============ */
+/* Na mesma linha do nome, as duas ações ficam coladas na direita do quadro. Os botões são os da lista de Animais (.row-action). */
+.adotado-animal-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.adotado-animal-topo .adotar-animal-nome {
+    min-width: 0;
+}
+
+.adotado-animal-acoes {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+/* 36 x 36 só neste modal (na lista de Animais o .row-action continua com 38 x 38) */
+.adotado-animal-acoes .row-action {
+    width: 36px;
+    height: 36px;
+}
+
+/* ============ Informações em texto (modo ver) ============ */
+.adotado-info {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 22px;
+    margin: 0;
+}
+
+.adotado-info-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.adotado-info dt {
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.65;
+}
+
+.adotado-info dd {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+/* ============ Observações (modo ver) ============ */
+.adotado-obs {
+    margin: 0;
+    padding: 14px 18px;
+    border: var(--border-soft);
+    border-radius: 14px;
+    font-size: 15px;
+    line-height: 1.5;
+    white-space: pre-wrap;        /* respeita as quebras de linha que foram digitadas */
+    overflow-wrap: anywhere;
+}
+
+/* "Nenhuma observação" / "Nenhum termo" com o botão de adicionar ao lado */
+.adotado-vazio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 12px 18px;
+    border: 2px dashed color-mix(in srgb, var(--blue-700) 25%, transparent);
+    border-radius: 14px;
+    font-size: 15px;
+}
+
+.adotado-vazio > span {
+    opacity: 0.7;
+}
+
+.adotado-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--pink-500) 18%, transparent);
+    color: var(--admin-pink-dark);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.adotado-add:hover {
+    background-color: var(--pink-500);
+    color: var(--white);
+}
+
+.adotado-add:focus-visible,
+.adotado-link-btn:focus-visible {
+    outline: 2px solid var(--pink-500);
+    outline-offset: 2px;
+}
+
+/* ============ Termo ============ */
+/* Botão-link (Abrir, Trocar, Manter o termo): o mesmo formato do "Remover", em azul */
+.adotado-link-btn {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--blue-700) 10%, transparent);
+    color: var(--blue-700);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.adotado-link-btn:hover {
+    background-color: var(--blue-700);
+    color: var(--white);
+}
+
+.adotado-termo-acoes {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* Termo marcado para sair: aviso em âmbar (não é erro, só um lembrete antes de salvar) */
+.adotado-aviso-termo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin: 0;
+    padding: 12px 18px;
+    border-radius: 14px;
+    background-color: color-mix(in srgb, var(--admin-amber) 12%, transparent);
+    color: var(--admin-amber);
+    font-size: 14.5px;
+    font-weight: 700;
+}
+
+.adotado-aviso-termo i {
+    margin-right: 6px;
+}
+
+/* Os blocos do termo (atual, novo, aviso, área de escolher) ficam um embaixo do outro */
+#ado-campo-termo {
+    gap: 10px;
+}
+
+/* ============ Telas menores ============ */
+@media (max-width: 767px) {
+    .adotado-info-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575px) {
+    .adotado-info,
+    .adotado-info-3 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .adotado-modal .adotar-arquivo-escolhido {
+        flex-wrap: wrap;
+    }
+
+    .adotado-termo-acoes {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .adotado-modal .form-actions {
+        flex-direction: column;
+    }
+
+    .adotado-modal .form-actions .admin-btn {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .adotado-add,
+    .adotado-link-btn {
+        transition: none;
+    }
+}

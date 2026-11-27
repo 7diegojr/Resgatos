@@ -31,6 +31,21 @@
 
     function $(id) { return document.getElementById(id); }
 
+    /* ============ Foto quadrada ============ */
+    // A foto ocupa a lateral esquerda do quadro do animal, então a largura dela é a altura das informações.
+    // O JS mede essa altura e grava em --foto-lado (o CSS usa como largura). Mede de novo sempre que a altura muda
+    // (o modal abrindo, o texto sendo preenchido, a tela redimensionada).
+    var quadroAnimal = modal.querySelector(".adotar-animal");
+    var infoAnimal = modal.querySelector(".adotar-animal-info");
+    if (quadroAnimal && infoAnimal && typeof ResizeObserver !== "undefined") {
+        new ResizeObserver(function () {
+            window.requestAnimationFrame(function () {
+                var altura = infoAnimal.offsetHeight;
+                if (altura > 0) quadroAnimal.style.setProperty("--foto-lado", altura + "px");
+            });
+        }).observe(infoAnimal);
+    }
+
     /* ============ 1. Abrir, preencher e fechar ============ */
     function preencherAnimal(b) {
         function dado(nome) { return b.getAttribute("data-" + nome) || ""; }

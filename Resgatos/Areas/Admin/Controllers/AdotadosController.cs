@@ -9,8 +9,8 @@ using Resgatos.Services;
 namespace Resgatos.Areas.Admin.Controllers;
 
 // Sprint 14: gestão de adotados.
-// Index (cards), Registrar (modal "Marcar como adotado" da lista de Animais) e Termo (abre o termo anexado, só com login).
-// Detalhamento (pagamentos, trocar o termo) e desfazer adoção ficam para o próximo passo.
+// Index (cards), Registrar (modal "Marcar como adotado" da lista de Animais), Termo (abre o termo anexado, só com login),
+// Editar (modal de detalhes: altera os dados, anexa/troca/remove o termo e as observações) e Excluir (desfaz a adoção).
 public class AdotadosController : AdminBaseController
 {
     private const int TamanhoPagina = 12;
@@ -36,20 +36,55 @@ public class AdotadosController : AdminBaseController
         var todos = _context.Adotados.AsNoTracking();
         var totalGeral = await todos.CountAsync();
 
-        var consulta = todos;
-        if (!string.IsNullOrWhiteSpace(filtro.Busca))
+        // Busca e filtros rápidos (Espécie e Termo)
+        IQueryable<Adotado> Filtrar()
         {
-            consulta = consulta.Where(a =>
-                a.NomeAdotante.Contains(filtro.Busca) || a.Animal.Nome.Contains(filtro.Busca));
+            var q = todos;
+            if (!string.IsNullOrWhiteSpace(filtro.Busca))
+            {
+                q = q.Where(a =>
+                    a.NomeAdotante.Contains(filtro.Busca) || a.Animal.Nome.Contains(filtro.Busca));
+            }
+
+            if (filtro.Especie.HasValue)
+                q = q.Where(a => a.Animal.Especie == filtro.Especie.Value);
+
+            if (filtro.Termo == FiltroTermoAdotado.Pendente)
+                q = q.Where(a => a.TermoAssinado == null);
+            else if (filtro.Termo == FiltroTermoAdotado.Anexado)
+                q = q.Where(a => a.TermoAssinado != null);
+
+            return q;
         }
 
-        if (filtro.Especie.HasValue)
-            consulta = consulta.Where(a => a.Animal.Especie == filtro.Especie.Value);
+        // ?abrir= (depois de salvar no modal, ou voltando das telas do animal): a adoção precisa aparecer mesmo que
+        // a edição a tenha tirado do filtro (ex.: filtro "Termo pendente" e o termo acabou de ser anexado). Se ela não
+        // passa mais nos filtros, eles são limpos.
+        if (filtro.Abrir.HasValue && !await Filtrar().AnyAsync(a => a.IdAdotado == filtro.Abrir.Value))
+        {
+            filtro.Busca = null;
+            filtro.Especie = null;
+            filtro.Termo = null;
+        }
 
-        if (filtro.Termo == FiltroTermoAdotado.Pendente)
-            consulta = consulta.Where(a => a.TermoAssinado == null);
-        else if (filtro.Termo == FiltroTermoAdotado.Anexado)
-            consulta = consulta.Where(a => a.TermoAssinado != null);
+        var consulta = Filtrar();
+
+        // Veio de "Voltar para a adoção" (detalhes ou edição do animal): vai direto para a página em que essa adoção está
+        // (a conta usa a mesma ordem da lista: quantas adoções vêm antes dela, dividido pelo tamanho da página).
+        if (filtro.Abrir.HasValue)
+        {
+            var alvo = await consulta
+                .Where(a => a.IdAdotado == filtro.Abrir.Value)
+                .Select(a => new { a.IdAdotado, a.DataAdocao })
+                .FirstOrDefaultAsync();
+
+            if (alvo != null)
+            {
+                var antes = await consulta.CountAsync(a =>
+                    a.DataAdocao > alvo.DataAdocao || (a.DataAdocao == alvo.DataAdocao && a.IdAdotado > alvo.IdAdotado));
+                filtro.Pagina = antes / TamanhoPagina + 1;
+            }
+        }
 
         // Adoção mais recente primeiro
         var ordenada = consulta.OrderByDescending(a => a.DataAdocao).ThenByDescending(a => a.IdAdotado);
@@ -76,12 +111,28 @@ public class AdotadosController : AdminBaseController
                     .FirstOrDefault(),
                 NomeAdotante = a.NomeAdotante,
                 TelefoneAdotante = a.TelefoneAdotante,
+                EmailAdotante = a.EmailAdotante,
                 EnderecoAdotante = a.EnderecoAdotante,
                 DataAdocao = a.DataAdocao,
                 ValorTaxa = a.ValorTaxa,
                 TaxaParcelada = a.TaxaParcelada,
                 QtdParcelas = a.QtdParcelas,
-                TermoAnexado = a.TermoAssinado != null
+                TermoAnexado = a.TermoAssinado != null,
+                Observacoes = a.Observacoes,
+                CriadoEm = a.CriadoEm,
+
+                // Do animal: aparecem só no modal de detalhes
+                Cor = a.Animal.Cor,
+                Porte = a.Animal.Porte,
+                FaixaEtaria = a.Animal.FaixaEtaria,
+                IdadeEstimada = a.Animal.IdadeEstimada,
+                DataChegada = a.Animal.DataChegada,
+                AntipulgasOk = a.Animal.AntipulgasOk,
+                VermifugadoOk = a.Animal.VermifugadoOk,
+                VacinadoOk = a.Animal.VacinadoOk,
+                CastradoOk = a.Animal.CastradoOk,
+                FivTestado = a.Animal.FivTestado,
+                FelvTestado = a.Animal.FelvTestado
             })
             .ToListAsync();
 
@@ -92,7 +143,8 @@ public class AdotadosController : AdminBaseController
             TotalGeral = totalGeral,
             TotalFiltrado = totalFiltrado,
             Pagina = pagina,
-            TamanhoPagina = TamanhoPagina
+            TamanhoPagina = TamanhoPagina,
+            AbrirId = filtro.Abrir.HasValue && cards.Any(c => c.IdAdotado == filtro.Abrir.Value) ? filtro.Abrir : null
         });
     }
 
@@ -189,6 +241,107 @@ public class AdotadosController : AdminBaseController
 
         TempData["Sucesso"] = animal.Sexo.MensagemAdotado(animal.Nome, adotado.NomeAdotante);
         return Json(new { ok = true, redirect = Url.Action(nameof(Index), "Adotados", new { area = "Admin" }) });
+    }
+
+    // =====================================================================
+    // EDITAR (modal de detalhes)
+    // =====================================================================
+    // Mesmo formato do Registrar: o modal envia por fetch e recebe { ok: true } ou { ok: false, erros, mensagem }.
+    // Quando dá certo, o modal recarrega a página (o aviso de sucesso vem do TempData).
+    // Termo: se veio um arquivo novo, ele substitui o atual; se veio RemoverTermo, o atual é apagado; senão, nada muda.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Editar(AdotadoEdicaoViewModel form)
+    {
+        var adotado = await _context.Adotados
+            .Include(a => a.Animal)
+            .FirstOrDefaultAsync(a => a.IdAdotado == form.IdAdotado);
+        if (adotado == null)
+            return Json(new { ok = false, mensagem = "Adoção não encontrada. Atualize a página e tente de novo." });
+
+        var erros = Validar(form, out var valor, out var telefone);
+
+        var termo = form.Termo != null && form.Termo.Length > 0 ? form.Termo : null;
+        if (termo != null)
+        {
+            var erroTermo = await _upload.ValidarComprovanteAsync(termo);
+            if (erroTermo != null) erros["Termo"] = $"\"{termo.FileName}\": {erroTermo}";
+        }
+
+        if (erros.Count > 0)
+            return Json(new { ok = false, erros });
+
+        adotado.NomeAdotante = form.NomeAdotante.Trim();
+        adotado.TelefoneAdotante = telefone;
+        adotado.EmailAdotante = form.Email.Trim();
+        adotado.EnderecoAdotante = form.Endereco.Trim();
+        adotado.DataAdocao = form.DataAdocao.Value.Date;
+        adotado.ValorTaxa = valor;
+        adotado.TaxaParcelada = form.TaxaParcelada;
+        adotado.QtdParcelas = form.TaxaParcelada ? form.QtdParcelas : null;
+        adotado.Observacoes = string.IsNullOrWhiteSpace(form.Observacoes) ? null : form.Observacoes.Replace("\r\n", "\n").Trim();
+
+        var termoAntigo = adotado.TermoAssinado;
+        string termoNovo = null;
+        try
+        {
+            if (termo != null)
+            {
+                termoNovo = await _upload.SalvarTermoAdotadoAsync(termo);
+                adotado.TermoAssinado = termoNovo;
+            }
+            else if (form.RemoverTermo)
+            {
+                adotado.TermoAssinado = null;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+        catch
+        {
+            // Não deixa o termo novo órfão no disco se o banco falhar
+            if (termoNovo != null) _upload.ExcluirTermo(termoNovo);
+            throw;
+        }
+
+        // O banco já está certo: agora sim apaga o arquivo que saiu (trocado ou removido)
+        if (termoAntigo != null && termoAntigo != adotado.TermoAssinado)
+            _upload.ExcluirTermo(termoAntigo);
+
+        TempData["Sucesso"] = adotado.Animal.Sexo.MensagemAdocaoEditada(adotado.Animal.Nome);
+        return Json(new { ok = true });
+    }
+
+    // =====================================================================
+    // EXCLUIR (desfazer a adoção)
+    // =====================================================================
+    // Sem lixeira: o registro e o termo anexado somem de vez. O animal volta para a lista de Animais como Disponível
+    // (se a adoção foi um engano, é o certo; se foi uma devolução, dá para trocar o status na edição do animal).
+    // Apagar o registro e voltar o status acontecem no mesmo SaveChanges (uma transação só).
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Excluir(int id)
+    {
+        var adotado = await _context.Adotados
+            .Include(a => a.Animal)
+            .FirstOrDefaultAsync(a => a.IdAdotado == id);
+        if (adotado == null)
+        {
+            TempData["Erro"] = "Adoção não encontrada. Ela pode já ter sido excluída.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var animal = adotado.Animal;
+        var termo = adotado.TermoAssinado;
+
+        _context.Adotados.Remove(adotado);
+        if (animal.Status == StatusAnimal.Adotado) animal.Status = StatusAnimal.Disponivel;
+        await _context.SaveChangesAsync();
+
+        _upload.ExcluirTermo(termo);   // só depois do banco: se ele falhar, o termo continua no disco
+
+        TempData["Sucesso"] = animal.Sexo.MensagemAdocaoExcluida(animal.Nome);
+        return RedirectToAction(nameof(Index));
     }
 
     // Regras que o modal também confere no navegador (o servidor sempre manda).

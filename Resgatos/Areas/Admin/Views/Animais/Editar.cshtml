@@ -7,9 +7,19 @@
     <link rel="stylesheet" href="~/css/admin/animal-form.css" asp-append-version="true" />
 }
 
-<a class="admin-back-link" asp-area="Admin" asp-controller="Animais" asp-action="Index">
-    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para os animais
-</a>
+@* Animal adotado: o "voltar" leva de volta para o modal da adoção *@
+@if (Model.EstaAdotado)
+{
+    <a class="admin-back-link" asp-area="Admin" asp-controller="Adotados" asp-action="Index" asp-route-abrir="@Model.IdAdotado">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para a adoção
+    </a>
+}
+else
+{
+    <a class="admin-back-link" asp-area="Admin" asp-controller="Animais" asp-action="Index">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para os animais
+    </a>
+}
 
 <header class="admin-page-header">
     <div class="admin-page-header-text">
